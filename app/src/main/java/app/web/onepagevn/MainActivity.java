@@ -39,7 +39,7 @@ public class MainActivity extends Activity
 			LG
 		}
 		
-		int px = getResources().getDimensionPixelSize(R.dimen.dialogFontSM);
+		int px = getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalLG);
 		Toast.makeText(this, px + "", Toast.LENGTH_SHORT).show();
 		LinearLayout testLayout = findViewById(R.id.testLayout);
 		LayoutInflater inflater = LayoutInflater.from(this);
@@ -110,9 +110,9 @@ public class MainActivity extends Activity
 				String[] sttTypes = {"Error", "Success", "Warning", "Info", "Log"};
 				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
 				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
-				List<HashMap<String, String>> types = new ArrayList<HashMap<String, String>>();
+				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
 				for (String type : sttTypes) {
-					HashMap<String, String> line = new HashMap<String, String>();
+					HashMap<String, Object> line = new HashMap<String, Object>();
 					line.put("type", type);
 					line.put("message", type);
 					types.add(line);
@@ -167,9 +167,9 @@ public class MainActivity extends Activity
 					.setIcon(R.drawable.ico_clipboard_list)
 					.setPositiveButton("Ok", null)
 					.setNeutralButton("Detail", null);
-				List<HashMap<String, String>> stts = new ArrayList<HashMap<String, String>>();
+				List<HashMap<String, Object>> stts = new ArrayList<HashMap<String, Object>>();
 				for (int i = 0; i < 35; i++) {
-					HashMap<String, String> log = new HashMap<String, String>();
+					HashMap<String, Object> log = new HashMap<String, Object>();
 					switch (i) {
 						case 0:
 							log.put("type", "Warning");
@@ -191,6 +191,8 @@ public class MainActivity extends Activity
 							log.put("type", "Log");
 							log.put("message", "log msg...");
 					}
+					Date now = new Date();
+					log.put("timestamp", now);
 					stts.add(log);
 				}
 				ListAdapter sttAdapter = new StatusAdapter(MainActivity.this, stts);

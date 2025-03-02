@@ -3,17 +3,19 @@ import android.content.*;
 import android.view.*;
 import android.widget.*;
 import java.util.*;
+import android.util.*;
+import java.text.*;
 
-public class StatusAdapter extends ArrayAdapter<HashMap<String, String>> {
+public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	private Context context;
 	private DialogSize size;
 	
-	public StatusAdapter(Context context, List<HashMap<String, String>> logs) {
+	public StatusAdapter(Context context, List<HashMap<String, Object>> logs) {
 		super(context, R.layout.status_logs, logs);
 		initial(context, DialogSize.SMALL);
 	}
 	
-	public StatusAdapter(Context context, List<HashMap<String, String>> logs, DialogSize size) {
+	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size) {
 		super(context, R.layout.status_logs, logs);
 		initial(context, size);
 	}
@@ -32,9 +34,11 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, String>> {
 		ImageView imgStatus = view.findViewById(R.id.status_logsIvStatus);
 		TextView tvTime = view.findViewById(R.id.status_logsTvTime);
 		TextView tvStatus = view.findViewById(R.id.status_logsTvStatus);
+		int iconSize, iconMarginH, cPaddingH, cPaddingV;
+		float fontSize;
 		
-		HashMap<String, String> log = getItem(position);
-		String type = log.get("type");
+		HashMap<String, Object> log = getItem(position);
+		String type = (String) log.get("type");
 		switch (type) {
 			case "Error":
 				imgStatus.setImageResource(R.drawable.ico_bug);
@@ -54,32 +58,42 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, String>> {
 		
 		switch (size) {
 			case MEDIUM:
-				int fontSize = context.getResources().getDimensionPixelSize(R.dimen.dialogFontMD);
-				int iconSize = context.getResources().getDimensionPixelSize(R.dimen.iconWidth20);
-				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
-				params.setMargins(0, 0, 30, 0);
-				imgStatus.setLayoutParams(params);
-				container.setPadding(65, 20, 65, 20);
+				fontSize = context.getResources().getDimension(R.dimen.dialogFontMD);
+				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMD);
+				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalMD);
+				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalMD);
+				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalMD);
 				break;
 			case LARGE:
-				int fontSize = context.getResources().getDimensionPixelSize(R.dimen.dialogFontLG);
-				int iconSize = context.getResources().getDimensionPixelSize(R.dimen.iconWidth24);
-				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
-				params.setMargins(0, 0, 30, 0);
-				imgStatus.setLayoutParams(params);
-				container.setPadding(65, 20, 65, 20);
+				fontSize = context.getResources().getDimension(R.dimen.dialogFontLG);
+				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconLG);
+				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalLG);
+				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalLG);
+				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalLG);
 				break;
 			default:
-				int fontSize = context.getResources().getDimensionPixelSize(R.dimen.dialogFontSM);
-				int iconSize = context.getResources().getDimensionPixelSize(R.dimen.iconWidth16);
-				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
-				params.setMargins(0, 0, 30, 0);
-				imgStatus.setLayoutParams(params);
-				container.setPadding(65, 20, 65, 20);
+				fontSize = context.getResources().getDimension(R.dimen.dialogFontSM);
+				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconSM);
+				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalSM);
+				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalSM);
+				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalSM);
 		}
 		
-		String status = log.get("message");
+		Date timeStamp = (Date) log.get("timestamp");
+		if (timeStamp != null) {
+			DateFormat vnDateTime = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
+			String time = vnDateTime.format(timeStamp) + " :";
+			tvTime.setText(time);
+			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
+		}
+		
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
+		params.setMargins(iconMarginH, 0, iconMarginH, 0);
+		imgStatus.setLayoutParams(params);
+		String status = (String) log.get("message");
 		tvStatus.setText(status);
+		tvStatus.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
+		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);
 		return view;
 	}
 }
