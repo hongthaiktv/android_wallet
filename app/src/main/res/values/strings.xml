@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Wallet</string>
+    <string name="act_admin">Admin</string>
+	<string name="act_editor">Editor</string>
+
+</resources>

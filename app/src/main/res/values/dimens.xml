@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<dimen name="iconWidth9">9dp</dimen>
+	<dimen name="iconWidth10">10dp</dimen>
+	<dimen name="iconWidth11">11dp</dimen>
+	<dimen name="iconWidth12">12dp</dimen>
+	<dimen name="iconWidth14">14dp</dimen>
+	<dimen name="iconWidth16">16dp</dimen>
+	<dimen name="iconWidth18">18dp</dimen>
+	<dimen name="iconWidth19.25">19.25dp</dimen>
+	<dimen name="iconWidth20">20dp</dimen>
+	<dimen name="iconWidth24">24dp</dimen>
+	<dimen name="iconWidth32">32dp</dimen>
+	<dimen name="iconHeight16">16dp</dimen>
+	<dimen name="iconHeight20">20dp</dimen>
+	<dimen name="iconHeight24">24dp</dimen>
+	<dimen name="iconHeight32">32dp</dimen>
+	<dimen name="iconWidth64">64dp</dimen>
+	<dimen name="iconHeight64">64dp</dimen>
+	<dimen name="iconDrawablePad5">5dp</dimen>
+	<dimen name="iconDrawablePad6">6dp</dimen>
+	<dimen name="topNavHeight">40dp</dimen>
+	<dimen name="dialogFontSM">20sp</dimen>
+	<dimen name="dialogFontMD">24sp</dimen>
+	<dimen name="dialogFontLG">28sp</dimen>
+</resources>

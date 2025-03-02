@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:gravity="center_horizontal"
+	android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/topNavHeight"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		android:layout_margin="5dp"
+		android:paddingHorizontal="5dp"
+		android:background="@color/primary">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Table:"
+			android:textColor="@color/white"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:drawableLeft="@drawable/ico_database"
+			android:drawablePadding="@dimen/iconDrawablePad5"
+			android:drawableTint="@color/white"/>
+
+		<TextView
+			android:id="@+id/mainTvTable"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:layout_weight="1"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:background="@drawable/round"
+			android:backgroundTint="@color/red"
+			android:textColor="@color/white"
+			android:paddingHorizontal="10dp"
+			android:layout_margin="5dp"
+			android:gravity="center"
+			android:singleLine="true"
+			android:drawableLeft="@drawable/ico_dollar_sign"
+			android:drawableRight="@drawable/ico_caret_down"
+			android:drawablePadding="@dimen/iconDrawablePad5"
+			android:drawableTint="@color/cyan"
+			android:text="99.500.000"/>
+
+		<Button
+			android:id="@+id/mainBtnAdmin"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:text="Adm"
+			style="?android:attr/buttonStyleSmall"
+			android:drawableLeft="@drawable/ico_user"
+			android:drawablePadding="@dimen/iconDrawablePad6"/>
+
+	</LinearLayout>
+	
+	<LinearLayout
+		android:id="@+id/testLayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	</LinearLayout>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_weight="1">
+		
+		<TableLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
+			<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Header1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Header2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Header3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Header4" /></TableRow>
+			<ScrollView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+				<TableLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent">
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Data4" /></TableRow>
+					<TableRow><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Footer1" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Footer2" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Footer3" /><TextView android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:padding="10dp" android:text="Footer4" /></TableRow>
+				</TableLayout>
+			</ScrollView>
+		</TableLayout>
+
+		<LinearLayout
+			android:layout_width="90dp"
+			android:layout_height="90dp"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentEnd="true"
+			android:gravity="center">
+
+			<ImageButton
+				android:id="@+id/mainIbFAB"
+				android:layout_width="55dp"
+				android:layout_height="55dp"
+				android:tint="@color/white"
+				android:scaleType="fitCenter"
+				android:padding="17dp"
+				android:src="@drawable/ib_fab"
+				android:background="@drawable/circle"/>
+
+		</LinearLayout>
+
+	</RelativeLayout>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		android:layout_marginHorizontal="5dp"
+		android:layout_marginBottom="5dp"
+		android:background="@color/primary">
+
+		<ImageView
+			android:id="@+id/mainIvIconStatus"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:padding="5dp"
+			android:background="@color/darkGreen"
+			android:src="@drawable/ico_info_circle"/>
+
+		<HorizontalScrollView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center_vertical">
+
+			<TextView
+				android:id="@+id/mainTvStatus"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:gravity="center_vertical"
+				android:paddingHorizontal="5dp"
+				android:singleLine="true"
+				android:text="Status... hhj jjgu  u u u u u y u u h y g  t t t t t y y y y u u u u u u u"
+				android:textColor="@color/white"/>
+
+		</HorizontalScrollView>
+
+	</LinearLayout>
+
+</LinearLayout>
+

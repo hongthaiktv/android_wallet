@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/status_logsLayoutContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+	android:gravity="center_vertical"
+	android:paddingVertical="2.5dp"
+	android:paddingHorizontal="10dp">
+	
+	<TextView
+		android:id="@+id/status_logsTvTime"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="5dp"/>
+	
+	<ImageView
+		android:id="@+id/status_logsIvStatus"
+		android:layout_width="@dimen/iconWidth16"
+		android:layout_height="@dimen/iconHeight16"
+		android:layout_marginHorizontal="5dp"/>
+	
+    <TextView
+		android:id="@+id/status_logsTvStatus"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/>
+	
+</LinearLayout>
