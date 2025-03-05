@@ -7,11 +7,7 @@ import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
-import android.widget.ActionMenuView.*;
 import java.util.*;
-
-import android.view.View.OnClickListener;
-import java.text.*;
 
 public class MainActivity extends Activity 
 {
@@ -39,8 +35,8 @@ public class MainActivity extends Activity
 			LG
 		}
 		
-		int px = getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalLG);
-		Toast.makeText(this, px + "", Toast.LENGTH_SHORT).show();
+		int px = getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
+		//Toast.makeText(this, px + "", Toast.LENGTH_SHORT).show();
 		LinearLayout testLayout = findViewById(R.id.testLayout);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
@@ -144,7 +140,6 @@ public class MainActivity extends Activity
 				LinearLayout lo = new LinearLayout(MainActivity.this);
 				lo.setOrientation(LinearLayout.VERTICAL);
 				lo.setPadding(50, 50, 50, 50);
-				LayoutParams params = new LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 				
 				for (String log : logs) {
 					TextView tv = new TextView(MainActivity.this);
@@ -168,7 +163,7 @@ public class MainActivity extends Activity
 					.setPositiveButton("Ok", null)
 					.setNeutralButton("Detail", null);
 				List<HashMap<String, Object>> stts = new ArrayList<HashMap<String, Object>>();
-				for (int i = 0; i < 35; i++) {
+				for (int i = 0; i < 20; i++) {
 					HashMap<String, Object> log = new HashMap<String, Object>();
 					switch (i) {
 						case 0:
@@ -187,12 +182,26 @@ public class MainActivity extends Activity
 							log.put("type", "Info");
 							log.put("message", "info msg...");
 							break;
+						case 18:
+							log.put("type", "Error");
+							log.put("message", "pass log record...");
+							Date yesterday = new Date("06 Mar 2026 18:30:40");
+							log.put("timestamp", yesterday);
+							break;
+						case 19:
+							log.put("type", "Warning");
+							log.put("message", "pass log record...");
+							Date preDay = new Date("05 Mar 2025 19:50:10");
+							log.put("timestamp", preDay);
+							break;
 						default:
 							log.put("type", "Log");
 							log.put("message", "log msg...");
 					}
-					Date now = new Date();
-					log.put("timestamp", now);
+					if (log.get("timestamp") == null) {
+						Date now = new Date();
+						log.put("timestamp", now);
+					}
 					stts.add(log);
 				}
 				ListAdapter sttAdapter = new StatusAdapter(MainActivity.this, stts);

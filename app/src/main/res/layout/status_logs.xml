@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-	android:gravity="center_vertical"
+	android:gravity="top"
 	android:paddingVertical="@dimen/dialogCPVerticalSM"
 	android:paddingHorizontal="@dimen/dialogCPHorizontalSM">
 	
@@ -14,10 +14,11 @@
 		android:layout_marginRight="5dp"/>
 	
 	<ImageView
-		android:id="@+id/status_logsIvStatus"
+		android:id="@+id/status_logsIvType"
 		android:layout_width="@dimen/dialogIconSM"
 		android:layout_height="@dimen/dialogIconSM"
-		android:layout_marginHorizontal="@dimen/dialogIconMHorizontalSM"/>
+		android:layout_marginHorizontal="@dimen/dialogIconMHorizontalSM"
+		android:layout_marginTop="@dimen/dialogIconMTopSM"/>
 	
     <TextView
 		android:id="@+id/status_logsTvStatus"

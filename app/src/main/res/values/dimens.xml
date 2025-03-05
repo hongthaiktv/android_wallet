@@ -29,6 +29,9 @@
 	<dimen name="dialogIconMHorizontalSM">5dp</dimen>
 	<dimen name="dialogIconMHorizontalMD">7dp</dimen>
 	<dimen name="dialogIconMHorizontalLG">9dp</dimen>
+	<dimen name="dialogIconMTopSM">2dp</dimen>
+	<dimen name="dialogIconMTopMD">0.4dp</dimen>
+	<dimen name="dialogIconMTopLG">0dp</dimen>
 	<dimen name="dialogCPHorizontalSM">10dp</dimen>
 	<dimen name="dialogCPVerticalSM">2.5dp</dimen>
 	<dimen name="dialogCPHorizontalMD">12dp</dimen>

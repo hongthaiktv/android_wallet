@@ -1,9 +1,10 @@
 package app.web.onepagevn;
+
 import android.content.*;
 import android.view.*;
 import android.widget.*;
-import java.util.*;
 import android.util.*;
+import java.util.*;
 import java.text.*;
 
 public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
@@ -31,36 +32,20 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		LayoutInflater inflater = LayoutInflater.from(context);
 		View view = inflater.inflate(R.layout.status_logs, parent, false);
 		LinearLayout container = view.findViewById(R.id.status_logsLayoutContainer);
-		ImageView imgStatus = view.findViewById(R.id.status_logsIvStatus);
+		ImageView imgType = view.findViewById(R.id.status_logsIvType);
 		TextView tvTime = view.findViewById(R.id.status_logsTvTime);
 		TextView tvStatus = view.findViewById(R.id.status_logsTvStatus);
-		int iconSize, iconMarginH, cPaddingH, cPaddingV;
+		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
 		float fontSize;
 		
 		HashMap<String, Object> log = getItem(position);
-		String type = (String) log.get("type");
-		switch (type) {
-			case "Error":
-				imgStatus.setImageResource(R.drawable.ico_bug);
-				break;
-			case "Success":
-				imgStatus.setImageResource(R.drawable.ico_check_circle);
-				break;
-			case "Warning":
-				imgStatus.setImageResource(R.drawable.ico_exclamation_triangle);
-				break;
-			case "Info":
-				imgStatus.setImageResource(R.drawable.ico_info_circle);
-				break;
-			default:
-				imgStatus.setImageResource(R.drawable.ico_feather);
-		}
 		
 		switch (size) {
 			case MEDIUM:
 				fontSize = context.getResources().getDimension(R.dimen.dialogFontMD);
 				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMD);
 				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalMD);
+				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalMD);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalMD);
 				break;
@@ -68,6 +53,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 				fontSize = context.getResources().getDimension(R.dimen.dialogFontLG);
 				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconLG);
 				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalLG);
+				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopLG);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalLG);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalLG);
 				break;
@@ -75,24 +61,50 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 				fontSize = context.getResources().getDimension(R.dimen.dialogFontSM);
 				iconSize = context.getResources().getDimensionPixelSize(R.dimen.dialogIconSM);
 				iconMarginH = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMHorizontalSM);
+				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopSM);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalSM);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalSM);
 		}
 		
 		Date timeStamp = (Date) log.get("timestamp");
 		if (timeStamp != null) {
-			DateFormat vnDateTime = DateFormat.getTimeInstance(DateFormat.MEDIUM, Locale.UK);
-			String time = vnDateTime.format(timeStamp) + " :";
-			tvTime.setText(time);
+			Date now = new Date();
+			int dateNow = now.getDate(), monthNow = now.getMonth(), yearNow = now.getYear(),
+			dateLog = timeStamp.getDate(), monthLog = timeStamp.getMonth(), yearLog = timeStamp.getYear();
+			SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
+			if (dateLog != dateNow || monthLog != monthNow || yearLog != yearNow) {
+				formater.applyPattern("dd MMM HH:mm");
+			}
+			String dateTime = formater.format(timeStamp) + " :";
+			tvTime.setText(dateTime);
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		}
 		
+		String type = (String) log.get("type");
+		switch (type) {
+			case "Error":
+				imgType.setImageResource(R.drawable.ico_bug);
+				break;
+			case "Success":
+				imgType.setImageResource(R.drawable.ico_check_circle);
+				break;
+			case "Warning":
+				imgType.setImageResource(R.drawable.ico_exclamation_triangle);
+				break;
+			case "Info":
+				imgType.setImageResource(R.drawable.ico_info_circle);
+				break;
+			default:
+				imgType.setImageResource(R.drawable.ico_feather);
+		}
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
-		params.setMargins(iconMarginH, 0, iconMarginH, 0);
-		imgStatus.setLayoutParams(params);
+		params.setMargins(iconMarginH, iconMarginTop, iconMarginH, 0);
+		imgType.setLayoutParams(params);
+		
 		String status = (String) log.get("message");
 		tvStatus.setText(status);
 		tvStatus.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
+		
 		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);
 		return view;
 	}
