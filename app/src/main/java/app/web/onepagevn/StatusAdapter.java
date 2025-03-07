@@ -68,14 +68,26 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		
 		Date timeStamp = (Date) log.get("timestamp");
 		if (timeStamp != null) {
-			Date now = new Date();
-			int dateNow = now.getDate(), monthNow = now.getMonth(), yearNow = now.getYear(),
-			dateLog = timeStamp.getDate(), monthLog = timeStamp.getMonth(), yearLog = timeStamp.getYear();
-			SimpleDateFormat formater = new SimpleDateFormat("HH:mm:ss");
-			if (dateLog != dateNow || monthLog != monthNow || yearLog != yearNow) {
-				formater.applyPattern("dd MMM HH:mm");
+			DateFormat formater = DateFormat.getDateInstance(DateFormat.MEDIUM);
+			Date dateNow = null, dateLog = null;
+			try
+			{
+				dateNow = formater.parse(formater.format(new Date()));
+				dateLog = formater.parse(formater.format(timeStamp));
 			}
-			String dateTime = formater.format(timeStamp) + " :";
+			catch (ParseException e)
+			{Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();}
+			SimpleDateFormat sFormater = new SimpleDateFormat("HH:mm:ss");
+			if (dateLog.after(dateNow) && dateLog.getYear() > dateNow.getYear()) {
+				sFormater.applyPattern("'EST:' dd MMM yyyy HH:mm");
+			} else if (dateLog.after(dateNow)) {
+				sFormater.applyPattern("'EST:' dd MMM HH:mm");
+			} else if (dateLog.before(dateNow) && dateLog.getYear() < dateNow.getYear()) {
+				sFormater.applyPattern("dd MMM yyyy HH:mm");
+			} else if (dateLog.before(dateNow)) {
+				sFormater.applyPattern("dd MMM HH:mm");
+			}
+			String dateTime = sFormater.format(timeStamp) + " :";
 			tvTime.setText(dateTime);
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		}

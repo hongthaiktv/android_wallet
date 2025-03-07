@@ -8,6 +8,7 @@ import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.util.*;
+import java.text.*;
 
 public class MainActivity extends Activity 
 {
@@ -35,8 +36,22 @@ public class MainActivity extends Activity
 			LG
 		}
 		
-		int px = getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
-		//Toast.makeText(this, px + "", Toast.LENGTH_SHORT).show();
+		Date now = new Date();
+		Date compDate = new Date("Mar 8, 2025 20:30:40");
+		DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+		Date dateNow = null, dateComp = null;
+		try
+		{
+			dateNow = df.parse(df.format(now));
+			dateComp = df.parse(df.format(compDate));
+		}
+		catch (ParseException e)
+		{}
+
+		//int px = getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
+		//Toast.makeText(this, dateNow.toLocaleString() + "", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, dateComp.toLocaleString() + "", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, dateComp.after(dateNow) + "", Toast.LENGTH_SHORT).show();
 		LinearLayout testLayout = findViewById(R.id.testLayout);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
@@ -169,10 +184,12 @@ public class MainActivity extends Activity
 						case 0:
 							log.put("type", "Warning");
 							log.put("message", "wrn msg... dndb dhdb sjrj kdndn dndnnnd sndjdj djrjjrn kejrjdnn dbdbbdh djrjjr nzndn eiriir.......");
+							log.put("timestamp", new Date("01 Jan 2026 20:30:40"));
 							break;
 						case 1:
 							log.put("type", "Success");
 							log.put("message", "success msg...");
+							log.put("timestamp", new Date("09 Mar 2025 00:50:40"));
 							break;
 						case 2:
 							log.put("type", "Error");
@@ -185,13 +202,13 @@ public class MainActivity extends Activity
 						case 18:
 							log.put("type", "Error");
 							log.put("message", "pass log record...");
-							Date yesterday = new Date("06 Mar 2026 18:30:40");
+							Date yesterday = new Date("07 Mar 2025 18:30:40");
 							log.put("timestamp", yesterday);
 							break;
 						case 19:
 							log.put("type", "Warning");
 							log.put("message", "pass log record...");
-							Date preDay = new Date("05 Mar 2025 19:50:10");
+							Date preDay = new Date("05 Mar 2024 19:50:10");
 							log.put("timestamp", preDay);
 							break;
 						default:
