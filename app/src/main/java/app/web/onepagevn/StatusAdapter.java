@@ -10,20 +10,44 @@ import java.text.*;
 public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	private Context context;
 	private DialogSize size;
+	private String estPrefix = "'EST: '";
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs) {
 		super(context, R.layout.status_logs, logs);
-		initial(context, DialogSize.SMALL);
+		initial(context, DialogSize.SMALL, null);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size) {
 		super(context, R.layout.status_logs, logs);
-		initial(context, size);
+		initial(context, size, null);
 	}
 	
-	private void initial(Context context, DialogSize size) {
+	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, String estPrefix) {
+		super(context, R.layout.status_logs, logs);
+		initial(context, DialogSize.SMALL, estPrefix);
+	}
+	
+	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size, String estPrefix) {
+		super(context, R.layout.status_logs, logs);
+		initial(context, size, estPrefix);
+	}
+	
+	private void initial(Context context, DialogSize size, String estPrefix) {
 		this.context = context;
 		this.size = size;
+		if (estPrefix != null) setEstPrefix(estPrefix);
+	}
+	
+	public StatusAdapter setSize(DialogSize size)
+	{
+		this.size = size;
+		return this;
+	}
+	
+	public StatusAdapter setEstPrefix(String estPrefix)
+	{
+		this.estPrefix = estPrefix.equals("") ? "" : "'" + estPrefix + ": '";
+		return this;
 	}
 
 	@Override
@@ -68,26 +92,28 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		
 		Date timeStamp = (Date) log.get("timestamp");
 		if (timeStamp != null) {
-			DateFormat formater = DateFormat.getDateInstance(DateFormat.MEDIUM);
+			SimpleDateFormat formater = new SimpleDateFormat("MMM d, yyyy");
+			Date now = new Date();
 			Date dateNow = null, dateLog = null;
 			try
 			{
-				dateNow = formater.parse(formater.format(new Date()));
+				dateNow = formater.parse(formater.format(now));
 				dateLog = formater.parse(formater.format(timeStamp));
 			}
 			catch (ParseException e)
 			{Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();}
-			SimpleDateFormat sFormater = new SimpleDateFormat("HH:mm:ss");
-			if (dateLog.after(dateNow) && dateLog.getYear() > dateNow.getYear()) {
-				sFormater.applyPattern("'EST:' dd MMM yyyy HH:mm");
-			} else if (dateLog.after(dateNow)) {
-				sFormater.applyPattern("'EST:' dd MMM HH:mm");
-			} else if (dateLog.before(dateNow) && dateLog.getYear() < dateNow.getYear()) {
-				sFormater.applyPattern("dd MMM yyyy HH:mm");
+			if (dateLog.equals(dateNow) && timeStamp.before(now)) {
+				formater.applyPattern("HH:mm:ss");
+			} else if (dateLog.before(dateNow) && dateLog.getYear() == dateNow.getYear()) {
+				formater.applyPattern("dd MMM HH:mm");
 			} else if (dateLog.before(dateNow)) {
-				sFormater.applyPattern("dd MMM HH:mm");
-			}
-			String dateTime = sFormater.format(timeStamp) + " :";
+				formater.applyPattern("dd MMM yyyy HH:mm");
+			} else if (dateLog.equals(dateNow) && timeStamp.after(now)) {
+				formater.applyPattern(estPrefix + "HH:mm:ss");
+			} else if (dateLog.after(dateNow) && dateLog.getYear() == dateNow.getYear()) {
+				formater.applyPattern(estPrefix + "dd MMM HH:mm");
+			} else formater.applyPattern(estPrefix + "dd MMM yyyy HH:mm");
+			String dateTime = formater.format(timeStamp) + " :";
 			tvTime.setText(dateTime);
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		}

@@ -37,8 +37,9 @@ public class MainActivity extends Activity
 		}
 		
 		Date now = new Date();
-		Date compDate = new Date("Mar 8, 2025 20:30:40");
-		DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+		Date compDate = new Date("Mar 7, 2025 20:30:40");
+		DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
+		SimpleDateFormat sdf = new SimpleDateFormat("d MMM, yy");
 		Date dateNow = null, dateComp = null;
 		try
 		{
@@ -50,8 +51,8 @@ public class MainActivity extends Activity
 
 		//int px = getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
 		//Toast.makeText(this, dateNow.toLocaleString() + "", Toast.LENGTH_SHORT).show();
-		//Toast.makeText(this, dateComp.toLocaleString() + "", Toast.LENGTH_SHORT).show();
-		//Toast.makeText(this, dateComp.after(dateNow) + "", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, df.format(compDate) + "", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "a 'b'", Toast.LENGTH_SHORT).show();
 		LinearLayout testLayout = findViewById(R.id.testLayout);
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
@@ -189,11 +190,12 @@ public class MainActivity extends Activity
 						case 1:
 							log.put("type", "Success");
 							log.put("message", "success msg...");
-							log.put("timestamp", new Date("09 Mar 2025 00:50:40"));
+							log.put("timestamp", new Date("11 Mar 2025 00:50:40"));
 							break;
 						case 2:
 							log.put("type", "Error");
 							log.put("message", "err msg...");
+							log.put("timestamp", new Date("10 Mar 2025 23:55:40"));
 							break;
 						case 3:
 							log.put("type", "Info");
