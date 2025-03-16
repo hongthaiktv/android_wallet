@@ -150,13 +150,14 @@
 
 			<TextView
 				android:id="@+id/mainTvStatus"
-				android:layout_width="match_parent"
+				android:layout_width="500dp"
 				android:layout_height="match_parent"
 				android:gravity="center_vertical"
 				android:paddingHorizontal="5dp"
 				android:singleLine="true"
 				android:text="abc def"
-				android:textColor="@color/white"/>
+				android:textColor="@color/white"
+				android:background="@color/orange"/>
 
 		</HorizontalScrollView>
 
