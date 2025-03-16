@@ -36,13 +36,7 @@ public class MainActivity extends Activity
 //		StatusBar.error("abc err");
 		
 		//Toast.makeText(this, arrStr[0] + "\n" + arrInt[0], Toast.LENGTH_SHORT).show();
-		
-//		LinearLayout testLayout = findViewById(R.id.testLayout);
-//		LayoutInflater inflater = LayoutInflater.from(this);
-//		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
-//		TextView testTV = view.findViewById(R.id.status_logsTvStatus);
-//		testTV.setText("new inf test with return obj");
-		
+			
 		tvTable.setOnClickListener(new OnClickListener() {
 			
 			@Override
