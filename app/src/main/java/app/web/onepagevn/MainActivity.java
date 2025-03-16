@@ -17,6 +17,7 @@ public class MainActivity extends Activity
 	ImageButton ibFAB;
 	ImageView ivIconStatus;
 	String tblName;
+	LinearLayout layoutStatusBar;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -29,35 +30,18 @@ public class MainActivity extends Activity
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
 		ibFAB = findViewById(R.id.mainIbFAB);
 		ivIconStatus = findViewById(R.id.mainIvIconStatus);
+		layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
 		
-		enum AppDimen {
-			SM,
-			MD,
-			LG
-		}
+//		StatusBar statusBar = StatusBar.getInstance(layoutStatusBar);
+//		StatusBar.error("abc err");
 		
-		Date now = new Date();
-		Date compDate = new Date("Mar 7, 2025 20:30:40");
-		DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
-		SimpleDateFormat sdf = new SimpleDateFormat("d MMM, yy");
-		Date dateNow = null, dateComp = null;
-		try
-		{
-			dateNow = df.parse(df.format(now));
-			dateComp = df.parse(df.format(compDate));
-		}
-		catch (ParseException e)
-		{}
-
-		//int px = getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
-		//Toast.makeText(this, dateNow.toLocaleString() + "", Toast.LENGTH_SHORT).show();
-		//Toast.makeText(this, df.format(compDate) + "", Toast.LENGTH_SHORT).show();
-		//Toast.makeText(this, "a 'b'", Toast.LENGTH_SHORT).show();
-		LinearLayout testLayout = findViewById(R.id.testLayout);
-		LayoutInflater inflater = LayoutInflater.from(this);
-		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
-		TextView testTV = view.findViewById(R.id.status_logsTvStatus);
-		testTV.setText("new inf test with return obj");
+		//Toast.makeText(this, arrStr[0] + "\n" + arrInt[0], Toast.LENGTH_SHORT).show();
+		
+//		LinearLayout testLayout = findViewById(R.id.testLayout);
+//		LayoutInflater inflater = LayoutInflater.from(this);
+//		View view = inflater.inflate(R.layout.status_logs, testLayout, true);
+//		TextView testTV = view.findViewById(R.id.status_logsTvStatus);
+//		testTV.setText("new inf test with return obj");
 		
 		tvTable.setOnClickListener(new OnClickListener() {
 			
@@ -119,19 +103,28 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View p1)
 			{
-				String[] sttTypes = {"Error", "Success", "Warning", "Info", "Log"};
 				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
 				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
 				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
-				for (String type : sttTypes) {
+				for (LogType type : LogType.values()) {
 					HashMap<String, Object> line = new HashMap<String, Object>();
 					line.put("type", type);
-					line.put("message", type);
+					String message = type.toString().toLowerCase();
+					line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
 					types.add(line);
 				}
 				ListAdapter typeAdapter = new StatusAdapter(MainActivity.this, types, DialogSize.LARGE);
 				dlgType.setAdapter(typeAdapter, null);
 				dlgType.create().show();
+			}
+		});
+		
+		layoutStatusBar.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view)
+			{
+				Toast.makeText(MainActivity.this, "aa", Toast.LENGTH_SHORT).show();
 			}
 		});
 		
@@ -183,38 +176,38 @@ public class MainActivity extends Activity
 					HashMap<String, Object> log = new HashMap<String, Object>();
 					switch (i) {
 						case 0:
-							log.put("type", "Warning");
+							log.put("type", LogType.WARNING);
 							log.put("message", "wrn msg... dndb dhdb sjrj kdndn dndnnnd sndjdj djrjjrn kejrjdnn dbdbbdh djrjjr nzndn eiriir.......");
 							log.put("timestamp", new Date("01 Jan 2026 20:30:40"));
 							break;
 						case 1:
-							log.put("type", "Success");
+							log.put("type", LogType.SUCCESS);
 							log.put("message", "success msg...");
-							log.put("timestamp", new Date("11 Mar 2025 00:50:40"));
+							log.put("timestamp", new Date("21 Mar 2025 00:50:40"));
 							break;
 						case 2:
-							log.put("type", "Error");
+							log.put("type", LogType.ERROR);
 							log.put("message", "err msg...");
-							log.put("timestamp", new Date("10 Mar 2025 23:55:40"));
+							log.put("timestamp", new Date("12 Mar 2025 23:55:40"));
 							break;
 						case 3:
-							log.put("type", "Info");
+							log.put("type", LogType.INFO);
 							log.put("message", "info msg...");
 							break;
 						case 18:
-							log.put("type", "Error");
+							log.put("type", LogType.ERROR);
 							log.put("message", "pass log record...");
 							Date yesterday = new Date("07 Mar 2025 18:30:40");
 							log.put("timestamp", yesterday);
 							break;
 						case 19:
-							log.put("type", "Warning");
+							log.put("type", LogType.WARNING);
 							log.put("message", "pass log record...");
 							Date preDay = new Date("05 Mar 2024 19:50:10");
 							log.put("timestamp", preDay);
 							break;
 						default:
-							log.put("type", "Log");
+							log.put("type", LogType.LOG);
 							log.put("message", "log msg...");
 					}
 					if (log.get("timestamp") == null) {

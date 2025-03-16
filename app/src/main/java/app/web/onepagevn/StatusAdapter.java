@@ -9,12 +9,12 @@ import java.text.*;
 
 public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	private Context context;
-	private DialogSize size;
-	private String estPrefix = "'EST: '";
+	private DialogSize size = DialogSize.SMALL;
+	private String estPrefix = "'(EST) '";
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs) {
 		super(context, R.layout.status_logs, logs);
-		initial(context, DialogSize.SMALL, null);
+		initial(context, null, null);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size) {
@@ -24,7 +24,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, String estPrefix) {
 		super(context, R.layout.status_logs, logs);
-		initial(context, DialogSize.SMALL, estPrefix);
+		initial(context, null, estPrefix);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size, String estPrefix) {
@@ -34,7 +34,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	
 	private void initial(Context context, DialogSize size, String estPrefix) {
 		this.context = context;
-		this.size = size;
+		if (size != null) this.size = size;
 		if (estPrefix != null) setEstPrefix(estPrefix);
 	}
 	
@@ -46,7 +46,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	
 	public StatusAdapter setEstPrefix(String estPrefix)
 	{
-		this.estPrefix = estPrefix.equals("") ? "" : "'" + estPrefix + ": '";
+		this.estPrefix = estPrefix.equals("") ? "" : "'" + estPrefix + "'";
 		return this;
 	}
 
@@ -118,22 +118,23 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		}
 		
-		String type = (String) log.get("type");
+		LogType type = (LogType) log.get("type");
 		switch (type) {
-			case "Error":
+			case ERROR:
 				imgType.setImageResource(R.drawable.ico_bug);
 				break;
-			case "Success":
+			case SUCCESS:
 				imgType.setImageResource(R.drawable.ico_check_circle);
 				break;
-			case "Warning":
+			case WARNING:
 				imgType.setImageResource(R.drawable.ico_exclamation_triangle);
 				break;
-			case "Info":
+			case INFO:
 				imgType.setImageResource(R.drawable.ico_info_circle);
 				break;
-			default:
+			case LOG:
 				imgType.setImageResource(R.drawable.ico_feather);
+				break;
 		}
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
 		params.setMargins(iconMarginH, iconMarginTop, iconMarginH, 0);
