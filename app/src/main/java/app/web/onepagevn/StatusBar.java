@@ -6,9 +6,20 @@ public class StatusBar
 	private static StatusBar instance;
 	private ImageView iconType;
 	private TextView status;
+	public static String crossPro = "def text";
 
 	private StatusBar()
 	{}
+
+	public static void setCrossPro(String crossPro)
+	{
+		StatusBar.crossPro = crossPro;
+	}
+
+	public static String getCrossPro()
+	{
+		return crossPro;
+	}
 
 	public static StatusBar getInstance(LinearLayout statusBar)
 	{

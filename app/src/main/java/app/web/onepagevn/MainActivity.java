@@ -32,11 +32,12 @@ public class MainActivity extends Activity
 		ivIconStatus = findViewById(R.id.mainIvIconStatus);
 		layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
 		
+		StatusBar.setCrossPro("set init txt");
 //		StatusBar statusBar = StatusBar.getInstance(layoutStatusBar);
 //		StatusBar.error("abc err");
 		
 		//Toast.makeText(this, arrStr[0] + "\n" + arrInt[0], Toast.LENGTH_SHORT).show();
-			
+		
 		tvTable.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -155,7 +156,15 @@ public class MainActivity extends Activity
 				dlgStatus.setTitle("Status Logs")
 					.setIcon(R.drawable.ico_clipboard_list)
 					.setPositiveButton("Ok", null)
-					.setNeutralButton("Detail", null);
+					.setNeutralButton("Detail", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int index)
+						{
+							Intent appLog = new Intent(MainActivity.this, AppLog.class);
+							startActivity(appLog);
+						}
+					});
 				List<HashMap<String, Object>> stts = new ArrayList<HashMap<String, Object>>();
 				for (int i = 0; i < 20; i++) {
 					HashMap<String, Object> log = new HashMap<String, Object>();
@@ -207,5 +216,12 @@ public class MainActivity extends Activity
 			}
 		});
     }
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		Toast.makeText(MainActivity.this, StatusBar.getCrossPro(), Toast.LENGTH_SHORT).show();
+	}
 }
 

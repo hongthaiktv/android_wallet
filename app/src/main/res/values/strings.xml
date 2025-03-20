@@ -4,5 +4,6 @@
     <string name="app_name">Wallet</string>
     <string name="act_admin">Admin</string>
 	<string name="act_editor">Editor</string>
+	<string name="act_appLog">Log</string>
 
 </resources>

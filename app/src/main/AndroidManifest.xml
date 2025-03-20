@@ -8,6 +8,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
 		android:resizeableActivity = "true">
+		
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name" >
@@ -26,6 +27,12 @@
             android:name=".Editor"
             android:label="@string/act_editor" >
 		</activity>
+		
+		<activity
+            android:name=".AppLog"
+            android:label="@string/act_appLog" >
+		</activity>
+		
     </application>
 
 </manifest>
