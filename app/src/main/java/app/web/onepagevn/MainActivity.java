@@ -32,7 +32,7 @@ public class MainActivity extends Activity
 		ivIconStatus = findViewById(R.id.mainIvIconStatus);
 		layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
 		
-		StatusBar.setCrossPro("set init txt");
+//		StatusBar.setCrossPro("set init txt");
 //		StatusBar statusBar = StatusBar.getInstance(layoutStatusBar);
 //		StatusBar.error("abc err");
 		
@@ -221,7 +221,7 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-		Toast.makeText(MainActivity.this, StatusBar.getCrossPro(), Toast.LENGTH_SHORT).show();
+//		Toast.makeText(MainActivity.this, StatusBar.getCrossPro(), Toast.LENGTH_SHORT).show();
 	}
 }
 
