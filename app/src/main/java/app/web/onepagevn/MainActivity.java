@@ -17,7 +17,9 @@ public class MainActivity extends Activity
 	ImageButton ibFAB;
 	ImageView ivIconStatus;
 	String tblName;
-	LinearLayout layoutStatusBar;
+	//LinearLayout layoutStatusBar;
+	private LinearLayout mainLayout, sttLayout;
+	private StatusBar stt;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -26,11 +28,18 @@ public class MainActivity extends Activity
         setContentView(R.layout.main);
 		
 		tvTable = findViewById(R.id.mainTvTable);
-		tvStatus = findViewById(R.id.mainTvStatus);
+		//tvStatus = findViewById(R.id.mainTvStatus);
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
 		ibFAB = findViewById(R.id.mainIbFAB);
-		ivIconStatus = findViewById(R.id.mainIvIconStatus);
-		layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
+		//ivIconStatus = findViewById(R.id.mainIvIconStatus);
+		mainLayout = findViewById(R.id.mainLayout);
+
+		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+		mainLayout.addView(sttLayout);
+		tvStatus = findViewById(R.id.statusTvStatus);
+		stt = StatusBar.getInstance(sttLayout);
+		//layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
 		
 //		StatusBar.setCrossPro("set init txt");
 //		StatusBar statusBar = StatusBar.getInstance(layoutStatusBar);
@@ -93,26 +102,26 @@ public class MainActivity extends Activity
 			}
 		});
 		
-		ivIconStatus.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View p1)
-			{
-				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
-				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
-				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
-				for (LogType type : LogType.values()) {
-					HashMap<String, Object> line = new HashMap<String, Object>();
-					line.put("type", type);
-					String message = type.toString().toLowerCase();
-					line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
-					types.add(line);
-				}
-				ListAdapter typeAdapter = new StatusAdapter(MainActivity.this, types, DialogSize.LARGE);
-				dlgType.setAdapter(typeAdapter, null);
-				dlgType.create().show();
-			}
-		});
+//		ivIconStatus.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View p1)
+//			{
+//				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
+//				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
+//				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
+//				for (LogType type : LogType.values()) {
+//					HashMap<String, Object> line = new HashMap<String, Object>();
+//					line.put("type", type);
+//					String message = type.toString().toLowerCase();
+//					line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
+//					types.add(line);
+//				}
+//				ListAdapter typeAdapter = new StatusAdapter(MainActivity.this, types, DialogSize.LARGE);
+//				dlgType.setAdapter(typeAdapter, null);
+//				dlgType.create().show();
+//			}
+//		});
 		
 		tvStatus.setOnClickListener(new OnClickListener() {
 

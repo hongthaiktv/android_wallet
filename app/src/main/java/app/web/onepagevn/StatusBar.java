@@ -5,33 +5,32 @@ public class StatusBar
 {
 	private static StatusBar instance;
 	private ImageView iconType;
+	private HorizontalScrollView scrollBar;
 	private TextView status;
-	public static String crossPro = "def text";
+	private String crossPro = "abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...";
 
 	private StatusBar()
 	{}
 
-	public static void setCrossPro(String crossPro)
+	public void setCrossPro(String crossPro)
 	{
-		StatusBar.crossPro = crossPro;
+		this.crossPro = crossPro;
+		this.status.setText(crossPro);
+		this.scrollBar.scrollTo(0, 0);
 	}
 
-	public static String getCrossPro()
+	public String getCrossPro()
 	{
-		return crossPro;
+		return this.crossPro;
 	}
 
 	public static StatusBar getInstance(LinearLayout statusBar)
 	{
 		if (instance == null) instance = new StatusBar();
 		instance.iconType = (ImageView) statusBar.getChildAt(0);
-		HorizontalScrollView scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
-		instance.status = (TextView) scrollBar.getChildAt(0);
-		//instance.status.setText("static and private ref");
+		instance.scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
+		instance.status = (TextView) instance.scrollBar.getChildAt(0);
+		instance.status.setText(instance.crossPro);
 		return instance;
-	}
-	
-	public static void error(String message) {
-		instance.status.setText(message);
 	}
 }

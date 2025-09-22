@@ -7,7 +7,9 @@ import android.view.*;
 
 public class AppLog extends Activity
 {
-	Button button, btnExit;
+	private Button button, btnExit;
+	private LinearLayout mainLayout, sttLayout;
+	private StatusBar stt;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -17,14 +19,20 @@ public class AppLog extends Activity
 		
 		button = findViewById(R.id.applogButton);
 		btnExit = findViewById(R.id.applogBtnExit);
+		mainLayout = findViewById(R.id.applogMainLayout);
+		
+		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+		mainLayout.addView(sttLayout);
+		stt = StatusBar.getInstance(sttLayout);
 		
 		button.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view)
 				{
-					String txt = StatusBar.getCrossPro();
-					Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
+					stt.setCrossPro("new stt");
+					//Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
 				}
 			});
 			
@@ -33,7 +41,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					StatusBar.setCrossPro("New str from AppLog");
+					stt.setCrossPro("New str from AppLog");
 					finish();
 				}
 			});

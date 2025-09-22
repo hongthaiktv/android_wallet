@@ -13,22 +13,22 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	private String estPrefix = "'(EST) '";
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs) {
-		super(context, R.layout.status_logs, logs);
+		super(context, R.layout.status_log, logs);
 		initial(context, null, null);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size) {
-		super(context, R.layout.status_logs, logs);
+		super(context, R.layout.status_log, logs);
 		initial(context, size, null);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, String estPrefix) {
-		super(context, R.layout.status_logs, logs);
+		super(context, R.layout.status_log, logs);
 		initial(context, null, estPrefix);
 	}
 	
 	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size, String estPrefix) {
-		super(context, R.layout.status_logs, logs);
+		super(context, R.layout.status_log, logs);
 		initial(context, size, estPrefix);
 	}
 	
@@ -54,11 +54,11 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
 		LayoutInflater inflater = LayoutInflater.from(context);
-		View view = inflater.inflate(R.layout.status_logs, parent, false);
-		LinearLayout container = view.findViewById(R.id.status_logsLayoutContainer);
-		ImageView imgType = view.findViewById(R.id.status_logsIvType);
-		TextView tvTime = view.findViewById(R.id.status_logsTvTime);
-		TextView tvStatus = view.findViewById(R.id.status_logsTvStatus);
+		View view = inflater.inflate(R.layout.status_log, parent, false);
+		LinearLayout container = view.findViewById(R.id.status_logLayoutContainer);
+		ImageView imgType = view.findViewById(R.id.status_logIvType);
+		TextView tvTime = view.findViewById(R.id.status_logTvTime);
+		TextView tvStatus = view.findViewById(R.id.status_logTvStatus);
 		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
 		float fontSize;
 		

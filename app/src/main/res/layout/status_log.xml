@@ -1,5 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/status_logsLayoutContainer"
+	android:id="@+id/status_logLayoutContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
@@ -8,20 +8,20 @@
 	android:paddingHorizontal="@dimen/dialogCPHorizontalSM">
 	
 	<TextView
-		android:id="@+id/status_logsTvTime"
+		android:id="@+id/status_logTvTime"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginRight="5dp"/>
 	
 	<ImageView
-		android:id="@+id/status_logsIvType"
+		android:id="@+id/status_logIvType"
 		android:layout_width="@dimen/dialogIconSM"
 		android:layout_height="@dimen/dialogIconSM"
 		android:layout_marginHorizontal="@dimen/dialogIconMHorizontalSM"
 		android:layout_marginTop="@dimen/dialogIconMTopSM"/>
 	
     <TextView
-		android:id="@+id/status_logsTvStatus"
+		android:id="@+id/status_logTvStatus"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"/>
 	

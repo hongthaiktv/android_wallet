@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/statusLayout"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:gravity="center_vertical"
+	android:layout_marginHorizontal="5dp"
+	android:layout_marginBottom="5dp"
+	android:background="@color/primary">
+	
+	<ImageView
+		android:id="@+id/statusIvIconStatus"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:padding="5dp"
+		android:background="@color/darkGreen"
+		android:src="@drawable/ico_info_circle"/>
+
+	<HorizontalScrollView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fillViewport="true">
+
+		<TextView
+			android:id="@+id/statusTvStatus"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:gravity="center_vertical"
+			android:paddingHorizontal="5dp"
+			android:singleLine="true"
+			android:scrollHorizontally="true"
+			android:text="abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me..."
+			android:textColor="@color/white"/>
+
+	</HorizontalScrollView>
+    
+</LinearLayout>
