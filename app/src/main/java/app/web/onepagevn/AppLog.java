@@ -31,7 +31,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setCrossPro("new stt");
+					stt.setMessage("new stt");
 					//Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -41,7 +41,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setCrossPro("New str from AppLog");
+					stt.setMessage("New str from AppLog");
 					finish();
 				}
 			});

@@ -19,6 +19,7 @@ public class MainActivity extends Activity
 	String tblName;
 	//LinearLayout layoutStatusBar;
 	private LinearLayout mainLayout, sttLayout;
+	HorizontalScrollView sttScrollBar;
 	private StatusBar stt;
 	
     @Override
@@ -37,8 +38,10 @@ public class MainActivity extends Activity
 		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		mainLayout.addView(sttLayout);
-		tvStatus = findViewById(R.id.statusTvStatus);
 		stt = StatusBar.getInstance(sttLayout);
+		tvStatus = stt.getStatus();
+		ivIconStatus = stt.getIconType();
+		sttScrollBar = stt.getScrollBar();
 		//layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
 		
 //		StatusBar.setCrossPro("set init txt");
@@ -102,26 +105,26 @@ public class MainActivity extends Activity
 			}
 		});
 		
-//		ivIconStatus.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View p1)
-//			{
-//				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
-//				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
-//				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
-//				for (LogType type : LogType.values()) {
-//					HashMap<String, Object> line = new HashMap<String, Object>();
-//					line.put("type", type);
-//					String message = type.toString().toLowerCase();
-//					line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
-//					types.add(line);
-//				}
-//				ListAdapter typeAdapter = new StatusAdapter(MainActivity.this, types, DialogSize.LARGE);
-//				dlgType.setAdapter(typeAdapter, null);
-//				dlgType.create().show();
-//			}
-//		});
+		ivIconStatus.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View p1)
+			{
+				AlertDialog.Builder dlgType = new AlertDialog.Builder(MainActivity.this);
+				dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
+				List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
+				for (LogType type : LogType.values()) {
+					HashMap<String, Object> line = new HashMap<String, Object>();
+					line.put("type", type);
+					String message = type.toString().toLowerCase();
+					line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
+					types.add(line);
+				}
+				ListAdapter typeAdapter = new StatusAdapter(MainActivity.this, types, DialogSize.LARGE);
+				dlgType.setAdapter(typeAdapter, null);
+				dlgType.create().show();
+			}
+		});
 		
 		tvStatus.setOnClickListener(new OnClickListener() {
 
@@ -230,6 +233,12 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
+		String message = stt.getMessage();
+		String sttMessage = tvStatus.getText().toString();
+		if (!sttMessage.equals(message)) {
+			tvStatus.setText(message);
+			sttScrollBar.scrollTo(0, 0);
+		}
 //		Toast.makeText(MainActivity.this, StatusBar.getCrossPro(), Toast.LENGTH_SHORT).show();
 	}
 }

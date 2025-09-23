@@ -7,22 +7,10 @@ public class StatusBar
 	private ImageView iconType;
 	private HorizontalScrollView scrollBar;
 	private TextView status;
-	private String crossPro = "abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...";
+	private String message = "abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...";
 
 	private StatusBar()
 	{}
-
-	public void setCrossPro(String crossPro)
-	{
-		this.crossPro = crossPro;
-		this.status.setText(crossPro);
-		this.scrollBar.scrollTo(0, 0);
-	}
-
-	public String getCrossPro()
-	{
-		return this.crossPro;
-	}
 
 	public static StatusBar getInstance(LinearLayout statusBar)
 	{
@@ -30,7 +18,34 @@ public class StatusBar
 		instance.iconType = (ImageView) statusBar.getChildAt(0);
 		instance.scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
 		instance.status = (TextView) instance.scrollBar.getChildAt(0);
-		instance.status.setText(instance.crossPro);
+		instance.status.setText(instance.message);
 		return instance;
+	}
+
+	public ImageView getIconType()
+	{
+		return iconType;
+	}
+
+	public HorizontalScrollView getScrollBar()
+	{
+		return scrollBar;
+	}
+
+	public TextView getStatus()
+	{
+		return status;
+	}
+
+	public void setMessage(String message)
+	{
+		this.message = message;
+		this.status.setText(message);
+		this.scrollBar.scrollTo(0, 0);
+	}
+
+	public String getMessage()
+	{
+		return message;
 	}
 }
