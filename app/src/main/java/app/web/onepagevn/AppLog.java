@@ -24,7 +24,7 @@ public class AppLog extends Activity
 		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(sttLayout);
+		stt = StatusBar.getInstance(this, sttLayout);
 		
 		button.setOnClickListener(new OnClickListener() {
 

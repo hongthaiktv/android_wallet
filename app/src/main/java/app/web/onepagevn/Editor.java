@@ -21,13 +21,15 @@ public class Editor extends Activity
 		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(sttLayout);
+		stt = StatusBar.getInstance(this, sttLayout);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		
+		StatusBar.getInstance(this, sttLayout);
 		
 		Intent intent = getIntent();
 		String intAction = intent.getAction();
