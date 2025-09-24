@@ -24,14 +24,14 @@ public class AppLog extends Activity
 //		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 //		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 //		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this, mainLayout);
+		stt = StatusBar.initial(this);
 		
 		button.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view)
 				{
-					stt.setMessage("new stt");
+					stt.setMessage("new stt").update(AppLog.this);
 					//Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -41,7 +41,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setMessage("New str from AppLog");
+					stt.setMessage("New str from AppLog").update(AppLog.this);
 					finish();
 				}
 			});

@@ -12,14 +12,11 @@ import java.text.*;
 
 public class MainActivity extends Activity 
 {
-	TextView tvTable, tvStatus;
+	TextView tvTable;
 	Button btnAdmin;
 	ImageButton ibFAB;
-	ImageView ivIconStatus;
 	String tblName;
-	//LinearLayout layoutStatusBar;
-	private LinearLayout mainLayout, sttLayout;
-	HorizontalScrollView sttScrollBar;
+	private LinearLayout mainLayout;
 	private StatusBar stt;
 	
     @Override
@@ -29,27 +26,12 @@ public class MainActivity extends Activity
         setContentView(R.layout.main);
 		
 		tvTable = findViewById(R.id.mainTvTable);
-		//tvStatus = findViewById(R.id.mainTvStatus);
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
 		ibFAB = findViewById(R.id.mainIbFAB);
-		//ivIconStatus = findViewById(R.id.mainIvIconStatus);
 		mainLayout = findViewById(R.id.mainLayout);
 		
-//		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
-//		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this, mainLayout);
+		stt = StatusBar.initial(this);
 		stt.setMessage("abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...");
-		tvStatus = stt.getStatus();
-		ivIconStatus = stt.getIconType();
-		sttScrollBar = stt.getScrollBar();
-		//layoutStatusBar = findViewById(R.id.mainLayoutStatusBar);
-		
-//		StatusBar.setCrossPro("set init txt");
-//		StatusBar statusBar = StatusBar.getInstance(layoutStatusBar);
-//		StatusBar.error("abc err");
-		
-		//Toast.makeText(this, arrStr[0] + "\n" + arrInt[0], Toast.LENGTH_SHORT).show();
 		
 		tvTable.setOnClickListener(new OnClickListener() {
 			

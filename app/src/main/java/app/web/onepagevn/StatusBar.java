@@ -21,10 +21,28 @@ public class StatusBar
 	
 	private StatusBar()
 	{}
-
-	public static StatusBar getInstance(Context context, LinearLayout parent)
+	
+	public static StatusBar getInstance()
 	{
 		if (instance == null) instance = new StatusBar();
+		return instance;
+	}
+	
+	public static StatusBar initial(Context context)
+	{
+		Activity act = (Activity) context;
+		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) act.findViewById(android.R.id.content)).getChildAt(0);
+		return init(context, rootLayout);
+	}
+	
+	public static StatusBar initial(Context context, LinearLayout parent)
+	{
+		return init(context, parent);
+	}
+
+	private static StatusBar init(Context context, LinearLayout parent)
+	{
+		getInstance();
 		LayoutInflater sttInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
 		sttInflater.inflate(R.layout.status_bar, parent);
 		instance.update(context);
@@ -161,13 +179,16 @@ public class StatusBar
 	
 	public void update(Context context)
 	{
-		this.context = context;
-		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
-		title = ((Activity) context).getTitle().toString();
-		iconType = (ImageView) statusBar.getChildAt(0);
-		scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
-		status = (TextView) instance.scrollBar.getChildAt(0);
-
+		String title = ((Activity) context).getTitle().toString();
+		if (!title.equals(this.title)) {
+			this.context = context;
+			this.title = title;
+			LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
+			iconType = (ImageView) statusBar.getChildAt(0);
+			scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
+			status = (TextView) instance.scrollBar.getChildAt(0);
+		}
+		
 		String sttMessage = status.getText().toString();
 		if (!sttMessage.equals(message)) {
 			status.setText(message);
@@ -190,11 +211,10 @@ public class StatusBar
 		return status;
 	}
 
-	public void setMessage(String message)
+	public StatusBar setMessage(String message)
 	{
 		this.message = message;
-		this.status.setText(message);
-		this.scrollBar.scrollTo(0, 0);
+		return this;
 	}
 
 	public String getMessage()
