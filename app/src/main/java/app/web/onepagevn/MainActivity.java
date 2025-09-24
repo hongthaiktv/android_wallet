@@ -38,7 +38,7 @@ public class MainActivity extends Activity
 		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this, sttLayout);
+		stt = StatusBar.getInstance(this);
 		stt.setMessage("abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...");
 		tvStatus = stt.getStatus();
 		ivIconStatus = stt.getIconType();
@@ -234,7 +234,7 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-		StatusBar.getInstance(this, sttLayout);
+		stt.update(this);
 //		String message = stt.getMessage();
 //		String sttMessage = tvStatus.getText().toString();
 //		if (!sttMessage.equals(message)) {

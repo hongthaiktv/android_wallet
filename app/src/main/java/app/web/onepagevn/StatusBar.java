@@ -20,16 +20,27 @@ public class StatusBar
 	
 	private StatusBar()
 	{}
+	
+	public void update(Context context)
+	{
+		this.context = context;
+		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
+		title = ((Activity) context).getTitle().toString();
+		iconType = (ImageView) statusBar.getChildAt(0);
+		scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
+		status = (TextView) instance.scrollBar.getChildAt(0);
+		
+		String sttMessage = status.getText().toString();
+		if (!sttMessage.equals(message)) {
+			status.setText(message);
+			scrollBar.scrollTo(0, 0);
+		}
+	}
 
-	public static StatusBar getInstance(Context context, LinearLayout statusBar)
+	public static StatusBar getInstance(Context context)
 	{
 		if (instance == null) instance = new StatusBar();
-		instance.context = context;
-		instance.title = ((Activity) context).getTitle().toString();
-		instance.iconType = (ImageView) statusBar.getChildAt(0);
-		instance.scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
-		instance.status = (TextView) instance.scrollBar.getChildAt(0);
-		instance.status.setText(instance.message);
+		instance.update(context);
 		
 		instance.iconType.setOnClickListener(new OnClickListener() {
 

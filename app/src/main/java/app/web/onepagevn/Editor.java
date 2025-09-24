@@ -21,7 +21,7 @@ public class Editor extends Activity
 		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
 		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this, sttLayout);
+		stt = StatusBar.getInstance(this);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class Editor extends Activity
 	{
 		super.onResume();
 		
-		StatusBar.getInstance(this, sttLayout);
+		stt.update(this);
 		
 		Intent intent = getIntent();
 		String intAction = intent.getAction();
