@@ -21,10 +21,10 @@ public class AppLog extends Activity
 		btnExit = findViewById(R.id.applogBtnExit);
 		mainLayout = findViewById(R.id.applogMainLayout);
 		
-		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
-		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this);
+//		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+//		mainLayout.addView(sttLayout);
+		stt = StatusBar.getInstance(this, mainLayout);
 		
 		button.setOnClickListener(new OnClickListener() {
 

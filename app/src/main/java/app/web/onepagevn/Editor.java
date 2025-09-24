@@ -18,10 +18,10 @@ public class Editor extends Activity
 
 		mainLayout = findViewById(R.id.editorMainLayout);
 
-		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
-		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this);
+//		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+//		mainLayout.addView(sttLayout);
+		stt = StatusBar.getInstance(this, mainLayout);
 	}
 
 	@Override

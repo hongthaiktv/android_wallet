@@ -9,9 +9,10 @@ import android.graphics.*;
 
 public class StatusBar
 {
+	private static StatusBar instance;
+	
 	private Context context;
 	private String title;
-	private static StatusBar instance;
 	private ImageView iconType;
 	private HorizontalScrollView scrollBar;
 	private TextView status;
@@ -20,26 +21,12 @@ public class StatusBar
 	
 	private StatusBar()
 	{}
-	
-	public void update(Context context)
-	{
-		this.context = context;
-		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
-		title = ((Activity) context).getTitle().toString();
-		iconType = (ImageView) statusBar.getChildAt(0);
-		scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
-		status = (TextView) instance.scrollBar.getChildAt(0);
-		
-		String sttMessage = status.getText().toString();
-		if (!sttMessage.equals(message)) {
-			status.setText(message);
-			scrollBar.scrollTo(0, 0);
-		}
-	}
 
-	public static StatusBar getInstance(Context context)
+	public static StatusBar getInstance(Context context, LinearLayout parent)
 	{
 		if (instance == null) instance = new StatusBar();
+		LayoutInflater sttInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
+		sttInflater.inflate(R.layout.status_bar, parent);
 		instance.update(context);
 		
 		instance.iconType.setOnClickListener(new OnClickListener() {
@@ -170,6 +157,22 @@ public class StatusBar
 			});
 		
 		return instance;
+	}
+	
+	public void update(Context context)
+	{
+		this.context = context;
+		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
+		title = ((Activity) context).getTitle().toString();
+		iconType = (ImageView) statusBar.getChildAt(0);
+		scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
+		status = (TextView) instance.scrollBar.getChildAt(0);
+
+		String sttMessage = status.getText().toString();
+		if (!sttMessage.equals(message)) {
+			status.setText(message);
+			scrollBar.scrollTo(0, 0);
+		}
 	}
 
 	public ImageView getIconType()

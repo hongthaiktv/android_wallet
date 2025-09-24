@@ -35,10 +35,10 @@ public class MainActivity extends Activity
 		//ivIconStatus = findViewById(R.id.mainIvIconStatus);
 		mainLayout = findViewById(R.id.mainLayout);
 		
-		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
-		mainLayout.addView(sttLayout);
-		stt = StatusBar.getInstance(this);
+//		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+//		mainLayout.addView(sttLayout);
+		stt = StatusBar.getInstance(this, mainLayout);
 		stt.setMessage("abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...");
 		tvStatus = stt.getStatus();
 		ivIconStatus = stt.getIconType();
