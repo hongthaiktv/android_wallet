@@ -30,8 +30,7 @@ public class StatusBar
 	
 	public static StatusBar initial(Context context)
 	{
-		Activity act = (Activity) context;
-		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) act.findViewById(android.R.id.content)).getChildAt(0);
+		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) ((Activity) context).findViewById(android.R.id.content)).getChildAt(0);
 		return init(context, rootLayout);
 	}
 	
@@ -195,6 +194,11 @@ public class StatusBar
 			scrollBar.scrollTo(0, 0);
 		}
 	}
+	
+	public Context getContext()
+	{
+		return context;
+	}
 
 	public ImageView getIconType()
 	{
@@ -211,10 +215,10 @@ public class StatusBar
 		return status;
 	}
 
-	public StatusBar setMessage(String message)
+	public void setMessage(String message)
 	{
 		this.message = message;
-		return this;
+		update(context);
 	}
 
 	public String getMessage()

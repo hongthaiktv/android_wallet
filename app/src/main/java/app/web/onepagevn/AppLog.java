@@ -4,6 +4,7 @@ import android.os.*;
 import android.widget.*;
 import android.view.View.*;
 import android.view.*;
+import android.content.*;
 
 public class AppLog extends Activity
 {
@@ -31,7 +32,9 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setMessage("new stt").update(AppLog.this);
+					Intent service = new Intent(AppLog.this, AppService.class);
+					startService(service);
+					//stt.setMessage("new stt");
 					//Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
 				}
 			});
@@ -41,7 +44,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setMessage("New str from AppLog").update(AppLog.this);
+					stt.setMessage("New str from AppLog");
 					finish();
 				}
 			});
