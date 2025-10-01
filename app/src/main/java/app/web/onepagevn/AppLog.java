@@ -9,7 +9,6 @@ import android.content.*;
 public class AppLog extends Activity
 {
 	private Button button, btnExit;
-	private LinearLayout mainLayout, sttLayout;
 	private StatusBar stt;
 	
 	@Override
@@ -20,11 +19,7 @@ public class AppLog extends Activity
 		
 		button = findViewById(R.id.applogButton);
 		btnExit = findViewById(R.id.applogBtnExit);
-		mainLayout = findViewById(R.id.applogMainLayout);
 		
-//		LayoutInflater sttInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//		sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
-//		mainLayout.addView(sttLayout);
 		stt = StatusBar.initial(this);
 		
 		button.setOnClickListener(new OnClickListener() {
@@ -34,8 +29,6 @@ public class AppLog extends Activity
 				{
 					Intent service = new Intent(AppLog.this, AppService.class);
 					startService(service);
-					//stt.setMessage("new stt");
-					//Toast.makeText(AppLog.this, txt, Toast.LENGTH_SHORT).show();
 				}
 			});
 			

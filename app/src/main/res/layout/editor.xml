@@ -10,6 +10,24 @@
 		android:layout_height="wrap_content"
 		android:gravity="center"
 		android:layout_weight="1">
+		
+		<Button
+			android:id="@+id/editorBtnService"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Service"/>
+		
+		<Button
+			android:id="@+id/editorBtnSync"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Sync"/>
+		
+		<Button
+			android:id="@+id/editorBtnClick"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Stop"/>
 			
 	</LinearLayout>
 

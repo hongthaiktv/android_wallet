@@ -31,7 +31,7 @@ public class MainActivity extends Activity
 		mainLayout = findViewById(R.id.mainLayout);
 		
 		stt = StatusBar.initial(this);
-		stt.setMessage("abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...");
+		//stt.setMessage("abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me...");
 		
 		tvTable.setOnClickListener(new OnClickListener() {
 			

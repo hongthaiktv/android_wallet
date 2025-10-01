@@ -1,14 +1,14 @@
 package app.web.onepagevn;
 import android.app.*;
-import android.os.*;
 import android.content.*;
-import android.widget.*;
+import android.os.*;
+import java.util.concurrent.*;
 
 public class AppService extends Service
 {
-	Context context;
-	String txt = "";
-	StatusBar stt;
+	private StatusBar stt;
+	private ScheduledExecutorService sexe;
+	private static BlockingQueue<Runnable> tasks;
 
 	@Override
 	public void onCreate()
@@ -16,33 +16,37 @@ public class AppService extends Service
 		super.onCreate();
 		
 		stt = StatusBar.getInstance();
-		context = stt.getContext();
-		Toast.makeText(context, "service created", Toast.LENGTH_SHORT).show();
+		sexe = Executors.newScheduledThreadPool(1);
+		if (tasks == null) tasks = new LinkedBlockingQueue<>();
+		
+		stt.setMessage("Service started.");
 	}
 	
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId)
+	public int onStartCommand(final Intent intent, int flags, int startId)
 	{
-		Toast.makeText(context, "service started", Toast.LENGTH_SHORT).show();
-		new Thread(new Runnable() {
-
-				@Override
-				public void run()
-				{
-					for (int i = 1; i < 6; i++) {
-						try
-						{
-							txt += i + " | ";
-							Thread.sleep(1000);
-							stt.setMessage(txt);
-						}
-						catch (InterruptedException e)
-						{}
-					}
-					stopSelf();
+		final String task = intent.getStringExtra("task");
+		if (task == null || task.equals("")) return START_STICKY;
+		
+		switch (task) {
+			case "status":
+				stt.setMessage(intent.getStringExtra("message"));
+				break;
+			case "sync":
+				stt.setMessage("Test service job.");
+				break;
+			case "run":
+				//get last job submit and wait to determine end task.
+				//prevent additional invoke
+				String total = "Total: " + tasks.size() + " ";
+				while (!tasks.isEmpty()) {
+					Runnable queue = tasks.poll();
+					sexe.execute(queue);
 				}
+				stt.setMessage(total + "task jobs running...");
+				break;
+		}
 
-			}).start();
 		return START_STICKY;
 	}
 
@@ -51,11 +55,24 @@ public class AppService extends Service
 	{
 		return null;
 	}
+	
+	public static void setTask(Runnable task)
+	{
+		tasks.offer(task);
+	}
+
+	public static BlockingQueue<Runnable> getTasks()
+	{
+		return tasks;
+	}
 
 	@Override
 	public void onDestroy()
 	{
 		super.onDestroy();
-		Toast.makeText(context, "service stoped", Toast.LENGTH_SHORT).show();
+		
+		sexe.shutdown();
+		tasks.clear();
+		stt.setMessage("Service stoped.");
 	}
 }
