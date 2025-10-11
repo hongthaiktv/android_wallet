@@ -5,13 +5,16 @@ import android.os.*;
 import android.widget.*;
 import android.view.*;
 import android.view.View.*;
+import java.util.concurrent.*;
+import java.util.*;
 
 public class Editor extends Activity
 {
 	private Button btnService, btnSync, btnClick;
 	private StatusBar stt;
-	private Intent appService;
 	private int count = 1;
+	private AppSetting app = AppSetting.getAppContext();
+	private AppServiceConnection conn = app.getServiceConnection();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -23,17 +26,15 @@ public class Editor extends Activity
 		btnSync = findViewById(R.id.editorBtnSync);
 		btnClick = findViewById(R.id.editorBtnClick);
 		stt = StatusBar.initial(this);
-		appService = new Intent(this, AppService.class);
+		//conn = app.getServiceConnection();
 		
 		btnService.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View p1)
 				{
-					String message = count++ + ": Status message.";
-					appService.putExtra("message", message);
-					appService.putExtra("task", "status");
-					startService(appService);
+					Message msg = Message.obtain(null, AppService.QUEUE);
+					conn.send(msg);
 				}
 			});
 			
@@ -42,26 +43,8 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					for (int i = 1; i < 6; i++) {
-						final String message = i + ": task job.";
-						AppService.setTask(new Runnable() {
-
-								@Override
-								public void run()
-								{
-									try
-									{
-										Thread.sleep(3000);
-										stt.setMessage(message);
-									}
-									catch (InterruptedException e)
-									{}
-								}
-							});
-					}
-					
-					appService.putExtra("task", "run");
-					startService(appService);
+					Message msg = Message.obtain(null, AppService.SYNC);
+					conn.send(msg);
 				}
 			});
 			
@@ -70,7 +53,34 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					stopService(appService);
+					Message msg = Message.obtain(null, new Runnable() {
+							ScheduledFuture sf;
+						
+							@Override
+							public void run()
+							{
+								ScheduledExecutorService sexe = Executors.newScheduledThreadPool(1);
+								Runnable run = new Runnable() {
+									int counter = 1;
+
+									@Override
+									public void run()
+									{
+										StatusBar.getInstance().setMessage(counter++ + ": exe received Runnable obj");
+										if (counter >= 61) {
+											sf.cancel(false);
+											StatusBar.getInstance().setMessage("schedule finish.");
+										}
+									}
+								};
+								sf = sexe.scheduleAtFixedRate(run, 1, 1, TimeUnit.SECONDS);
+							}
+						});
+						
+//					HashMap<String, Object> obj = new HashMap<>();
+//					obj.put("name", "Thai");
+//					Message msgObj = Message.obtain(null, AppService.RUN, obj);
+					conn.send(msg);
 				}
 			});
 	}

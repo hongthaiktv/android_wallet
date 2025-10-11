@@ -58,8 +58,18 @@
 
 	<RelativeLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:layout_weight="1">
+		
+		<ImageView
+			android:id="@+id/mainIvBGround"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:src="@drawable/bg_wallet_crypto"
+			android:scaleType="fitCenter"
+			android:padding="50dp"
+			android:alpha="0.2"
+			android:background="@drawable/bg_main"/>
 		
 		<TableLayout
 			android:layout_width="match_parent"

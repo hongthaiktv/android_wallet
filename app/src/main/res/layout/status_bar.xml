@@ -29,7 +29,6 @@
 			android:paddingHorizontal="5dp"
 			android:singleLine="true"
 			android:scrollHorizontally="true"
-			android:text="abc def scroll me... scroll me... scroll me... scroll me... scroll me... scroll me..."
 			android:textColor="@color/white"/>
 
 	</HorizontalScrollView>

@@ -6,10 +6,17 @@ import java.util.concurrent.*;
 
 public class AppService extends Service
 {
+	public static final int FAILED = 0;
+	public static final int SUCCESS = 1;
+	public static final int RUN = 2;
+	public static final int QUEUE = 3;
+	public static final int SYNC = 4;
+	
 	private StatusBar stt;
 	private ScheduledExecutorService sexe;
-	private static BlockingQueue<Runnable> tasks;
-
+	private BlockingQueue<Runnable> tasks;
+	private Messenger messenger;
+	
 	@Override
 	public void onCreate()
 	{
@@ -17,53 +24,20 @@ public class AppService extends Service
 		
 		stt = StatusBar.getInstance();
 		sexe = Executors.newScheduledThreadPool(1);
-		if (tasks == null) tasks = new LinkedBlockingQueue<>();
-		
-		stt.setMessage("Service started.");
+		tasks = new LinkedBlockingQueue<>();
+		messenger = new Messenger(new ServiceHandler());
 	}
 	
 	@Override
 	public int onStartCommand(final Intent intent, int flags, int startId)
 	{
-		final String task = intent.getStringExtra("task");
-		if (task == null || task.equals("")) return START_STICKY;
-		
-		switch (task) {
-			case "status":
-				stt.setMessage(intent.getStringExtra("message"));
-				break;
-			case "sync":
-				stt.setMessage("Test service job.");
-				break;
-			case "run":
-				//get last job submit and wait to determine end task.
-				//prevent additional invoke
-				String total = "Total: " + tasks.size() + " ";
-				while (!tasks.isEmpty()) {
-					Runnable queue = tasks.poll();
-					sexe.execute(queue);
-				}
-				stt.setMessage(total + "task jobs running...");
-				break;
-		}
-
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
 	public IBinder onBind(Intent intent)
 	{
-		return null;
-	}
-	
-	public static void setTask(Runnable task)
-	{
-		tasks.offer(task);
-	}
-
-	public static BlockingQueue<Runnable> getTasks()
-	{
-		return tasks;
+		return messenger.getBinder();
 	}
 
 	@Override
@@ -73,6 +47,26 @@ public class AppService extends Service
 		
 		sexe.shutdown();
 		tasks.clear();
+		messenger = null;
 		stt.setMessage("Service stoped.");
+	}
+	
+	private class ServiceHandler extends Handler
+	{
+		@Override
+		public void handleMessage(Message msg)
+		{
+			switch (msg.what) {
+				case AppService.QUEUE:
+					stt.setMessage("Service: Action : QUEUE");
+					break;
+				case AppService.SYNC:
+					stt.setMessage("Service: Action : SYNC");
+					break;
+				case AppService.RUN:
+					stt.setMessage("Service: Action : RUN");
+					break;
+			}
+		}
 	}
 }
