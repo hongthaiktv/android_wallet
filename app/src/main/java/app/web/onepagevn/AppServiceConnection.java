@@ -33,8 +33,8 @@ public class AppServiceConnection implements ServiceConnection
 	{
 		connected = true;
 		serviceMessenger = new Messenger(binder);
-		if (callBack != null) callBack.run();
 		stt.setMessage("Service started.");
+		if (callBack != null) callBack.run();
 	}
 
 	@Override
