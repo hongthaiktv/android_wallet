@@ -20,7 +20,7 @@ public class AppSetting extends Application
 				@Override
 				public void run()
 				{
-					stt.setMessage("Startup tasks...");
+					stt.log("Startup tasks...");
 				}
 			});
 		

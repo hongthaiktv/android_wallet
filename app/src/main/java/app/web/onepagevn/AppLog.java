@@ -37,7 +37,7 @@ public class AppLog extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.setMessage("New str from AppLog");
+					stt.log("New str from AppLog");
 					finish();
 				}
 			});

@@ -33,7 +33,7 @@ public class AppServiceConnection implements ServiceConnection
 	{
 		connected = true;
 		serviceMessenger = new Messenger(binder);
-		stt.setMessage("Service started.");
+		stt.success("Service started.");
 		if (callBack != null) callBack.run();
 	}
 
@@ -42,8 +42,8 @@ public class AppServiceConnection implements ServiceConnection
 	{
 		connected = false;
 		serviceMessenger = null;
-		stt.setMessage("Service disconnected.");
-		Toast.makeText(context, "Service disconnected.", Toast.LENGTH_LONG).show();
+		stt.warning("Service disconnected.");
+		Toast.makeText(AppSetting.getAppContext(), "Service disconnected.", Toast.LENGTH_LONG).show();
 	}
 	
 	public void connect() {
@@ -62,18 +62,25 @@ public class AppServiceConnection implements ServiceConnection
 		serviceMessenger = null;
 		try {
 			if (connected) context.unbindService(this);
-		} catch (Exception e)
-		{Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();}
+		} catch (Exception e) {
+			stt.error(e.getMessage());
+			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	public void send(Message msg) {
 		try
 		{
 			if (connected) serviceMessenger.send(msg);
-			else Toast.makeText(context, "Service not yet started.", Toast.LENGTH_LONG).show();
+			else {
+				stt.error("Service not yet started.");
+				Toast.makeText(AppSetting.getAppContext(), "Service not yet started.", Toast.LENGTH_LONG).show();
+			}
 		}
-		catch (Exception e)
-		{Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();}
+		catch (Exception e) {
+			stt.error(e.getMessage());
+			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	public boolean isConnected() {

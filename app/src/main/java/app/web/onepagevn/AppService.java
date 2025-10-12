@@ -2,6 +2,8 @@ package app.web.onepagevn;
 import android.app.*;
 import android.content.*;
 import android.os.*;
+import android.widget.*;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class AppService extends Service
@@ -48,7 +50,8 @@ public class AppService extends Service
 		sexe.shutdown();
 		tasks.clear();
 		messenger = null;
-		stt.setMessage("Service stoped.");
+		stt.warning("Service stoped.");
+		Toast.makeText(AppSetting.getAppContext(), "Service stoped.", Toast.LENGTH_LONG).show();
 	}
 	
 	private class ServiceHandler extends Handler
@@ -58,13 +61,13 @@ public class AppService extends Service
 		{
 			switch (msg.what) {
 				case AppService.QUEUE:
-					stt.setMessage("Service: Action : QUEUE");
+					stt.error("Service: Action : QUEUE");
 					break;
 				case AppService.SYNC:
-					stt.setMessage("Service: Action : SYNC");
+					stt.add("Service: Action : SYNC", LogType.INFO, new Date("01 Jan 2026 20:30:40"));
 					break;
 				case AppService.RUN:
-					stt.setMessage("Service: Action : RUN");
+					stt.warning("Service: Action : RUN");
 					break;
 			}
 		}

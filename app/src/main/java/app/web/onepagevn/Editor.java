@@ -66,20 +66,16 @@ public class Editor extends Activity
 									@Override
 									public void run()
 									{
-										StatusBar.getInstance().setMessage(counter++ + ": exe received Runnable obj");
-										if (counter >= 61) {
+										StatusBar.getInstance().log(counter++ + ": exe received Runnable obj");
+										if (counter >= 21) {
 											sf.cancel(false);
-											StatusBar.getInstance().setMessage("schedule finish.");
+											StatusBar.getInstance().log("schedule finish.");
 										}
 									}
 								};
 								sf = sexe.scheduleAtFixedRate(run, 1, 1, TimeUnit.SECONDS);
 							}
 						});
-						
-//					HashMap<String, Object> obj = new HashMap<>();
-//					obj.put("name", "Thai");
-//					Message msgObj = Message.obtain(null, AppService.RUN, obj);
 					conn.send(msg);
 				}
 			});

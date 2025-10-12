@@ -1,11 +1,11 @@
 package app.web.onepagevn;
 
 import android.content.*;
+import android.util.*;
 import android.view.*;
 import android.widget.*;
-import android.util.*;
-import java.util.*;
 import java.text.*;
+import java.util.*;
 
 public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 	private Context context;
@@ -58,7 +58,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		LinearLayout container = view.findViewById(R.id.status_logLayoutContainer);
 		ImageView imgType = view.findViewById(R.id.status_logIvType);
 		TextView tvTime = view.findViewById(R.id.status_logTvTime);
-		TextView tvStatus = view.findViewById(R.id.status_logTvStatus);
+		TextView tvLog = view.findViewById(R.id.status_logTvLog);
 		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
 		float fontSize;
 		
@@ -101,7 +101,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 				dateLog = formater.parse(formater.format(timeStamp));
 			}
 			catch (ParseException e)
-			{Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();}
+			{Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();}
 			if (dateLog.equals(dateNow) && timeStamp.before(now)) {
 				formater.applyPattern("HH:mm:ss");
 			} else if (dateLog.before(dateNow) && dateLog.getYear() == dateNow.getYear()) {
@@ -141,8 +141,8 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		imgType.setLayoutParams(params);
 		
 		String status = (String) log.get("message");
-		tvStatus.setText(status);
-		tvStatus.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
+		tvLog.setText(status);
+		tvLog.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		
 		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);
 		return view;
