@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content"
 		android:padding="5dp"
 		android:background="@color/darkGreen"
-		android:src="@drawable/ico_info_circle"/>
+		android:src="@drawable/ico_clipboard_list"/>
 
 	<HorizontalScrollView
 		android:layout_width="match_parent"
@@ -23,7 +23,7 @@
 
 		<TextView
 			android:id="@+id/statusTvStatus"
-			android:layout_width="match_parent"
+			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:gravity="center_vertical"
 			android:paddingHorizontal="5dp"

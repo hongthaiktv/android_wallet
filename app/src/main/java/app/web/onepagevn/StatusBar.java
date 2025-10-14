@@ -16,7 +16,9 @@ public class StatusBar
 	private TextView status;
 	private List<HashMap<String, Object>> logs = new ArrayList<HashMap<String, Object>>();
 	private String actName = "";
+	private int iconTypeID = R.drawable.ico_clipboard_list;
 	private boolean isInit = false;
+	private LogType filterType = null;
 	
 	private StatusBar()
 	{}
@@ -52,7 +54,10 @@ public class StatusBar
 				{
 					AlertDialog.Builder dlgType = new AlertDialog.Builder(context);
 					dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
-					List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
+					final List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
+					HashMap<String, Object> allType = new HashMap<String, Object>();
+					allType.put("message", "All");
+					types.add(allType);
 					for (LogType type : LogType.values()) {
 						HashMap<String, Object> line = new HashMap<String, Object>();
 						line.put("type", type);
@@ -61,7 +66,34 @@ public class StatusBar
 						types.add(line);
 					}
 					ListAdapter typeAdapter = new StatusAdapter(context, types, DialogSize.LARGE);
-					dlgType.setAdapter(typeAdapter, null);
+					dlgType.setAdapter(typeAdapter, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int index)
+							{
+								LogType type = (LogType) types.get(index).get("type");
+								setIconType(type);
+								switch (type) {
+									case ERROR:
+										filterType = LogType.ERROR;
+										break;
+									case SUCCESS:
+										filterType = LogType.SUCCESS;
+										break;
+									case WARNING:
+										filterType = LogType.WARNING;
+										break;
+									case INFO:
+										filterType = LogType.INFO;
+										break;
+									case LOG:
+										filterType = LogType.LOG;
+										break;
+									default:
+										filterType = null;
+								}
+							}
+						});
 					dlgType.create().show();
 				}
 			});
@@ -127,19 +159,19 @@ public class StatusBar
 		update(context);
 	}
 	
+	public void clear() {
+		logs.clear();
+		setIconType(LogType.LOG);
+		status.setText("");
+	}
+	
 	public void update(Context context)
 	{
-		if (context == null) {
-			Toast.makeText(AppSetting.getAppContext(), "Status bar not yet initialize.", Toast.LENGTH_LONG).show();
-			return;
-		}
+		if (context == null) return;
 		this.context = context;
 		
 		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
-		if (statusBar == null) {
-			Toast.makeText(AppSetting.getAppContext(), "Status bar not found.", Toast.LENGTH_LONG).show();
-			return;
-		}
+		if (statusBar == null) return;
 		
 		String actName = ((Activity) context).getComponentName().getShortClassName();
 		if (!this.actName.equals(actName) || isInit) {
@@ -151,12 +183,63 @@ public class StatusBar
 		}
 		
 		if (logs.size() > 0) {
+			HashMap<String, Object> log = logs.get(0);
+			LogType type = (LogType) log.get("type");
+			setIconType(type);
 			String sttMessage = status.getText().toString();
-			String lastLog = (String) logs.get(0).get("message");
+			String lastLog = (String) log.get("message");
 			if (!sttMessage.equals(lastLog)) {
 				status.setText(lastLog);
 				scrollBar.scrollTo(0, 0);
 			}
+		} else status.setText("");
+	}
+	
+	private void setIconType(LogType type) {
+		int iconID;
+		
+		switch (type) {
+			case ERROR:
+				iconID = R.drawable.ico_bug;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
+				break;
+			case SUCCESS:
+				iconID = R.drawable.ico_check_circle;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
+				break;
+			case WARNING:
+				iconID = R.drawable.ico_exclamation_triangle;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
+				break;
+			case INFO:
+				iconID = R.drawable.ico_info_circle;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
+				break;
+			case LOG:
+				iconID = R.drawable.ico_feather;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
+				break;
+			default:
+				iconID = R.drawable.ico_clipboard_list;
+				if (iconTypeID != iconID) {
+					iconType.setImageResource(iconID);
+					iconTypeID = iconID;
+				}
 		}
 	}
 }

@@ -12,7 +12,6 @@ public class Editor extends Activity
 {
 	private Button btnService, btnSync, btnClick;
 	private StatusBar stt;
-	private int count = 1;
 	private AppSetting app = AppSetting.getAppContext();
 	private AppServiceConnection conn = app.getServiceConnection();
 	
@@ -43,8 +42,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					Message msg = Message.obtain(null, AppService.SYNC);
-					conn.send(msg);
+					
 				}
 			});
 			

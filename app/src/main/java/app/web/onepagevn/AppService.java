@@ -50,8 +50,9 @@ public class AppService extends Service
 		sexe.shutdown();
 		tasks.clear();
 		messenger = null;
-		stt.warning("Service stoped.");
-		Toast.makeText(AppSetting.getAppContext(), "Service stoped.", Toast.LENGTH_LONG).show();
+		String msg = "Service stoped.";
+		stt.warning(msg);
+		Toast.makeText(AppSetting.getAppContext(), msg, Toast.LENGTH_LONG).show();
 	}
 	
 	private class ServiceHandler extends Handler

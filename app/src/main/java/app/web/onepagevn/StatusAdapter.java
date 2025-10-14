@@ -56,7 +56,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		LayoutInflater inflater = LayoutInflater.from(context);
 		View view = inflater.inflate(R.layout.status_log, parent, false);
 		LinearLayout container = view.findViewById(R.id.status_logLayoutContainer);
-		ImageView imgType = view.findViewById(R.id.status_logIvType);
+		ImageView iconType = view.findViewById(R.id.status_logIvType);
 		TextView tvTime = view.findViewById(R.id.status_logTvTime);
 		TextView tvLog = view.findViewById(R.id.status_logTvLog);
 		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
@@ -121,24 +121,24 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		LogType type = (LogType) log.get("type");
 		switch (type) {
 			case ERROR:
-				imgType.setImageResource(R.drawable.ico_bug);
+				iconType.setImageResource(R.drawable.ico_bug);
 				break;
 			case SUCCESS:
-				imgType.setImageResource(R.drawable.ico_check_circle);
+				iconType.setImageResource(R.drawable.ico_check_circle);
 				break;
 			case WARNING:
-				imgType.setImageResource(R.drawable.ico_exclamation_triangle);
+				iconType.setImageResource(R.drawable.ico_exclamation_triangle);
 				break;
 			case INFO:
-				imgType.setImageResource(R.drawable.ico_info_circle);
+				iconType.setImageResource(R.drawable.ico_info_circle);
 				break;
 			case LOG:
-				imgType.setImageResource(R.drawable.ico_feather);
+				iconType.setImageResource(R.drawable.ico_feather);
 				break;
 		}
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
 		params.setMargins(iconMarginH, iconMarginTop, iconMarginH, 0);
-		imgType.setLayoutParams(params);
+		iconType.setLayoutParams(params);
 		
 		String status = (String) log.get("message");
 		tvLog.setText(status);

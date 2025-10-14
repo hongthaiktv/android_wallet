@@ -33,7 +33,7 @@ public class AppServiceConnection implements ServiceConnection
 	{
 		connected = true;
 		serviceMessenger = new Messenger(binder);
-		stt.success("Service started.");
+		stt.info("Service started.");
 		if (callBack != null) callBack.run();
 	}
 
@@ -42,8 +42,9 @@ public class AppServiceConnection implements ServiceConnection
 	{
 		connected = false;
 		serviceMessenger = null;
-		stt.warning("Service disconnected.");
-		Toast.makeText(AppSetting.getAppContext(), "Service disconnected.", Toast.LENGTH_LONG).show();
+		String msg = "Service disconnected.";
+		stt.warning(msg);
+		Toast.makeText(AppSetting.getAppContext(), msg, Toast.LENGTH_LONG).show();
 	}
 	
 	public void connect() {
@@ -73,8 +74,9 @@ public class AppServiceConnection implements ServiceConnection
 		{
 			if (connected) serviceMessenger.send(msg);
 			else {
-				stt.error("Service not yet started.");
-				Toast.makeText(AppSetting.getAppContext(), "Service not yet started.", Toast.LENGTH_LONG).show();
+				String errMsg = "Service not yet started.";
+				stt.error(errMsg);
+				Toast.makeText(AppSetting.getAppContext(), errMsg, Toast.LENGTH_LONG).show();
 			}
 		}
 		catch (Exception e) {
