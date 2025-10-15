@@ -7,7 +7,6 @@ public class AppSetting extends Application
 	private static AppSetting appContext;
 	private StatusBar stt = StatusBar.getInstance();
 	private AppServiceConnection appSrvConn;
-	private SQLiteDB db;
 
 	@Override
 	public void onCreate()
@@ -25,7 +24,6 @@ public class AppSetting extends Application
 			});
 		
 		appSrvConn.connect();
-		db = SQLiteDB.getInstance();
 	}
 	
 	public static AppSetting getAppContext()

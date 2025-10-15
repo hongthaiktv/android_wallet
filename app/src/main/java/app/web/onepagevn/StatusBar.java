@@ -136,39 +136,37 @@ public class StatusBar
 		return this;
 	}
 	
-	public void log(String msg) {
-		add(msg, LogType.LOG, null);
+	public void error(String msg) {
+		add(msg, LogType.ERROR, null);
 	}
-	
-	public void info(String msg) {
-		add(msg, LogType.INFO, null);
+
+	public void success(String msg) {
+		add(msg, LogType.SUCCESS, null);
 	}
 	
 	public void warning(String msg) {
 		add(msg, LogType.WARNING, null);
 	}
 	
-	public void error(String msg) {
-		add(msg, LogType.ERROR, null);
+	public void info(String msg) {
+		add(msg, LogType.INFO, null);
 	}
 	
-	public void success(String msg) {
-		add(msg, LogType.SUCCESS, null);
+	public void log(String msg) {
+		add(msg, LogType.LOG, null);
 	}
 	
 	public void add(String msg, LogType type, Date date) {
-		Map<String, Object> log = new HashMap<>();
 		if (date == null) date = new Date();
 		if (type == null) type = LogType.LOG;
-		log.put("timestamp", date);
-		log.put("type", type);
-		log.put("message", msg);
-		logs.add(0, log);
+		SQLiteDB db = SQLiteDB.getInstance();
+		db.insertLog(msg, type);
 		update(context);
 	}
 	
 	public void clear() {
-		logs.clear();
+		SQLiteDB db = SQLiteDB.getInstance();
+		db.clearLogs();
 		update(context);
 	}
 	
@@ -188,6 +186,9 @@ public class StatusBar
 			scrollBar = (HorizontalScrollView) sttLayout.getChildAt(1);
 			status = (TextView) scrollBar.getChildAt(0);
 		}
+		
+		SQLiteDB db = SQLiteDB.getInstance();
+		logs = db.getLogs();
 		
 		if (logs.size() > 0) {
 			Map<String, Object> log = logs.get(0);
@@ -225,5 +226,14 @@ public class StatusBar
 			default:
 				iconType.setImageResource(R.drawable.ico_clipboard_list);
 		}
+	}
+	
+	public StatusBar setLogs(List<Map<String, Object>> logs) {
+		this.logs = logs;
+		return this;
+	}
+	
+	public List<Map<String, Object>> getLogs() {
+		return logs;
 	}
 }
