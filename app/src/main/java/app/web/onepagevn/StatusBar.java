@@ -14,9 +14,8 @@ public class StatusBar
 	private ImageView iconType;
 	private HorizontalScrollView scrollBar;
 	private TextView status;
-	private List<HashMap<String, Object>> logs = new ArrayList<HashMap<String, Object>>();
+	private List<Map<String, Object>> logs = new ArrayList<>();
 	private String actName = "";
-	private int iconTypeID = R.drawable.ico_clipboard_list;
 	private boolean isInit = false;
 	private LogType filterType = null;
 	
@@ -42,10 +41,14 @@ public class StatusBar
 
 	private StatusBar init(final Context context, LinearLayout parent)
 	{
+		this.context = context;
 		isInit = true;
 		LayoutInflater sttInflater = LayoutInflater.from(context);
-		sttInflater.inflate(R.layout.status_bar, parent);
-		update(context);
+		LinearLayout sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+		parent.addView(sttLayout);
+		iconType = (ImageView) sttLayout.getChildAt(0);
+		scrollBar = (HorizontalScrollView) sttLayout.getChildAt(1);
+		status = (TextView) scrollBar.getChildAt(0);
 		
 		iconType.setOnClickListener(new OnClickListener() {
 
@@ -54,12 +57,12 @@ public class StatusBar
 				{
 					AlertDialog.Builder dlgType = new AlertDialog.Builder(context);
 					dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
-					final List<HashMap<String, Object>> types = new ArrayList<HashMap<String, Object>>();
-					HashMap<String, Object> allType = new HashMap<String, Object>();
+					final List<Map<String, Object>> types = new ArrayList<>();
+					Map<String, Object> allType = new HashMap<>();
 					allType.put("message", "All");
 					types.add(allType);
 					for (LogType type : LogType.values()) {
-						HashMap<String, Object> line = new HashMap<String, Object>();
+						Map<String, Object> line = new HashMap<>();
 						line.put("type", type);
 						String message = type.toString().toLowerCase();
 						line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
@@ -72,25 +75,30 @@ public class StatusBar
 							public void onClick(DialogInterface dialog, int index)
 							{
 								LogType type = (LogType) types.get(index).get("type");
-								setIconType(type);
 								switch (type) {
 									case ERROR:
 										filterType = LogType.ERROR;
+										update(context);
 										break;
 									case SUCCESS:
 										filterType = LogType.SUCCESS;
+										update(context);
 										break;
 									case WARNING:
 										filterType = LogType.WARNING;
+										update(context);
 										break;
 									case INFO:
 										filterType = LogType.INFO;
+										update(context);
 										break;
 									case LOG:
 										filterType = LogType.LOG;
+										update(context);
 										break;
 									default:
 										filterType = null;
+										update(context);
 								}
 							}
 						});
@@ -149,7 +157,7 @@ public class StatusBar
 	}
 	
 	public void add(String msg, LogType type, Date date) {
-		HashMap<String, Object> log = new HashMap<String, Object>();
+		Map<String, Object> log = new HashMap<>();
 		if (date == null) date = new Date();
 		if (type == null) type = LogType.LOG;
 		log.put("timestamp", date);
@@ -161,8 +169,7 @@ public class StatusBar
 	
 	public void clear() {
 		logs.clear();
-		setIconType(LogType.LOG);
-		status.setText("");
+		update(context);
 	}
 	
 	public void update(Context context)
@@ -170,20 +177,20 @@ public class StatusBar
 		if (context == null) return;
 		this.context = context;
 		
-		LinearLayout statusBar = ((Activity) context).findViewById(R.id.statusLayout);
-		if (statusBar == null) return;
+		LinearLayout sttLayout = ((Activity) context).findViewById(R.id.statusLayout);
+		if (sttLayout == null) return;
 		
 		String actName = ((Activity) context).getComponentName().getShortClassName();
 		if (!this.actName.equals(actName) || isInit) {
 			isInit = false;
 			this.actName = actName;
-			iconType = (ImageView) statusBar.getChildAt(0);
-			scrollBar = (HorizontalScrollView) statusBar.getChildAt(1);
+			iconType = (ImageView) sttLayout.getChildAt(0);
+			scrollBar = (HorizontalScrollView) sttLayout.getChildAt(1);
 			status = (TextView) scrollBar.getChildAt(0);
 		}
 		
 		if (logs.size() > 0) {
-			HashMap<String, Object> log = logs.get(0);
+			Map<String, Object> log = logs.get(0);
 			LogType type = (LogType) log.get("type");
 			setIconType(type);
 			String sttMessage = status.getText().toString();
@@ -192,54 +199,31 @@ public class StatusBar
 				status.setText(lastLog);
 				scrollBar.scrollTo(0, 0);
 			}
-		} else status.setText("");
+		} else {
+			setIconType(filterType);
+			status.setText("");
+		}
 	}
 	
 	private void setIconType(LogType type) {
-		int iconID;
-		
 		switch (type) {
 			case ERROR:
-				iconID = R.drawable.ico_bug;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_bug);
 				break;
 			case SUCCESS:
-				iconID = R.drawable.ico_check_circle;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_check_circle);
 				break;
 			case WARNING:
-				iconID = R.drawable.ico_exclamation_triangle;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_exclamation_triangle);
 				break;
 			case INFO:
-				iconID = R.drawable.ico_info_circle;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_info_circle);
 				break;
 			case LOG:
-				iconID = R.drawable.ico_feather;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_feather);
 				break;
 			default:
-				iconID = R.drawable.ico_clipboard_list;
-				if (iconTypeID != iconID) {
-					iconType.setImageResource(iconID);
-					iconTypeID = iconID;
-				}
+				iconType.setImageResource(R.drawable.ico_clipboard_list);
 		}
 	}
 }

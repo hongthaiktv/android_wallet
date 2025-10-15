@@ -7,27 +7,27 @@ import android.widget.*;
 import java.text.*;
 import java.util.*;
 
-public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
+public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	private Context context;
 	private DialogSize size = DialogSize.SMALL;
 	private String estPrefix = "'(EST) '";
 	
-	public StatusAdapter(Context context, List<HashMap<String, Object>> logs) {
+	public StatusAdapter(Context context, List<Map<String, Object>> logs) {
 		super(context, R.layout.status_log, logs);
 		initial(context, null, null);
 	}
 	
-	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size) {
+	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size) {
 		super(context, R.layout.status_log, logs);
 		initial(context, size, null);
 	}
 	
-	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, String estPrefix) {
+	public StatusAdapter(Context context, List<Map<String, Object>> logs, String estPrefix) {
 		super(context, R.layout.status_log, logs);
 		initial(context, null, estPrefix);
 	}
 	
-	public StatusAdapter(Context context, List<HashMap<String, Object>> logs, DialogSize size, String estPrefix) {
+	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size, String estPrefix) {
 		super(context, R.layout.status_log, logs);
 		initial(context, size, estPrefix);
 	}
@@ -62,7 +62,7 @@ public class StatusAdapter extends ArrayAdapter<HashMap<String, Object>> {
 		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
 		float fontSize;
 		
-		HashMap<String, Object> log = getItem(position);
+		Map<String, Object> log = getItem(position);
 		
 		switch (size) {
 			case MEDIUM:

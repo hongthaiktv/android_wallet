@@ -42,7 +42,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					
+					stt.clear();
 				}
 			});
 			

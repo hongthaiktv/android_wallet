@@ -28,7 +28,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 				}
 			});
 			
-		List<HashMap<String, Object>> result = query("SELECT sqlite_version() AS version");
+		List<Map<String, Object>> result = query("SELECT sqlite_version() AS version");
 		String version = (String) result.get(0).get("version");
 		stt.info("SQLite version: "+ version);
 	}
@@ -58,10 +58,10 @@ public class SQLiteDB extends SQLiteOpenHelper
 		stt.info("Database upgraded.");
 	}
 	
-	public List<HashMap<String, Object>> query(String sql) {
+	public List<Map<String, Object>> query(String sql) {
 		SQLiteDatabase db = getWritableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
-		List<HashMap<String, Object>> result = cursor.getList();
+		List<Map<String, Object>> result = cursor.getList();
 		cursor.close();
 		db.close();
 		return result;
