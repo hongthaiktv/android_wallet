@@ -1,12 +1,13 @@
 package app.web.onepagevn;
 import android.app.*;
-import java.util.*;
+import android.widget.*;
 
 public class AppSetting extends Application
 {
 	private static AppSetting appContext;
-	private StatusBar stt = StatusBar.getInstance();
+	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
+	private SQLiteDB db;
 
 	@Override
 	public void onCreate()
@@ -14,6 +15,8 @@ public class AppSetting extends Application
 		super.onCreate();
 		
 		appContext = this;
+		stt = new StatusBar(this);
+		db = new SQLiteDB();
 		appSrvConn = new AppServiceConnection(this, new Runnable() {
 
 				@Override
@@ -24,6 +27,7 @@ public class AppSetting extends Application
 			});
 		
 		appSrvConn.connect();
+		stt.info(db.getVersion());
 	}
 	
 	public static AppSetting getAppContext()

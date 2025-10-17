@@ -7,42 +7,39 @@ import android.content.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
-	private static SQLiteDB instance;
+	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
+
+		@Override
+		public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query)
+		{
+			return new SQLiteDBCursor(db, driver, editTable, query);
+		}
+	};
 	
-	private SQLiteDB() {
-		super(AppSetting.getAppContext(), "wallet.db", new SQLiteDatabase.CursorFactory() {
+	private static DatabaseErrorHandler errorHandler = new DatabaseErrorHandler() {
 
-				@Override
-				public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query)
-				{
-					return new SQLiteDBCursor(db, driver, editTable, query);
-				}
-			}, 1, new DatabaseErrorHandler() {
-
-				@Override
-				public void onCorruption(SQLiteDatabase db)
-				{
-					String msg = "Database initial error.";
-					Toast.makeText(AppSetting.getAppContext(), msg, Toast.LENGTH_LONG).show();
-				}
-			});
-			
-		List<Map<String, Object>> result = query("SELECT sqlite_version() AS version");
-		String version = (String) result.get(0).get("version");
-		insertLog("SQLite version: " + version, LogType.INFO);
+		@Override
+		public void onCorruption(SQLiteDatabase db)
+		{
+			String msg = "Database initial error.";
+			Toast.makeText(AppSetting.getAppContext(), msg, Toast.LENGTH_LONG).show();
+		}
+	};
+	
+	public SQLiteDB() {
+		super(AppSetting.getAppContext(), "wallet.db", cursorFactory, 1, errorHandler);
 	}
 	
-	public static SQLiteDB getInstance() {
-		if (instance == null) instance = new SQLiteDB();
-		return instance;
+	public SQLiteDB(String dbName, int version) {
+		super(AppSetting.getAppContext(), dbName, cursorFactory, version, errorHandler);
 	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db)
 	{
 		try {
-			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, message TEXT)");
-			insertLog("Database created.", LogType.SUCCESS);
+			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, component TEXT, message TEXT)");
+			insertLog("Database created.", LogType.SUCCESS, "Database", db);
 		} catch (Exception e) {
 			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 		}
@@ -53,13 +50,24 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		super.onOpen(db);
 		
-		db.execSQL("PRAGMA foreign_keys = true");
+		try {
+			db.execSQL("PRAGMA foreign_keys = true");
+		} catch (Exception e) {
+			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		insertLog("Database upgraded.", LogType.SUCCESS);
+		insertLog("Database upgraded.", LogType.SUCCESS, "Database", db);
+	}
+	
+	public String getVersion() {
+		List<Map<String, Object>> result = query("SELECT sqlite_version() AS version");
+		String version = (String) result.get(0).get("version");
+		version = "SQLite version: " + version;
+		return version;
 	}
 	
 	public List<Map<String, Object>> query(String sql) {
@@ -78,13 +86,20 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
-	public long insertLog(String msg, LogType type) {
-		SQLiteDatabase db = getWritableDatabase();
+	public long insertLog(String msg, LogType type, String compName) {
+		return insertLog(msg, type, compName, null);
+	}
+	
+	private long insertLog(String msg, LogType type, String compName, SQLiteDatabase db) {
+		boolean isNullDB = db == null ? true : false;
+		if (isNullDB) db = getWritableDatabase();
 		ContentValues values = new ContentValues();
+		if (compName == null || "".equals(compName)) compName = "Logger";
 		if (type == null) type = LogType.LOG;
 		long timestamp = new Date().getTime();
 		values.put("timestamp", timestamp);
 		values.put("type", type.name());
+		values.put("component", compName);
 		values.put("message", msg);
 		long result = -1;
 		try {
@@ -92,39 +107,45 @@ public class SQLiteDB extends SQLiteOpenHelper
 		} catch (Exception e) {
 			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-		db.close();
+		if (isNullDB) db.close();
 		return result;
 	}
 	
 	public List<Map<String, Object>> getLogs() {
-		SQLiteDatabase db = getWritableDatabase();
+		return getLogs(null);
+	}
+	
+	public List<Map<String, Object>> getLogs(LogType type) {
+		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
-			cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, message FROM logs", null);
+			if (type != null) {
+				String[] whereArgs = {type.name()};
+				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC", whereArgs);
+			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC", null);
 		} catch (Exception e) {
 			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		List<Map<String, Object>> result = new ArrayList<>();
 		while (cursor.moveToNext()) {
 			Map<String, Object> row = new LinkedHashMap<>();
-			long timestamp; LogType type; String message;
 			for (int i = 0; i < cursor.getColumnCount(); i++) {
 				switch (i) {
 					case 0:
-						timestamp = cursor.getLong(i);
-						row.put("timestamp", new Date(timestamp));
+						row.put("timestamp", new Date(cursor.getLong(i)));
 						break;
 					case 1:
-						type = LogType.valueOf(cursor.getString(i));
-						row.put("type", type);
+						row.put("type", LogType.valueOf(cursor.getString(i)));
 						break;
 					case 2:
-						message = cursor.getString(i);
-						row.put("message", message);
+						row.put("component", cursor.getString(i));
+						break;
+					case 3:
+						row.put("message", cursor.getString(i));
 						break;
 				}
 			}
-			result.add(0, row);
+			result.add(row);
 		}
 		cursor.close();
 		db.close();

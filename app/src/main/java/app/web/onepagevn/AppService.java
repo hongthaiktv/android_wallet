@@ -24,7 +24,7 @@ public class AppService extends Service
 	{
 		super.onCreate();
 		
-		stt = StatusBar.getInstance();
+		stt = new StatusBar(this);
 		sexe = Executors.newScheduledThreadPool(1);
 		tasks = new LinkedBlockingQueue<>();
 		messenger = new Messenger(new ServiceHandler());
@@ -62,10 +62,10 @@ public class AppService extends Service
 		{
 			switch (msg.what) {
 				case AppService.QUEUE:
-					stt.error("Service: Action : QUEUE");
+					stt.error("Service: Action : QUEUE : " + new Date().getSeconds());
 					break;
 				case AppService.SYNC:
-					stt.add("Service: Action : SYNC", LogType.INFO, new Date("01 Jan 2026 20:30:40"));
+					stt.add("Service: Action : SYNC : " + new Date().getSeconds(), LogType.INFO, "Service");
 					break;
 				case AppService.RUN:
 					stt.warning("Service: Action : RUN");

@@ -25,7 +25,7 @@ public class AppServiceConnection implements ServiceConnection
 	private void init(Context context) {
 		this.context = context;
 		intService = new Intent(context, AppService.class);
-		stt = StatusBar.getInstance();
+		stt = new StatusBar("Service Connection");
 	}
 
 	@Override

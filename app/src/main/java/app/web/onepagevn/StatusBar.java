@@ -8,41 +8,43 @@ import java.util.*;
 
 public class StatusBar
 {
-	private static StatusBar instance;
+	private static StatusBar lastSttBar;
+	private static String lastStt = "";
+	private static LogType lastType;
+	private static LogType filterType;
 	
 	private Context context;
 	private ImageView iconType;
 	private HorizontalScrollView scrollBar;
 	private TextView status;
-	private List<Map<String, Object>> logs = new ArrayList<>();
-	private String actName = "";
 	private boolean isInit = false;
-	private LogType filterType = null;
+	private String compName = "";
+	private SQLiteDB db = new SQLiteDB();
 	
-	private StatusBar()
-	{}
-	
-	public static StatusBar getInstance()
-	{
-		if (instance == null) instance = new StatusBar();
-		return instance;
+	public StatusBar(String compName) {
+		this.compName = compName;
 	}
 	
-	public static StatusBar initial(Context context)
-	{
-		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) ((Activity) context).findViewById(android.R.id.content)).getChildAt(0);
-		return getInstance().init(context, rootLayout);
-	}
-	
-	public static StatusBar initial(Context context, LinearLayout parent)
-	{
-		return getInstance().init(context, parent);
-	}
-
-	private StatusBar init(final Context context, LinearLayout parent)
+	public StatusBar(Context context)
 	{
 		this.context = context;
-		isInit = true;
+		if (context instanceof Application) {
+			compName = "Setting";
+		} else if (context instanceof Service) {
+			compName = "Service";
+		} else if (context instanceof Activity) {
+			compName = ((Activity) context).getComponentName().getShortClassName().substring(1);
+		}
+	}
+	
+	public StatusBar init() {
+		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) ((Activity) context).findViewById(android.R.id.content)).getChildAt(0);
+		init(rootLayout);
+		return this;
+	}
+
+	public StatusBar init(LinearLayout parent)
+	{
 		LayoutInflater sttInflater = LayoutInflater.from(context);
 		LinearLayout sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		parent.addView(sttLayout);
@@ -74,31 +76,13 @@ public class StatusBar
 							@Override
 							public void onClick(DialogInterface dialog, int index)
 							{
-								LogType type = (LogType) types.get(index).get("type");
-								switch (type) {
-									case ERROR:
-										filterType = LogType.ERROR;
-										update(context);
-										break;
-									case SUCCESS:
-										filterType = LogType.SUCCESS;
-										update(context);
-										break;
-									case WARNING:
-										filterType = LogType.WARNING;
-										update(context);
-										break;
-									case INFO:
-										filterType = LogType.INFO;
-										update(context);
-										break;
-									case LOG:
-										filterType = LogType.LOG;
-										update(context);
-										break;
-									default:
-										filterType = null;
-										update(context);
+								filterType = (LogType) types.get(index).get("type");
+								List<Map<String, Object>> logs = filterType == null ? db.getLogs() : db.getLogs(filterType);
+								if (logs.size() == 0) clear();
+								else {
+									lastType = (LogType) logs.get(0).get("type");
+									lastStt = (String) logs.get(0).get("message");
+									update();
 								}
 							}
 						});
@@ -115,7 +99,7 @@ public class StatusBar
 					dlgStatus.setTitle("Status Logs")
 						.setIcon(R.drawable.ico_clipboard_list)
 						.setPositiveButton("Ok", null);
-					if (!".AppLog".equals(actName)) {
+					if (!"AppLog".equals(compName)) {
 						dlgStatus.setNeutralButton("Detail", new DialogInterface.OnClickListener() {
 
 								@Override
@@ -127,113 +111,93 @@ public class StatusBar
 							});
 					}
 					
+					List<Map<String, Object>> logs = filterType == null ? db.getLogs() : db.getLogs(filterType);
 					ListAdapter sttAdapter = new StatusAdapter(context, logs);
 					dlgStatus.setAdapter(sttAdapter, null);
 					dlgStatus.create().show();
 				}
 			});
-		
+		isInit = true;
+		lastSttBar = this;
 		return this;
 	}
 	
 	public void error(String msg) {
-		add(msg, LogType.ERROR, null);
+		add(msg, LogType.ERROR, compName);
 	}
 
 	public void success(String msg) {
-		add(msg, LogType.SUCCESS, null);
+		add(msg, LogType.SUCCESS, compName);
 	}
 	
 	public void warning(String msg) {
-		add(msg, LogType.WARNING, null);
+		add(msg, LogType.WARNING, compName);
 	}
 	
 	public void info(String msg) {
-		add(msg, LogType.INFO, null);
+		add(msg, LogType.INFO, compName);
 	}
 	
 	public void log(String msg) {
-		add(msg, LogType.LOG, null);
+		add(msg, LogType.LOG, compName);
 	}
 	
-	public void add(String msg, LogType type, Date date) {
-		if (date == null) date = new Date();
-		if (type == null) type = LogType.LOG;
-		SQLiteDB db = SQLiteDB.getInstance();
-		db.insertLog(msg, type);
-		update(context);
+	public void add(String msg, LogType type, String compName) {
+		db.insertLog(msg, type, compName);
+		lastType = type;
+		lastStt = msg;
+		update();
 	}
 	
 	public void clear() {
-		SQLiteDB db = SQLiteDB.getInstance();
-		db.clearLogs();
-		update(context);
+		clear(false);
 	}
 	
-	public void update(Context context)
+	public void clear(boolean clearData) {
+		if (clearData) db.clearLogs();
+		lastType = filterType;
+		lastStt = "";
+		update();
+	}
+	
+	public void exit() {
+		lastType = null;
+		lastStt = "";
+		filterType = null;
+	}
+	
+	public void update()
 	{
-		if (context == null) return;
-		this.context = context;
-		
-		LinearLayout sttLayout = ((Activity) context).findViewById(R.id.statusLayout);
-		if (sttLayout == null) return;
-		
-		String actName = ((Activity) context).getComponentName().getShortClassName();
-		if (!this.actName.equals(actName) || isInit) {
-			isInit = false;
-			this.actName = actName;
-			iconType = (ImageView) sttLayout.getChildAt(0);
-			scrollBar = (HorizontalScrollView) sttLayout.getChildAt(1);
-			status = (TextView) scrollBar.getChildAt(0);
-		}
-		
-		SQLiteDB db = SQLiteDB.getInstance();
-		logs = db.getLogs();
-		
-		if (logs.size() > 0) {
-			Map<String, Object> log = logs.get(0);
-			LogType type = (LogType) log.get("type");
-			setIconType(type);
-			String sttMessage = status.getText().toString();
-			String lastLog = (String) log.get("message");
-			if (!sttMessage.equals(lastLog)) {
-				status.setText(lastLog);
-				scrollBar.scrollTo(0, 0);
-			}
-		} else {
-			setIconType(filterType);
-			status.setText("");
+		if (lastSttBar == null) return;
+		if (isInit) lastSttBar = this;
+		if (filterType != null && filterType != lastType) return;
+		setIconType(lastType);
+		String sttMessage = lastSttBar.status.getText().toString();
+		if (!lastStt.equals(sttMessage)) {
+			lastSttBar.status.setText(lastStt);
+			lastSttBar.scrollBar.scrollTo(0, 0);
 		}
 	}
 	
 	private void setIconType(LogType type) {
 		switch (type) {
 			case ERROR:
-				iconType.setImageResource(R.drawable.ico_bug);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_bug);
 				break;
 			case SUCCESS:
-				iconType.setImageResource(R.drawable.ico_check_circle);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_check_circle);
 				break;
 			case WARNING:
-				iconType.setImageResource(R.drawable.ico_exclamation_triangle);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_exclamation_triangle);
 				break;
 			case INFO:
-				iconType.setImageResource(R.drawable.ico_info_circle);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_info_circle);
 				break;
 			case LOG:
-				iconType.setImageResource(R.drawable.ico_feather);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_feather);
 				break;
 			default:
-				iconType.setImageResource(R.drawable.ico_clipboard_list);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_clipboard_list);
 		}
-	}
-	
-	public StatusBar setLogs(List<Map<String, Object>> logs) {
-		this.logs = logs;
-		return this;
-	}
-	
-	public List<Map<String, Object>> getLogs() {
-		return logs;
 	}
 }

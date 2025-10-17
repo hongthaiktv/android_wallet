@@ -30,7 +30,7 @@ public class MainActivity extends Activity
 		ivBGround = findViewById(R.id.mainIvBGround);
 		mainLayout = findViewById(R.id.mainLayout);
 		
-		stt = StatusBar.initial(this);
+		stt = new StatusBar(this).init();
 		srv = AppSetting.getAppContext().getServiceConnection();
 		
 		tvTable.setOnClickListener(new OnClickListener() {
@@ -97,7 +97,14 @@ public class MainActivity extends Activity
 	{
 		super.onResume();
 		
-		stt.update(this);
+		stt.update();
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		stt.exit();
 	}
 }
 

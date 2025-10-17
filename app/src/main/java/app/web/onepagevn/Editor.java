@@ -10,22 +10,25 @@ import java.util.*;
 
 public class Editor extends Activity
 {
-	private Button btnService, btnSync, btnClick;
+	private Button btnService, btnSync, btnClear, btnClick;
 	private StatusBar stt;
 	private AppSetting app = AppSetting.getAppContext();
-	private AppServiceConnection conn = app.getServiceConnection();
+	private AppServiceConnection conn;
+	private SQLiteDB db;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor);
-
+		
 		btnService = findViewById(R.id.editorBtnService);
 		btnSync = findViewById(R.id.editorBtnSync);
+		btnClear = findViewById(R.id.editorBtnClear);
 		btnClick = findViewById(R.id.editorBtnClick);
-		stt = StatusBar.initial(this);
-		//conn = app.getServiceConnection();
+		stt = new StatusBar(this).init();
+		conn = app.getServiceConnection();
+		db = new SQLiteDB();
 		
 		btnService.setOnClickListener(new OnClickListener() {
 
@@ -42,7 +45,17 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					stt.clear();
+					Message msg = Message.obtain(null, AppService.SYNC);
+					conn.send(msg);
+				}
+			});
+			
+		btnClear.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View p1)
+				{
+					stt.clear(true);
 				}
 			});
 			
@@ -53,6 +66,7 @@ public class Editor extends Activity
 				{
 					Message msg = Message.obtain(null, new Runnable() {
 							ScheduledFuture sf;
+							Context context = Editor.this;
 						
 							@Override
 							public void run()
@@ -64,17 +78,24 @@ public class Editor extends Activity
 									@Override
 									public void run()
 									{
-										StatusBar.getInstance().log(counter++ + ": exe received Runnable obj");
-										if (counter >= 21) {
+										stt.log(counter++ + ": exe received Runnable obj");
+//										try {
+//											TextView stt = ((Activity) context).findViewById(R.id.statusTvStatus);
+//											stt.setText(counter++ + ": exe received Runnable obj");
+//										} catch (Exception e) {
+//											Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+//										}
+										if (counter >= 6) {
 											sf.cancel(false);
-											StatusBar.getInstance().log("schedule finish.");
+											stt.log("schedule finish.");
 										}
 									}
 								};
 								sf = sexe.scheduleAtFixedRate(run, 1, 1, TimeUnit.SECONDS);
 							}
 						});
-					conn.send(msg);
+					AppSetting.getAppContext().getServiceConnection().send(msg);
+					//conn.send(msg);
 				}
 			});
 	}
@@ -84,7 +105,7 @@ public class Editor extends Activity
 	{
 		super.onResume();
 		
-		stt.update(this);
+		stt.update();
 		
 		Intent intent = getIntent();
 		String intAction = intent.getAction();

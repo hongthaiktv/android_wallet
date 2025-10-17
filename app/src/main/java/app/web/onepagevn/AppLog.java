@@ -20,7 +20,7 @@ public class AppLog extends Activity
 		button = findViewById(R.id.applogButton);
 		btnExit = findViewById(R.id.applogBtnExit);
 		
-		stt = StatusBar.initial(this);
+		stt = new StatusBar(this).init();
 		
 		button.setOnClickListener(new OnClickListener() {
 
