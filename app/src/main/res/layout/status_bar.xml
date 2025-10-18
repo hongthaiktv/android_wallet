@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content"
 		android:padding="5dp"
 		android:background="@color/darkGreen"
-		android:src="@drawable/ico_clipboard_list"/>
+		android:src="@drawable/ico_clipboard_list_white"/>
 
 	<HorizontalScrollView
 		android:layout_width="match_parent"

@@ -169,7 +169,14 @@ public class StatusBar
 	public void update()
 	{
 		if (lastSttBar == null) return;
-		if (isInit) lastSttBar = this;
+		if (isInit && lastSttBar == null) {
+			lastSttBar = this;
+		} else if (isInit && !compName.equals(lastSttBar.compName) && lastType != null) {
+			List<Map<String, Object>> logs = db.getLogs(filterType);
+			lastType = (LogType) logs.get(0).get("type");
+			lastStt = (String) logs.get(0).get("message");
+			lastSttBar = this;
+		}
 		if (filterType != null && filterType != lastType) return;
 		setIconType(lastType);
 		String sttMessage = lastSttBar.status.getText().toString();

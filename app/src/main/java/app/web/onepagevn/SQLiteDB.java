@@ -121,8 +121,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			if (type != null) {
 				String[] whereArgs = {type.name()};
-				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC", whereArgs);
-			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC", null);
+				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT 101", whereArgs);
+			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 101", null);
 		} catch (Exception e) {
 			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 		}
