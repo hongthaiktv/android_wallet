@@ -8,6 +8,7 @@ public class AppSetting extends Application
 	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
+	private int maxDialogLogs = 100;
 
 	@Override
 	public void onCreate()
@@ -37,5 +38,13 @@ public class AppSetting extends Application
 	
 	public AppServiceConnection getServiceConnection() {
 		return appSrvConn;
+	}
+	
+	public void setMaxDialogLogs(int limit) {
+		maxDialogLogs = limit;
+	}
+	
+	public int getMaxDialogLogs() {
+		return maxDialogLogs;
 	}
 }

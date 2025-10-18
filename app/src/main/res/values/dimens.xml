@@ -38,4 +38,7 @@
 	<dimen name="dialogCPVerticalMD">4dp</dimen>
 	<dimen name="dialogCPHorizontalLG">10dp</dimen>
 	<dimen name="dialogCPVerticalLG">6dp</dimen>
+	<dimen name="dialogTimeWidthSM">66dp</dimen>
+	<dimen name="dialogTimeWidthMD">76dp</dimen>
+	<dimen name="dialogTimeWidthLG">85dp</dimen>
 </resources>

@@ -5,9 +5,11 @@ import android.graphics.*;
 import android.widget.*;
 import android.view.View.*;
 import android.view.*;
+import android.content.*;
 
 public class Admin extends Activity
 {
+	private EditText edtInput;
 	private Button btnRun;
 	private StatusBar stt;
 	
@@ -17,6 +19,7 @@ public class Admin extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.admin);
 		
+		edtInput = findViewById(R.id.admEdtInput);
 		btnRun = findViewById(R.id.admBtnRun);
 		stt = new StatusBar(this);
 		
@@ -25,8 +28,18 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					stt.success("admin msg");
+					int maxLogs = Integer.valueOf(edtInput.getText().toString());
+					AppSetting.getAppContext().setMaxDialogLogs(maxLogs);
 				}
 			});
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		
+		Intent intMain = new Intent(this, MainActivity.class);
+		startActivity(intMain);
 	}
 }

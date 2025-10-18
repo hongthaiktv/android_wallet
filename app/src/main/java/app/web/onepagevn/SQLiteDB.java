@@ -7,6 +7,7 @@ import android.content.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
+	private int maxDialogLogs = AppSetting.getAppContext().getMaxDialogLogs() + 1;
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
@@ -112,17 +113,22 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getLogs() {
-		return getLogs(null);
+		return getLogs(null, true);
 	}
 	
 	public List<Map<String, Object>> getLogs(LogType type) {
+		return getLogs(type, false);
+	}
+	
+	private List<Map<String, Object>> getLogs(LogType type, boolean all) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
-			if (type != null) {
+			if (all) cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC", null);
+			else if (type != null) {
 				String[] whereArgs = {type.name()};
-				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT 101", whereArgs);
-			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 101", null);
+				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT " + maxDialogLogs, whereArgs);
+			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + maxDialogLogs, null);
 		} catch (Exception e) {
 			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 		}
