@@ -77,7 +77,7 @@ public class StatusBar
 							public void onClick(DialogInterface dialog, int index)
 							{
 								filterType = (LogType) types.get(index).get("type");
-								List<Map<String, Object>> logs = filterType == null ? db.getLogs() : db.getLogs(filterType);
+								List<Map<String, Object>> logs = db.getLogs(filterType);
 								if (logs.size() == 0) clear();
 								else {
 									lastType = (LogType) logs.get(0).get("type");
@@ -111,7 +111,7 @@ public class StatusBar
 							});
 					}
 					
-					List<Map<String, Object>> logs = filterType == null ? db.getLogs() : db.getLogs(filterType);
+					List<Map<String, Object>> logs = db.getLogs(filterType);
 					ListAdapter sttAdapter = new StatusAdapter(context, logs);
 					dlgStatus.setAdapter(sttAdapter, null);
 					dlgStatus.create().show();
