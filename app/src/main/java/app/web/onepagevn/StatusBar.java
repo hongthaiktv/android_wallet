@@ -9,8 +9,8 @@ import java.util.*;
 public class StatusBar
 {
 	private static StatusBar lastSttBar;
-	private static String lastStt = "";
 	private static LogType lastType;
+	private static String lastStt = "";
 	private static LogType filterType;
 	
 	private Context context;
@@ -144,9 +144,11 @@ public class StatusBar
 	
 	public void add(String msg, LogType type, String compName) {
 		db.insertLog(msg, type, compName);
-		lastType = type;
-		lastStt = msg;
-		update();
+		if (filterType == null || filterType == type) {
+			lastType = type;
+			lastStt = msg;
+			update();
+		}
 	}
 	
 	public void clear() {
@@ -169,15 +171,7 @@ public class StatusBar
 	public void update()
 	{
 		if (lastSttBar == null) return;
-		if (isInit && lastSttBar == null) {
-			lastSttBar = this;
-		} else if (isInit && !compName.equals(lastSttBar.compName) && lastType != null) {
-			List<Map<String, Object>> logs = db.getLogs(filterType);
-			lastType = (LogType) logs.get(0).get("type");
-			lastStt = (String) logs.get(0).get("message");
-			lastSttBar = this;
-		}
-		if (filterType != null && filterType != lastType) return;
+		if (isInit && !compName.equals(lastSttBar.compName)) lastSttBar = this;
 		setIconType(lastType);
 		String sttMessage = lastSttBar.status.getText().toString();
 		if (!lastStt.equals(sttMessage)) {
