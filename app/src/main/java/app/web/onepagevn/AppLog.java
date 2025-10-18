@@ -42,4 +42,11 @@ public class AppLog extends Activity
 				}
 			});
 	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		stt.update();
+	}
 }

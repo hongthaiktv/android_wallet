@@ -197,7 +197,7 @@ public class StatusBar
 				lastSttBar.iconType.setImageResource(R.drawable.ico_feather);
 				break;
 			default:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_clipboard_list);
+				lastSttBar.iconType.setImageResource(R.drawable.ico_clipboard_list_white);
 		}
 	}
 }

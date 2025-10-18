@@ -10,7 +10,7 @@ public class AppServiceConnection implements ServiceConnection
 	private Intent intService;
 	private Messenger serviceMessenger;
 	private Runnable callBack;
-	private StatusBar stt;
+	private StatusBar stt = new StatusBar("Service Connection");
 	private boolean connected = false;
 	
 	public AppServiceConnection(Context context) {
@@ -25,7 +25,6 @@ public class AppServiceConnection implements ServiceConnection
 	private void init(Context context) {
 		this.context = context;
 		intService = new Intent(context, AppService.class);
-		stt = new StatusBar("Service Connection");
 	}
 
 	@Override
