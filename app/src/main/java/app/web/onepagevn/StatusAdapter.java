@@ -11,7 +11,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	private Context context;
 	private DialogSize size = DialogSize.SMALL;
 	private String estPrefix = "'(EST) '";
-	private int maxDialogLogs = AppSetting.getAppContext().getMaxDialogLogs();
+	private int dialogMaxLogs = AppSetting.getAppContext().getDialogMaxLogs();
 	private boolean readMore = true;
 	private String readMoreText = ".........";
 	
@@ -145,7 +145,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 			String dateTime = formater.format(timeStamp) + " :";
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 			if (readMore) {
-				if (position < maxDialogLogs) tvTime.setText(dateTime);
+				if (position < dialogMaxLogs) tvTime.setText(dateTime);
 				else {
 					tvTime.setText("");
 					tvTime.setWidth(timeWidth);
@@ -155,7 +155,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		
 		LogType type = (LogType) log.get("type");
 		if (readMore) {
-			if (position < maxDialogLogs) {
+			if (position < dialogMaxLogs) {
 				setImageResource(iconType, type);
 			} else iconType.setImageResource(0);
 		} else setImageResource(iconType, type);
@@ -167,7 +167,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		String status = (String) log.get("message");
 		tvLog.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 		if (readMore) {
-			if (position < maxDialogLogs) tvLog.setText(status);
+			if (position < dialogMaxLogs) tvLog.setText(status);
 			else tvLog.setText(readMoreText);
 		} else tvLog.setText(status);
 		
