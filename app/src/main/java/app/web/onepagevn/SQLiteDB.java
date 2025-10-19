@@ -7,7 +7,7 @@ import android.content.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
-	private int maxDialogLogs = AppSetting.getAppContext().getMaxDialogLogs() + 1;
+	private AppSetting app = AppSetting.getAppContext();
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
@@ -42,7 +42,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, component TEXT, message TEXT)");
 			insertLog("Database created.", LogType.SUCCESS, "Database", db);
 		} catch (Exception e) {
-			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -54,7 +54,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			db.execSQL("PRAGMA foreign_keys = true");
 		} catch (Exception e) {
-			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -106,49 +106,60 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			result = db.insert("logs", null, values);
 		} catch (Exception e) {
-			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		if (isNullDB) db.close();
 		return result;
 	}
 	
 	public List<Map<String, Object>> getLogs() {
-		return getLogs(null, true);
+		String sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC";
+		return getLogs(sql, null);
+	}
+	
+	public List<Map<String, Object>> getLogs(int limit) {
+		String sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
+		String[] args = {String.valueOf(limit)};
+		return getLogs(sql, args);
 	}
 	
 	public List<Map<String, Object>> getLogs(LogType type) {
-		return getLogs(type, false);
+		String sql; String[] args;
+		int maxDialogLogs = app.getMaxDialogLogs();
+		if (type == null) {
+			sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
+			if (maxDialogLogs < 10) args = new String[] {String.valueOf(maxDialogLogs)};
+			else args = new String[] {String.valueOf(maxDialogLogs + 1)};
+		} else {
+			sql = "SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
+			if (maxDialogLogs < 10) args = new String[] {type.name(), String.valueOf(maxDialogLogs)};
+			else args = new String[] {type.name(), String.valueOf(maxDialogLogs + 1)};
+		}
+		return getLogs(sql, args);
 	}
 	
-	private List<Map<String, Object>> getLogs(LogType type, boolean all) {
+	private List<Map<String, Object>> getLogs(String sql, String[] args) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
-			if (all) cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC", null);
-			else if (type != null) {
-				String[] whereArgs = {type.name()};
-				cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT " + maxDialogLogs, whereArgs);
-			} else cursor = (SQLiteDBCursor) db.rawQuery("SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + maxDialogLogs, null);
+			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
 		} catch (Exception e) {
-			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		List<Map<String, Object>> result = new ArrayList<>();
 		while (cursor.moveToNext()) {
 			Map<String, Object> row = new LinkedHashMap<>();
 			for (int i = 0; i < cursor.getColumnCount(); i++) {
+				String key = cursor.getColumnName(i);
 				switch (i) {
 					case 0:
-						row.put("timestamp", new Date(cursor.getLong(i)));
+						row.put(key, new Date(cursor.getLong(i)));
 						break;
 					case 1:
-						row.put("type", LogType.valueOf(cursor.getString(i)));
+						row.put(key, LogType.valueOf(cursor.getString(i)));
 						break;
-					case 2:
-						row.put("component", cursor.getString(i));
-						break;
-					case 3:
-						row.put("message", cursor.getString(i));
-						break;
+					default:
+						row.put(key, cursor.getString(i));
 				}
 			}
 			result.add(row);
@@ -163,7 +174,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			db.execSQL("DELETE FROM logs");
 		} catch (Exception e) {
-			Toast.makeText(AppSetting.getAppContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		db.close();
 	}

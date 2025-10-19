@@ -78,7 +78,6 @@ public class MainActivity extends Activity
 			{
 				Intent intAdmin = new Intent(MainActivity.this, Admin.class);
 				startActivity(intAdmin);
-				finish();
 			}
 		});
 		

@@ -120,7 +120,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 			} else formater.applyPattern(estPrefix + "dd MMM yyyy HH:mm");
 			String dateTime = formater.format(timeStamp) + " :";
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-			if (position < maxDialogLogs) tvTime.setText(dateTime);
+			if (position < maxDialogLogs || position < 10) tvTime.setText(dateTime);
 			else {
 				tvTime.setText("");
 				tvTime.setWidth(timeWidth);
@@ -128,7 +128,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		}
 		
 		LogType type = (LogType) log.get("type");
-		if (position < maxDialogLogs) {
+		if (position < maxDialogLogs || position < 10) {
 			switch (type) {
 				case ERROR:
 					iconType.setImageResource(R.drawable.ico_bug);
@@ -154,7 +154,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		
 		String status = (String) log.get("message");
 		tvLog.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-		if (position < maxDialogLogs) tvLog.setText(status);
+		if (position < maxDialogLogs || position < 10) tvLog.setText(status);
 		else tvLog.setText(".........");
 		
 		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);

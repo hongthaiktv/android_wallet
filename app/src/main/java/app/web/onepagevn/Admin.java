@@ -28,18 +28,9 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					int maxLogs = Integer.valueOf(edtInput.getText().toString());
-					AppSetting.getAppContext().setMaxDialogLogs(maxLogs);
+					int maxDialogLogs = Integer.valueOf(edtInput.getText().toString());
+					AppSetting.getAppContext().setMaxDialogLogs(maxDialogLogs);
 				}
 			});
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
-		
-		Intent intMain = new Intent(this, MainActivity.class);
-		startActivity(intMain);
 	}
 }
