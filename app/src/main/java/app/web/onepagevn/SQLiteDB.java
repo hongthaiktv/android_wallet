@@ -128,11 +128,11 @@ public class SQLiteDB extends SQLiteOpenHelper
 		int maxDialogLogs = app.getMaxDialogLogs();
 		if (type == null) {
 			sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
-			if (maxDialogLogs < 10) args = new String[] {String.valueOf(maxDialogLogs)};
+			if (maxDialogLogs <= 0) args = new String[] {String.valueOf(maxDialogLogs)};
 			else args = new String[] {String.valueOf(maxDialogLogs + 1)};
 		} else {
 			sql = "SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
-			if (maxDialogLogs < 10) args = new String[] {type.name(), String.valueOf(maxDialogLogs)};
+			if (maxDialogLogs <= 0) args = new String[] {type.name(), String.valueOf(maxDialogLogs)};
 			else args = new String[] {type.name(), String.valueOf(maxDialogLogs + 1)};
 		}
 		return getLogs(sql, args);

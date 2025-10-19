@@ -41,7 +41,8 @@ public class AppSetting extends Application
 	}
 	
 	public void setMaxDialogLogs(int limit) {
-		maxDialogLogs = limit;
+		if (limit <= 0) stt.error("Max dialog logs must >= 1");
+		else maxDialogLogs = limit;
 	}
 	
 	public int getMaxDialogLogs() {

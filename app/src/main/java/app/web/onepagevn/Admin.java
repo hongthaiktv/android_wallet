@@ -28,8 +28,10 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					int maxDialogLogs = Integer.valueOf(edtInput.getText().toString());
-					AppSetting.getAppContext().setMaxDialogLogs(maxDialogLogs);
+					try {
+						int maxDialogLogs = Integer.valueOf(edtInput.getText().toString());
+						AppSetting.getAppContext().setMaxDialogLogs(maxDialogLogs);
+					} catch (Exception e) {stt.error(e.getMessage());}
 				}
 			});
 	}

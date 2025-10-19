@@ -70,7 +70,7 @@ public class StatusBar
 						line.put("message", message.substring(0, 1).toUpperCase() + message.substring(1));
 						types.add(line);
 					}
-					ListAdapter typeAdapter = new StatusAdapter(context, types, DialogSize.LARGE);
+					ListAdapter typeAdapter = new StatusAdapter(context, types, DialogSize.LARGE, false);
 					dlgType.setAdapter(typeAdapter, new DialogInterface.OnClickListener() {
 
 							@Override

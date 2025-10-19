@@ -11,33 +11,45 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	private Context context;
 	private DialogSize size = DialogSize.SMALL;
 	private String estPrefix = "'(EST) '";
-	private int maxDialogLogs;
+	private int maxDialogLogs = AppSetting.getAppContext().getMaxDialogLogs();
+	private boolean readMore = true;
+	private String readMoreText = ".........";
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs) {
 		super(context, R.layout.status_log, logs);
-		initial(context, null, null);
+		initial(context, null, null, true);
+	}
+	
+	public StatusAdapter(Context context, List<Map<String, Object>> logs, boolean readMore) {
+		super(context, R.layout.status_log, logs);
+		initial(context, null, null, readMore);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size) {
 		super(context, R.layout.status_log, logs);
-		initial(context, size, null);
+		initial(context, size, null, true);
+	}
+	
+	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size, boolean readMore) {
+		super(context, R.layout.status_log, logs);
+		initial(context, size, null, readMore);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, String estPrefix) {
 		super(context, R.layout.status_log, logs);
-		initial(context, null, estPrefix);
+		initial(context, null, estPrefix, true);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size, String estPrefix) {
 		super(context, R.layout.status_log, logs);
-		initial(context, size, estPrefix);
+		initial(context, size, estPrefix, true);
 	}
 	
-	private void initial(Context context, DialogSize size, String estPrefix) {
+	private void initial(Context context, DialogSize size, String estPrefix, boolean readMore) {
 		this.context = context;
 		if (size != null) this.size = size;
 		if (estPrefix != null) setEstPrefix(estPrefix);
-		maxDialogLogs = AppSetting.getAppContext().getMaxDialogLogs();
+		this.readMore = readMore;
 	}
 	
 	public StatusAdapter setSize(DialogSize size)
@@ -48,7 +60,19 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	
 	public StatusAdapter setEstPrefix(String estPrefix)
 	{
-		this.estPrefix = estPrefix.equals("") ? "" : "'" + estPrefix + "'";
+		this.estPrefix = estPrefix.equals("") || estPrefix == null ? "" : "'" + estPrefix + "'";
+		return this;
+	}
+	
+	public StatusAdapter setReadMore(boolean readMore)
+	{
+		this.readMore = readMore;
+		return this;
+	}
+	
+	public StatusAdapter setReadMoreText(String text)
+	{
+		readMoreText = text;
 		return this;
 	}
 
@@ -120,33 +144,21 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 			} else formater.applyPattern(estPrefix + "dd MMM yyyy HH:mm");
 			String dateTime = formater.format(timeStamp) + " :";
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-			if (position < maxDialogLogs || position < 10) tvTime.setText(dateTime);
-			else {
-				tvTime.setText("");
-				tvTime.setWidth(timeWidth);
-			}
+			if (readMore) {
+				if (position < maxDialogLogs) tvTime.setText(dateTime);
+				else {
+					tvTime.setText("");
+					tvTime.setWidth(timeWidth);
+				}
+			} else tvTime.setText(dateTime);
 		}
 		
 		LogType type = (LogType) log.get("type");
-		if (position < maxDialogLogs || position < 10) {
-			switch (type) {
-				case ERROR:
-					iconType.setImageResource(R.drawable.ico_bug);
-					break;
-				case SUCCESS:
-					iconType.setImageResource(R.drawable.ico_check_circle);
-					break;
-				case WARNING:
-					iconType.setImageResource(R.drawable.ico_exclamation_triangle);
-					break;
-				case INFO:
-					iconType.setImageResource(R.drawable.ico_info_circle);
-					break;
-				case LOG:
-					iconType.setImageResource(R.drawable.ico_feather);
-					break;
-			}
-		} else iconType.setImageResource(0);
+		if (readMore) {
+			if (position < maxDialogLogs) {
+				setImageResource(iconType, type);
+			} else iconType.setImageResource(0);
+		} else setImageResource(iconType, type);
 		
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
 		params.setMargins(iconMarginH, iconMarginTop, iconMarginH, 0);
@@ -154,10 +166,32 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		
 		String status = (String) log.get("message");
 		tvLog.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-		if (position < maxDialogLogs || position < 10) tvLog.setText(status);
-		else tvLog.setText(".........");
+		if (readMore) {
+			if (position < maxDialogLogs) tvLog.setText(status);
+			else tvLog.setText(readMoreText);
+		} else tvLog.setText(status);
 		
 		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);
 		return view;
+	}
+	
+	private void setImageResource(ImageView iconType, LogType type) {
+		switch (type) {
+			case ERROR:
+				iconType.setImageResource(R.drawable.ico_bug);
+				break;
+			case SUCCESS:
+				iconType.setImageResource(R.drawable.ico_check_circle);
+				break;
+			case WARNING:
+				iconType.setImageResource(R.drawable.ico_exclamation_triangle);
+				break;
+			case INFO:
+				iconType.setImageResource(R.drawable.ico_info_circle);
+				break;
+			case LOG:
+				iconType.setImageResource(R.drawable.ico_feather);
+				break;
+		}
 	}
 }
