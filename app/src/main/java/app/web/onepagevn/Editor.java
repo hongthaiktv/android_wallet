@@ -37,6 +37,9 @@ public class Editor extends Activity
 				{
 					Message msg = Message.obtain(null, AppService.QUEUE);
 					conn.send(msg);
+					Map<String, Object> m = new HashMap<>();
+					m.put("value", 1);
+					int i = m.get("value");
 				}
 			});
 			
@@ -94,8 +97,7 @@ public class Editor extends Activity
 								sf = sexe.scheduleAtFixedRate(run, 1, 1, TimeUnit.SECONDS);
 							}
 						});
-					AppSetting.getAppContext().getServiceConnection().send(msg);
-					//conn.send(msg);
+					conn.send(msg);
 				}
 			});
 	}

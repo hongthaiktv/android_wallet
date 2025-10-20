@@ -40,8 +40,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		try {
 			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, component TEXT, message TEXT)");
-			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, lastupdate DATETIME DEFAULT CURRENT_TIMESTAMP, name TEXT NOT NULL UNIQUE, value)");
-			db.execSQL("INSERT INTO setting(name, value) VALUES('dialogMaxLogs', 100)");
+			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, lastupdate DATETIME DEFAULT CURRENT_TIMESTAMP, name TEXT NOT NULL UNIQUE, value TEXT NOT NULL, type TEXT NOT NULL)");
+			db.execSQL("INSERT INTO setting(name, value, type) VALUES('dialogMaxLogs', '100', 'INTEGER')");
 			insertLog("Database created.", LogType.SUCCESS, "Database", db);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -111,7 +111,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getSetting() {
-		String sql = "SELECT timestamp, lastupdate, name, value FROM setting ORDER BY name";
+		String sql = "SELECT timestamp, lastupdate, name, value, type FROM setting ORDER BY name";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
@@ -128,8 +128,41 @@ public class SQLiteDB extends SQLiteOpenHelper
 					case 0: case 1:
 						row.put(key, new Date(cursor.getLong(i)));
 						break;
-					default:
+					case 2:
 						row.put(key, cursor.getString(i));
+						break;
+					case 3:
+						DataType type = DataType.valueOf(cursor.getString(4));
+						switch (type) {
+							case STRING:
+								row.put(key, cursor.getString(i));
+								break;
+							case INTEGER:
+								row.put(key, cursor.getInt(i));
+								break;
+							case LONG:
+								row.put(key, cursor.getLong(i));
+								break;
+							case FLOAT:
+								row.put(key, cursor.getFloat(i));
+								break;
+							case DOUBLE:
+								row.put(key, cursor.getDouble(i));
+								break;
+							case BOOLEAN:
+								row.put(key, Boolean.valueOf(cursor.getString(i)));
+								break;
+							case BLOB:
+								row.put(key, cursor.getBlob(i));
+								break;
+							case DATETIME:
+								row.put(key, new Date(cursor.getString(i)));
+								break;
+						}
+						break;
+					case 4:
+						row.put(key, DataType.valueOf(cursor.getString(i)));
+						break;
 				}
 			}
 			result.add(row);
@@ -180,12 +213,10 @@ public class SQLiteDB extends SQLiteOpenHelper
 		int dialogMaxLogs = app.getDialogMaxLogs();
 		if (type == null) {
 			sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
-			if (dialogMaxLogs <= 0) args = new String[] {String.valueOf(dialogMaxLogs)};
-			else args = new String[] {String.valueOf(dialogMaxLogs + 1)};
+			args = new String[] {String.valueOf(dialogMaxLogs)};
 		} else {
 			sql = "SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
-			if (dialogMaxLogs <= 0) args = new String[] {type.name(), String.valueOf(dialogMaxLogs)};
-			else args = new String[] {type.name(), String.valueOf(dialogMaxLogs + 1)};
+			args = new String[] {type.name(), String.valueOf(dialogMaxLogs)};
 		}
 		return getLogs(sql, args);
 	}

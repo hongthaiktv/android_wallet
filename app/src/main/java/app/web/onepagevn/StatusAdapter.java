@@ -11,45 +11,31 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	private Context context;
 	private DialogSize size = DialogSize.SMALL;
 	private String estPrefix = "'(EST) '";
-	private int dialogMaxLogs = AppSetting.getAppContext().getDialogMaxLogs();
-	private boolean readMore = true;
-	private String readMoreText = ".........";
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs) {
 		super(context, R.layout.status_log, logs);
-		initial(context, null, null, true);
-	}
-	
-	public StatusAdapter(Context context, List<Map<String, Object>> logs, boolean readMore) {
-		super(context, R.layout.status_log, logs);
-		initial(context, null, null, readMore);
+		initial(context, null, null);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size) {
 		super(context, R.layout.status_log, logs);
-		initial(context, size, null, true);
-	}
-	
-	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size, boolean readMore) {
-		super(context, R.layout.status_log, logs);
-		initial(context, size, null, readMore);
+		initial(context, size, null);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, String estPrefix) {
 		super(context, R.layout.status_log, logs);
-		initial(context, null, estPrefix, true);
+		initial(context, null, estPrefix);
 	}
 	
 	public StatusAdapter(Context context, List<Map<String, Object>> logs, DialogSize size, String estPrefix) {
 		super(context, R.layout.status_log, logs);
-		initial(context, size, estPrefix, true);
+		initial(context, size, estPrefix);
 	}
 	
-	private void initial(Context context, DialogSize size, String estPrefix, boolean readMore) {
+	private void initial(Context context, DialogSize size, String estPrefix) {
 		this.context = context;
 		if (size != null) this.size = size;
 		if (estPrefix != null) setEstPrefix(estPrefix);
-		this.readMore = readMore;
 	}
 	
 	public StatusAdapter setSize(DialogSize size)
@@ -63,29 +49,17 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		this.estPrefix = estPrefix.equals("") || estPrefix == null ? "" : "'" + estPrefix + "'";
 		return this;
 	}
-	
-	public StatusAdapter setReadMore(boolean readMore)
-	{
-		this.readMore = readMore;
-		return this;
-	}
-	
-	public StatusAdapter setReadMoreText(String text)
-	{
-		readMoreText = text;
-		return this;
-	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
 		LayoutInflater inflater = LayoutInflater.from(context);
 		View view = inflater.inflate(R.layout.status_log, parent, false);
-		LinearLayout container = view.findViewById(R.id.status_logLayoutContainer);
+		LinearLayout container = (LinearLayout) view;
 		ImageView iconType = view.findViewById(R.id.status_logIvType);
 		TextView tvTime = view.findViewById(R.id.status_logTvTime);
 		TextView tvLog = view.findViewById(R.id.status_logTvLog);
-		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV, timeWidth;
+		int iconSize, iconMarginH, iconMarginTop, cPaddingH, cPaddingV;
 		float fontSize;
 		
 		Map<String, Object> log = getItem(position);
@@ -98,7 +72,6 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopMD);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalMD);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalMD);
-				timeWidth = context.getResources().getDimensionPixelSize(R.dimen.dialogTimeWidthMD);
 				break;
 			case LARGE:
 				fontSize = context.getResources().getDimension(R.dimen.dialogFontLG);
@@ -107,7 +80,6 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopLG);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalLG);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalLG);
-				timeWidth = context.getResources().getDimensionPixelSize(R.dimen.dialogTimeWidthLG);
 				break;
 			default:
 				fontSize = context.getResources().getDimension(R.dimen.dialogFontSM);
@@ -116,7 +88,6 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 				iconMarginTop = context.getResources().getDimensionPixelSize(R.dimen.dialogIconMTopSM);
 				cPaddingH = context.getResources().getDimensionPixelSize(R.dimen.dialogCPHorizontalSM);
 				cPaddingV = context.getResources().getDimensionPixelSize(R.dimen.dialogCPVerticalSM);
-				timeWidth = context.getResources().getDimensionPixelSize(R.dimen.dialogTimeWidthSM);
 		}
 		
 		Date timeStamp = (Date) log.get("timestamp");
@@ -144,21 +115,11 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 			} else formater.applyPattern(estPrefix + "dd MMM yyyy HH:mm");
 			String dateTime = formater.format(timeStamp) + " :";
 			tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-			if (readMore) {
-				if (position < dialogMaxLogs) tvTime.setText(dateTime);
-				else {
-					tvTime.setText("");
-					tvTime.setWidth(timeWidth);
-				}
-			} else tvTime.setText(dateTime);
+			tvTime.setText(dateTime);
 		}
 		
 		LogType type = (LogType) log.get("type");
-		if (readMore) {
-			if (position < dialogMaxLogs) {
-				setImageResource(iconType, type);
-			} else iconType.setImageResource(0);
-		} else setImageResource(iconType, type);
+		setImageResource(iconType, type);
 		
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(iconSize, iconSize);
 		params.setMargins(iconMarginH, iconMarginTop, iconMarginH, 0);
@@ -166,10 +127,7 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 		
 		String status = (String) log.get("message");
 		tvLog.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
-		if (readMore) {
-			if (position < dialogMaxLogs) tvLog.setText(status);
-			else tvLog.setText(readMoreText);
-		} else tvLog.setText(status);
+		tvLog.setText(status);
 		
 		container.setPadding(cPaddingH, cPaddingV, cPaddingH, cPaddingV);
 		return view;

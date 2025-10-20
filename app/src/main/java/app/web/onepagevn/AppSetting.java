@@ -31,7 +31,7 @@ public class AppSetting extends Application
 		for (int i = 0; i < setting.size(); i++) {
 			Map<String, Object> row = setting.get(i);
 			String name = (String) row.get("name");
-			if ("dialogMaxLogs".equals(name)) dialogMaxLogs = Integer.valueOf((String) row.get("value"));
+			if ("dialogMaxLogs".equals(name)) dialogMaxLogs = row.get("value");
 		}
 		appSrvConn.connect();
 		stt.info(db.getVersion());
@@ -48,7 +48,10 @@ public class AppSetting extends Application
 	
 	public void setDialogMaxLogs(int limit) {
 		if (limit <= 0) stt.error("Dialog max logs must >= 1");
-		else dialogMaxLogs = limit;
+		else {
+			dialogMaxLogs = limit;
+			stt.success("Dialog max logs changed to " + dialogMaxLogs);
+		}
 	}
 	
 	public int getDialogMaxLogs() {

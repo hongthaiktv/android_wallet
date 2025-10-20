@@ -37,7 +37,6 @@ public class Admin extends Activity
 						String limit = edtInput.getText().toString();
 						db.updateSetting("dialogMaxLogs", limit);
 						app.setDialogMaxLogs(Integer.valueOf(limit));
-						stt.success("Dialog max logs changed.");
 					} catch (Exception e) {stt.error(e.getMessage());}
 				}
 			});
