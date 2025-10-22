@@ -1,20 +1,52 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:gravity="center"
 	android:orientation="vertical">
-	
+
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:orientation="vertical"
 		android:gravity="center"
 		android:layout_weight="1">
-		
-		<EditText
-			android:id="@+id/admEdtInput"
+
+		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
+			android:layout_height="wrap_content"
+			android:orientation="horizontal">
+
+			<EditText
+				android:id="@+id/admEdtInput"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:singleLine="true"/>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<Button
+					android:id="@+id/admBtnUp"
+					android:layout_width="wrap_content"
+					android:layout_height="35dp"
+					style="?android:attr/buttonStyleSmall"
+					android:text="▲"/>
+
+				<Button
+					android:id="@+id/admBtnDown"
+					android:layout_width="wrap_content"
+					android:layout_height="35dp"
+					style="?android:attr/buttonStyleSmall"
+					android:text="▼"/>
+
+			</LinearLayout>
+
+		</LinearLayout>
 
 		<Button
 			android:id="@+id/admBtnRun"
@@ -27,7 +59,13 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="SQL"/>
-		
+
+		<Button
+			android:id="@+id/admBtnTest"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Test"/>
+
 	</LinearLayout>
-	
+
 </LinearLayout>

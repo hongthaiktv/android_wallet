@@ -40,8 +40,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		try {
 			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, component TEXT, message TEXT)");
-			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, lastupdate DATETIME DEFAULT CURRENT_TIMESTAMP, name TEXT NOT NULL UNIQUE, value TEXT NOT NULL, type TEXT NOT NULL)");
-			db.execSQL("INSERT INTO setting(name, value, type) VALUES('dialogMaxLogs', '100', 'INTEGER')");
+			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, lastupdate DATETIME DEFAULT CURRENT_TIMESTAMP, name TEXT NOT NULL UNIQUE, value NOT NULL, type TEXT NOT NULL)");
+			db.execSQL("INSERT INTO setting(name, value, type) VALUES('dlgMaxLogs', '100', 'INTEGER')");
 			insertLog("Database created.", LogType.SUCCESS, "Database", db);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -210,13 +210,13 @@ public class SQLiteDB extends SQLiteOpenHelper
 	
 	public List<Map<String, Object>> getLogs(LogType type) {
 		String sql; String[] args;
-		int dialogMaxLogs = app.getDialogMaxLogs();
+		int dlgMaxLogs = app.getDlgMaxLogs();
 		if (type == null) {
 			sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
-			args = new String[] {String.valueOf(dialogMaxLogs)};
+			args = new String[] {String.valueOf(dlgMaxLogs)};
 		} else {
 			sql = "SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
-			args = new String[] {type.name(), String.valueOf(dialogMaxLogs)};
+			args = new String[] {type.name(), String.valueOf(dlgMaxLogs)};
 		}
 		return getLogs(sql, args);
 	}

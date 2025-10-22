@@ -8,7 +8,8 @@ public class AppSetting extends Application
 	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
-	private int dialogMaxLogs = 100;
+	private int dlgMaxLogs = 100;
+	private RecentList<String> cmdHistory;
 
 	@Override
 	public void onCreate()
@@ -31,8 +32,9 @@ public class AppSetting extends Application
 		for (int i = 0; i < setting.size(); i++) {
 			Map<String, Object> row = setting.get(i);
 			String name = (String) row.get("name");
-			if ("dialogMaxLogs".equals(name)) dialogMaxLogs = row.get("value");
+			if ("dlgMaxLogs".equals(name)) dlgMaxLogs = row.get("value");
 		}
+		cmdHistory = new RecentList<>();
 		appSrvConn.connect();
 		stt.info(db.getVersion());
 	}
@@ -46,15 +48,19 @@ public class AppSetting extends Application
 		return appSrvConn;
 	}
 	
-	public void setDialogMaxLogs(int limit) {
+	public void setDlgMaxLogs(int limit) {
 		if (limit <= 0) stt.error("Dialog max logs must >= 1");
 		else {
-			dialogMaxLogs = limit;
-			stt.success("Dialog max logs changed to " + dialogMaxLogs);
+			dlgMaxLogs = limit;
+			stt.success("Dialog max logs changed to " + dlgMaxLogs);
 		}
 	}
 	
-	public int getDialogMaxLogs() {
-		return dialogMaxLogs;
+	public int getDlgMaxLogs() {
+		return dlgMaxLogs;
+	}
+	
+	public RecentList<String> getCmdHistory() {
+		return cmdHistory;
 	}
 }
