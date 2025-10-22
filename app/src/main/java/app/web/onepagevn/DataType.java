@@ -9,5 +9,6 @@ public enum DataType
 	DOUBLE,
 	BOOLEAN,
 	BLOB,
-	DATETIME
+	DATETIME,
+	JSON
 }

@@ -4,10 +4,12 @@ import android.database.sqlite.*;
 import android.widget.*;
 import java.util.*;
 import android.content.*;
+import org.json.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
 	private AppSetting app = AppSetting.getAppContext();
+	private String compName = "Database";
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
@@ -39,10 +41,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		try {
-			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, type TEXT, component TEXT, message TEXT)");
-			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, lastupdate DATETIME DEFAULT CURRENT_TIMESTAMP, name TEXT NOT NULL UNIQUE, value NOT NULL, type TEXT NOT NULL)");
-			db.execSQL("INSERT INTO setting(name, value, type) VALUES('dlgMaxLogs', '100', 'INTEGER')");
-			insertLog("Database created.", LogType.SUCCESS, "Database", db);
+			long now = new Date().getTime();
+			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
+			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, lastupdate DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE cmdhistory(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, lastupdate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE)");
+			db.execSQL("INSERT INTO setting(timestamp, lastupdate, name, value, datatype) VALUES(" + now + ", " + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
+			insertLog("Database created.", LogType.SUCCESS, compName, db);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
@@ -63,7 +67,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
-		insertLog("Database upgraded.", LogType.SUCCESS, "Database", db);
+		insertLog("Database upgraded.", LogType.SUCCESS, compName, db);
 	}
 	
 	public String getVersion() {
@@ -98,30 +102,38 @@ public class SQLiteDB extends SQLiteOpenHelper
 		else if (value instanceof Long) values.put("value", (Long) value);
 		else if (value instanceof Float) values.put("value", (Float) value);
 		else if (value instanceof Double) values.put("value", (Double) value);
-		else if (value instanceof Boolean) values.put("value", (Boolean) value);
+		else if (value instanceof Boolean) values.put("value", ((Boolean) value).toString());
+		else if (value instanceof JSONObject) values.put("value", ((JSONObject) value).toString());
 		String where = "name = ?";
 		String[] args = {keyName};
 		try {
 			result = db.update("setting", values, where, args);
 		} catch (Exception e) {
-			insertLog(e.getMessage(), LogType.ERROR, "Database");
+			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
 		db.close();
 		return result;
 	}
 	
-	public List<Map<String, Object>> getSetting() {
-		String sql = "SELECT timestamp, lastupdate, name, value, type FROM setting ORDER BY name";
+	public Map<String, Object> getSetting() {
+		return getSetting(false).get(0);
+	}
+	
+	public List<Map<String, Object>> getSetting(boolean full) {
+		String sql = "SELECT timestamp, lastupdate, name, value, datatype FROM setting ORDER BY name";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
 		} catch (Exception e) {
-			insertLog(e.getMessage(), LogType.ERROR, "Database");
+			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
 		List<Map<String, Object>> result = new ArrayList<>();
+		List<Map<String, Object>> brief = new ArrayList<>();
+		Map<String, Object> config = new HashMap<>();
 		while (cursor.moveToNext()) {
 			Map<String, Object> row = new LinkedHashMap<>();
+			String configName = "";
 			for (int i = 0; i < cursor.getColumnCount(); i++) {
 				String key = cursor.getColumnName(i);
 				switch (i) {
@@ -130,33 +142,52 @@ public class SQLiteDB extends SQLiteOpenHelper
 						break;
 					case 2:
 						row.put(key, cursor.getString(i));
+						configName = cursor.getString(i);
 						break;
 					case 3:
 						DataType type = DataType.valueOf(cursor.getString(4));
 						switch (type) {
 							case STRING:
 								row.put(key, cursor.getString(i));
+								config.put(configName, cursor.getString(i));
 								break;
 							case INTEGER:
 								row.put(key, cursor.getInt(i));
+								config.put(configName, cursor.getInt(i));
 								break;
 							case LONG:
 								row.put(key, cursor.getLong(i));
+								config.put(configName, cursor.getLong(i));
 								break;
 							case FLOAT:
 								row.put(key, cursor.getFloat(i));
+								config.put(configName, cursor.getFloat(i));
 								break;
 							case DOUBLE:
 								row.put(key, cursor.getDouble(i));
+								config.put(configName, cursor.getDouble(i));
 								break;
 							case BOOLEAN:
 								row.put(key, Boolean.valueOf(cursor.getString(i)));
+								config.put(configName, Boolean.valueOf(cursor.getString(i)));
 								break;
 							case BLOB:
 								row.put(key, cursor.getBlob(i));
+								config.put(configName, cursor.getBlob(i));
 								break;
 							case DATETIME:
-								row.put(key, new Date(cursor.getString(i)));
+								row.put(key, new Date(cursor.getLong(i)));
+								config.put(configName, new Date(cursor.getLong(i)));
+								break;
+							case JSON:
+								try {
+									JSONObject json = new JSONObject(cursor.getString(i));
+									row.put(key, json);
+									config.put(configName, json);
+								}
+								catch (Exception e) {
+									insertLog(e.getMessage(), LogType.ERROR, compName);
+								}
 								break;
 						}
 						break;
@@ -167,9 +198,59 @@ public class SQLiteDB extends SQLiteOpenHelper
 			}
 			result.add(row);
 		}
+		brief.add(config);
 		cursor.close();
 		db.close();
+		if (!full) return brief;
 		return result;
+	}
+	
+	public void addCmdHistory(RecentList<String> commands) {
+		SQLiteDatabase db = getWritableDatabase();
+		try {
+			db.execSQL("DELETE FROM cmdhistory");
+			for (String command : commands) {
+				addCmdHistory(command);
+			}
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		db.close();
+	}
+	
+	public long addCmdHistory(String command) {
+		SQLiteDatabase db = getWritableDatabase();
+		ContentValues values = new ContentValues();
+		long now = new Date().getTime();
+		values.put("timestamp", now);
+		values.put("lastupdate", now);
+		values.put("command", command);
+		long result = -1;
+		try {
+			result = db.insert("cmdhistory", null, values);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		db.close();
+		return result;
+	}
+	
+	public RecentList<String> getCmdHistory() {
+		String sql = "SELECT timestamp, lastupdate, command FROM cmdhistory ORDER BY timestamp";
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = null;
+		RecentList<String> history = new RecentList<>();
+		try {
+			cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
+			while (cursor.moveToNext()) {
+				history.add(cursor.getString(2));
+			}
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		if (cursor != null) cursor.close();
+		db.close();
+		return history;
 	}
 	
 	public long insertLog(String msg, LogType type, String compName) {

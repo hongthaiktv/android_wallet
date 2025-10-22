@@ -8,8 +8,8 @@ public class AppSetting extends Application
 	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
-	private int dlgMaxLogs = 100;
 	private RecentList<String> cmdHistory;
+	private Map<String, Object> setting;
 
 	@Override
 	public void onCreate()
@@ -19,6 +19,9 @@ public class AppSetting extends Application
 		appContext = this;
 		stt = new StatusBar(this);
 		db = new SQLiteDB();
+		setting = db.getSetting();
+		cmdHistory = db.getCmdHistory();
+		
 		appSrvConn = new AppServiceConnection(this, new Runnable() {
 
 				@Override
@@ -27,14 +30,7 @@ public class AppSetting extends Application
 					stt.log("Startup tasks...");
 				}
 			});
-		
-		List<Map<String, Object>> setting = db.getSetting();
-		for (int i = 0; i < setting.size(); i++) {
-			Map<String, Object> row = setting.get(i);
-			String name = (String) row.get("name");
-			if ("dlgMaxLogs".equals(name)) dlgMaxLogs = row.get("value");
-		}
-		cmdHistory = new RecentList<>();
+			
 		appSrvConn.connect();
 		stt.info(db.getVersion());
 	}
@@ -51,13 +47,14 @@ public class AppSetting extends Application
 	public void setDlgMaxLogs(int limit) {
 		if (limit <= 0) stt.error("Dialog max logs must >= 1");
 		else {
-			dlgMaxLogs = limit;
-			stt.success("Dialog max logs changed to " + dlgMaxLogs);
+			db.updateSetting("dlgMaxLogs", limit);
+			setting.put("dlgMaxLogs", limit);
+			stt.success("Dialog max logs changed to " + limit);
 		}
 	}
 	
 	public int getDlgMaxLogs() {
-		return dlgMaxLogs;
+		return setting.get("dlgMaxLogs");
 	}
 	
 	public RecentList<String> getCmdHistory() {

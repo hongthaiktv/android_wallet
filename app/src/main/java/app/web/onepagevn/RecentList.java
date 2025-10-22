@@ -61,6 +61,28 @@ public class RecentList<E> extends ArrayList<E>
 		return false;
 	}
 	
+	public E first() {
+		position = 0;
+		isLatest = false;
+		element = get(position);
+		return element;
+	}
+	
+	public E last() {
+		position = size();
+		isLatest = true;
+		element = null;
+		return element;
+	}
+	
+	public boolean bringToLast(E object) {
+		boolean isMoved = false;
+		if (remove(object)) isMoved = true;
+		add(object);
+		last();
+		return isMoved;
+	}
+	
 	@Override
 	public static <E extends Object> List<E> of()
 	{

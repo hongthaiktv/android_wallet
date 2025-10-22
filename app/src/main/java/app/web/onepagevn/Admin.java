@@ -6,7 +6,7 @@ import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.util.*;
-import android.content.*;
+import org.json.*;
 
 public class Admin extends Activity
 {
@@ -41,7 +41,8 @@ public class Admin extends Activity
 				{
 					if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
 						String cmd = edtInput.getText().toString();
-						history.add(cmd);
+						if (!history.bringToLast(cmd)) db.addCmdHistory(cmd);
+						btnSQL.performClick();
 						edtInput.setText("");
 					}
 					return false;
@@ -55,8 +56,7 @@ public class Admin extends Activity
 				{
 					try {
 						int limit = Integer.valueOf(edtInput.getText().toString());
-						db.updateSetting("dlgMaxLogs", limit);
-						app.setDlgMaxLogs(Integer.valueOf(limit));
+						app.setDlgMaxLogs(limit);
 					} catch (Exception e) {stt.error(e.getMessage());}
 				}
 			});
@@ -97,18 +97,16 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					SQLiteDatabase writer = db.getWritableDatabase();
-					SQLiteDBCursor cursor = null;
-					try {
-						Date date = new Date();
-						ContentValues values = new ContentValues();
-						values.put("name", date.getTime());
-						String sql = "INSERT INTO date(name) VALUES('today')";
-						writer.insert("date", null, values);
-						
-					} catch (Exception e) {stt.error(e.getMessage());}
-					if (cursor != null) cursor.close();
-					writer.close();
+					history.clear();
+//					SQLiteDatabase writer = db.getWritableDatabase();
+//					SQLiteDBCursor cursor = (SQLiteDBCursor) writer.rawQuery("SELECT timestamp FROM date", null);
+//					cursor.moveToFirst();
+//					long numDate = cursor.getLong(0);
+//					Date date = new Date(numDate);
+//					Date now = new Date();
+//					stt.log(numDate + " : " + date.toLocaleString() + " : " + now.toLocaleString());
+//					cursor.close();
+//					writer.close();
 				}
 			});
 			
@@ -140,5 +138,13 @@ public class Admin extends Activity
 		super.onResume();
 		
 		stt.update();
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		
+		db.addCmdHistory(history);
 	}
 }
