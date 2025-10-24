@@ -8,7 +8,6 @@ public class AppSetting extends Application
 	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
-	private RecentList<String> cmdHistory;
 	private Map<String, Object> setting;
 
 	@Override
@@ -20,7 +19,6 @@ public class AppSetting extends Application
 		stt = new StatusBar(this);
 		db = new SQLiteDB();
 		setting = db.getSetting();
-		cmdHistory = db.getCmdHistory();
 		
 		appSrvConn = new AppServiceConnection(this, new Runnable() {
 
@@ -55,9 +53,5 @@ public class AppSetting extends Application
 	
 	public int getDlgMaxLogs() {
 		return setting.get("dlgMaxLogs");
-	}
-	
-	public RecentList<String> getCmdHistory() {
-		return cmdHistory;
 	}
 }

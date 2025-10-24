@@ -111,9 +111,18 @@ public class StatusBar
 							});
 					}
 					
-					List<Map<String, Object>> logs = db.getLogs(filterType);
+					final List<Map<String, Object>> logs = db.getLogs(filterType);
 					ListAdapter sttAdapter = new StatusAdapter(context, logs);
-					dlgStatus.setAdapter(sttAdapter, null);
+					dlgStatus.setAdapter(sttAdapter, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int index)
+							{
+								ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+								ClipData data = ClipData.newPlainText("Status log item: " + index, (String) logs.get(index).get("message"));
+								clipboard.setPrimaryClip(data);
+							}
+						});
 					dlgStatus.create().show();
 				}
 			});

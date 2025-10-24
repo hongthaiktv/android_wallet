@@ -35,11 +35,9 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					Message msg = Message.obtain(null, AppService.QUEUE);
-					conn.send(msg);
-					Map<String, Object> m = new HashMap<>();
-					m.put("value", 1);
-					int i = m.get("value");
+//					Message msg = Message.obtain(null, AppService.QUEUE);
+//					conn.send(msg);
+					
 				}
 			});
 			

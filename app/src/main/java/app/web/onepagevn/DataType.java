@@ -2,7 +2,7 @@ package app.web.onepagevn;
 
 public enum DataType
 {
-	STRING,
+	TEXT,
 	INTEGER,
 	LONG,
 	FLOAT,

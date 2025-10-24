@@ -1,12 +1,11 @@
 package app.web.onepagevn;
 import android.app.*;
+import android.content.*;
 import android.database.sqlite.*;
 import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
-import java.util.*;
-import org.json.*;
 
 public class Admin extends Activity
 {
@@ -32,19 +31,14 @@ public class Admin extends Activity
 		app = AppSetting.getAppContext();
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
-		history = app.getCmdHistory();
+		history = db.getCmdHistory();
 		
 		edtInput.setOnKeyListener(new OnKeyListener() {
 
 				@Override
 				public boolean onKey(View view, int keyCode, KeyEvent event)
 				{
-					if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
-						String cmd = edtInput.getText().toString();
-						if (!history.bringToLast(cmd)) db.addCmdHistory(cmd);
-						btnSQL.performClick();
-						edtInput.setText("");
-					}
+					if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) btnSQL.performClick();
 					return false;
 				}
 			});
@@ -67,6 +61,10 @@ public class Admin extends Activity
 				public void onClick(View p1)
 				{
 					String sql = edtInput.getText().toString();
+					if (history.bringToLast(sql)) db.updateCmdHistory(sql);
+					else db.addCmdHistory(sql);
+					edtInput.setText("");
+					
 					SQLiteDatabase writer = db.getWritableDatabase();
 					boolean isData = false;
 					SQLiteDBCursor cursor = null;
@@ -97,16 +95,8 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					history.clear();
-//					SQLiteDatabase writer = db.getWritableDatabase();
-//					SQLiteDBCursor cursor = (SQLiteDBCursor) writer.rawQuery("SELECT timestamp FROM date", null);
-//					cursor.moveToFirst();
-//					long numDate = cursor.getLong(0);
-//					Date date = new Date(numDate);
-//					Date now = new Date();
-//					stt.log(numDate + " : " + date.toLocaleString() + " : " + now.toLocaleString());
-//					cursor.close();
-//					writer.close();
+					String cmd = edtInput.getText().toString();
+					
 				}
 			});
 			
@@ -116,7 +106,11 @@ public class Admin extends Activity
 				public void onClick(View p1)
 				{
 					String prevCmd = history.prev();
-					if (prevCmd != null) edtInput.setText(prevCmd);
+					if (prevCmd != null) {
+						edtInput.setText(prevCmd);
+						if (!edtInput.isFocused()) edtInput.requestFocus();
+						edtInput.setSelection(prevCmd.length());
+					}
 				}
 			});
 			
@@ -126,7 +120,10 @@ public class Admin extends Activity
 				public void onClick(View p1)
 				{
 					String nextCmd = history.next();
-					if (nextCmd != null) edtInput.setText(nextCmd);
+					if (nextCmd != null) {
+						edtInput.setText(nextCmd);
+						edtInput.setSelection(nextCmd.length());
+					}
 					else if (!history.isNull() && history.isLatest()) edtInput.setText("");
 				}
 			});
@@ -144,7 +141,5 @@ public class Admin extends Activity
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		
-		db.addCmdHistory(history);
 	}
 }

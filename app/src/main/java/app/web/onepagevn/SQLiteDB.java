@@ -43,9 +43,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			long now = new Date().getTime();
 			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
-			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, lastupdate DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
-			db.execSQL("CREATE TABLE cmdhistory(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, lastupdate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE)");
-			db.execSQL("INSERT INTO setting(timestamp, lastupdate, name, value, datatype) VALUES(" + now + ", " + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
+			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE cmdhistory(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
+			db.execSQL("INSERT INTO setting(timestamp, name, value, datatype) VALUES(" + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
 			insertLog("Database created.", LogType.SUCCESS, compName, db);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -120,7 +120,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getSetting(boolean full) {
-		String sql = "SELECT timestamp, lastupdate, name, value, datatype FROM setting ORDER BY name";
+		String sql = "SELECT timestamp, name, value, datatype FROM setting ORDER BY name";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
@@ -137,17 +137,17 @@ public class SQLiteDB extends SQLiteOpenHelper
 			for (int i = 0; i < cursor.getColumnCount(); i++) {
 				String key = cursor.getColumnName(i);
 				switch (i) {
-					case 0: case 1:
+					case 0:
 						row.put(key, new Date(cursor.getLong(i)));
 						break;
-					case 2:
+					case 1:
 						row.put(key, cursor.getString(i));
 						configName = cursor.getString(i);
 						break;
-					case 3:
-						DataType type = DataType.valueOf(cursor.getString(4));
+					case 2:
+						DataType type = DataType.valueOf(cursor.getString(3));
 						switch (type) {
-							case STRING:
+							case TEXT:
 								row.put(key, cursor.getString(i));
 								config.put(configName, cursor.getString(i));
 								break;
@@ -191,7 +191,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 								break;
 						}
 						break;
-					case 4:
+					case 3:
 						row.put(key, DataType.valueOf(cursor.getString(i)));
 						break;
 				}
@@ -205,17 +205,19 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
-	public void addCmdHistory(RecentList<String> commands) {
+	public long addCmdHistory(RecentList<String> commands) {
 		SQLiteDatabase db = getWritableDatabase();
+		long result = -1;
 		try {
 			db.execSQL("DELETE FROM cmdhistory");
 			for (String command : commands) {
-				addCmdHistory(command);
+				result = addCmdHistory(command);
 			}
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
 		db.close();
+		return result;
 	}
 	
 	public long addCmdHistory(String command) {
@@ -223,8 +225,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 		ContentValues values = new ContentValues();
 		long now = new Date().getTime();
 		values.put("timestamp", now);
-		values.put("lastupdate", now);
+		values.put("datecreate", now);
 		values.put("command", command);
+		values.put("times", 1);
 		long result = -1;
 		try {
 			result = db.insert("cmdhistory", null, values);
@@ -235,8 +238,20 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
+	public void updateCmdHistory(String command) {
+		SQLiteDatabase db = getWritableDatabase();
+		long now = new Date().getTime();
+		String sql = "UPDATE cmdhistory SET timestamp = " + now + ", times = times + 1 WHERE command = ?";
+		String[] args = {command};
+		try {
+			db.execSQL(sql, args);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+	}
+	
 	public RecentList<String> getCmdHistory() {
-		String sql = "SELECT timestamp, lastupdate, command FROM cmdhistory ORDER BY timestamp";
+		String sql = "SELECT timestamp, datecreate, command, times FROM cmdhistory ORDER BY timestamp";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		RecentList<String> history = new RecentList<>();
