@@ -6,6 +6,7 @@ import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+import java.util.*;
 
 public class Admin extends Activity
 {
@@ -15,6 +16,7 @@ public class Admin extends Activity
 	private StatusBar stt;
 	private SQLiteDB db;
 	private RecentList<String> history;
+	private SQLiteDBLayout tblData;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -28,6 +30,7 @@ public class Admin extends Activity
 		btnTest = findViewById(R.id.admBtnTest);
 		btnUp = findViewById(R.id.admBtnUp);
 		btnDown = findViewById(R.id.admBtnDown);
+		tblData = findViewById(R.id.admTableData);
 		app = AppSetting.getAppContext();
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
@@ -91,12 +94,11 @@ public class Admin extends Activity
 			});
 			
 		btnTest.setOnClickListener(new OnClickListener() {
-
+				
 				@Override
 				public void onClick(View p1)
 				{
 					String cmd = edtInput.getText().toString();
-					
 				}
 			});
 			

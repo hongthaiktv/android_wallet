@@ -14,6 +14,7 @@ public class StatusBar
 	private static LogType filterType;
 	
 	private Context context;
+	private AppSetting app = AppSetting.getAppContext();
 	private ImageView iconType;
 	private HorizontalScrollView scrollBar;
 	private TextView status;
@@ -77,7 +78,7 @@ public class StatusBar
 							public void onClick(DialogInterface dialog, int index)
 							{
 								filterType = (LogType) types.get(index).get("type");
-								List<Map<String, Object>> logs = db.getLogs(filterType);
+								List<Map<String, Object>> logs = db.getLogs(filterType, 1);
 								if (logs.size() == 0) clear();
 								else {
 									lastType = (LogType) logs.get(0).get("type");
@@ -111,7 +112,7 @@ public class StatusBar
 							});
 					}
 					
-					final List<Map<String, Object>> logs = db.getLogs(filterType);
+					final List<Map<String, Object>> logs = db.getLogs(filterType, app.getDlgMaxLogs());
 					ListAdapter sttAdapter = new StatusAdapter(context, logs);
 					dlgStatus.setAdapter(sttAdapter, new DialogInterface.OnClickListener() {
 

@@ -86,85 +86,73 @@ public class RecentList<E> extends ArrayList<E>
 	@Override
 	public static <E extends Object> List<E> of()
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of();
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5, e6);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5, e6, e7);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5, e6, e7, e8);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5, e6, e7, e8, e9);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10);
 	}
 
 	@Override
 	public static <E extends Object> List<E> of(E[] elements)
 	{
-		// TODO: Implement this method
-		return null;
+		return ArrayList.of(elements);
 	}
 
 	@Override

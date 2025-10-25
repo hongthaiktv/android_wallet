@@ -294,56 +294,86 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getLogs() {
-		String sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC";
+		String sql = "SELECT * FROM logs ORDER BY timestamp DESC";
 		return getLogs(sql, null);
 	}
 	
 	public List<Map<String, Object>> getLogs(int limit) {
-		String sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
+		String sql = "SELECT * FROM logs ORDER BY timestamp DESC LIMIT ?";
 		String[] args = {String.valueOf(limit)};
 		return getLogs(sql, args);
 	}
 	
 	public List<Map<String, Object>> getLogs(LogType type) {
+		return getLogs(type, -1);
+	}
+	
+	public List<Map<String, Object>> getLogs(LogType type, int limit) {
 		String sql; String[] args;
-		int dlgMaxLogs = app.getDlgMaxLogs();
 		if (type == null) {
-			sql = "SELECT timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT ?";
-			args = new String[] {String.valueOf(dlgMaxLogs)};
+			sql = "SELECT * FROM logs ORDER BY timestamp DESC LIMIT ?";
+			args = new String[] {String.valueOf(limit)};
 		} else {
-			sql = "SELECT timestamp, type, component, message FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
-			args = new String[] {type.name(), String.valueOf(dlgMaxLogs)};
+			sql = "SELECT * FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
+			args = new String[] {type.name(), String.valueOf(limit)};
 		}
 		return getLogs(sql, args);
 	}
 	
 	private List<Map<String, Object>> getLogs(String sql, String[] args) {
 		SQLiteDatabase db = getReadableDatabase();
+		List<Map<String, Object>> result = new ArrayList<>();
 		SQLiteDBCursor cursor = null;
 		try {
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
+			while (cursor.moveToNext()) {
+				Map<String, Object> row = new LinkedHashMap<>();
+				for (int i = 0; i < cursor.getColumnCount(); i++) {
+					String key = cursor.getColumnName(i);
+					switch (i) {
+						case 0:
+							row.put(key, cursor.getInt(i));
+							break;
+						case 1:
+							row.put(key, new Date(cursor.getLong(i)));
+							break;
+						case 2:
+							row.put(key, LogType.valueOf(cursor.getString(i)));
+							break;
+						default:
+							row.put(key, cursor.getString(i));
+					}
+				}
+				result.add(row);
+			}
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
+		if (cursor != null) cursor.close();
+		db.close();
+		return result;
+	}
+	
+	public List<Map<String, Object>> getData(String table) {
+		return getData(table, null, null);
+	}
+	
+	public List<Map<String, Object>> getData(String sql, String[] args) {
+		return getData(null, sql, args);
+	}
+	
+	private List<Map<String, Object>> getData(String table, String sql, String[] args) {
+		SQLiteDatabase db = getReadableDatabase();
 		List<Map<String, Object>> result = new ArrayList<>();
-		while (cursor.moveToNext()) {
-			Map<String, Object> row = new LinkedHashMap<>();
-			for (int i = 0; i < cursor.getColumnCount(); i++) {
-				String key = cursor.getColumnName(i);
-				switch (i) {
-					case 0:
-						row.put(key, new Date(cursor.getLong(i)));
-						break;
-					case 1:
-						row.put(key, LogType.valueOf(cursor.getString(i)));
-						break;
-					default:
-						row.put(key, cursor.getString(i));
-				}
-			}
-			result.add(row);
+		SQLiteDBCursor cursor = null;
+		try {
+			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table;
+			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
+		} catch (Exception e) {
+			if (!"logs".equals(table)) insertLog(e.getMessage(), LogType.ERROR, compName);
+			else Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-		cursor.close();
+		if (cursor != null) cursor.close();
 		db.close();
 		return result;
 	}
@@ -356,5 +386,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		db.close();
+	}
+	
+	public static interface RowOnClickListener {
+		public void onClick(TableRow row, int index, int id);
 	}
 }
