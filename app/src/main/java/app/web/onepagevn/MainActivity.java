@@ -45,7 +45,7 @@ public class MainActivity extends Activity
 					.setItems(tableNames, new DialogInterface.OnClickListener() {
 
 						@Override
-						public void onClick(DialogInterface p1, int index)
+						public void onClick(DialogInterface dialog, int index)
 						{
 							tblName = tableNames[index];
 							tvTable.setText(tblName);

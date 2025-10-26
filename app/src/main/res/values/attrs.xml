@@ -2,5 +2,6 @@
 <resources>
 	<declare-styleable name="SQLiteDBLayout">
 		<attr name="table" format="string" />
+		<attr name="hScroll" format="boolean" />
 	</declare-styleable>
 </resources>

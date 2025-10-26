@@ -94,11 +94,30 @@ public class Admin extends Activity
 			});
 			
 		btnTest.setOnClickListener(new OnClickListener() {
-				
+				String tblName = "";
 				@Override
 				public void onClick(View p1)
 				{
-					String cmd = edtInput.getText().toString();
+					List<Map<String, Object>> listTable = db.getData("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%'", null);
+					ArrayList<String> tables = new ArrayList<>();
+					for (Map<String, Object> table : listTable) {
+						tables.add((String) table.get("name"));
+					}
+					final String[] tableNames = tables.toArray(new String[0]);
+					AlertDialog.Builder dlgTable = new AlertDialog.Builder(Admin.this);
+					dlgTable.setTitle("Select Table")
+						.setIcon(R.drawable.ico_table)
+						.setItems(tableNames, new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int index)
+							{
+								tblName = tableNames[index];
+								SQLiteDBLayout tblData = findViewById(R.id.admTableData);
+								tblData.setTable(tblName);
+							}
+						});
+					dlgTable.create().show();
 				}
 			});
 			

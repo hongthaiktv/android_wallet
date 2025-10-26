@@ -369,6 +369,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table;
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
+			result = cursor.getList();
 		} catch (Exception e) {
 			if (!"logs".equals(table)) insertLog(e.getMessage(), LogType.ERROR, compName);
 			else Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -386,9 +387,5 @@ public class SQLiteDB extends SQLiteOpenHelper
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		db.close();
-	}
-	
-	public static interface RowOnClickListener {
-		public void onClick(TableRow row, int index, int id);
 	}
 }

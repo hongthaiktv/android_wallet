@@ -11,7 +11,6 @@ public class SQLiteDBCursor extends SQLiteCursor
 	
 	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
 		super(db, driver, editTable, query);
-		Toast.makeText(app, driver.toString() + " : ", Toast.LENGTH_LONG).show();
 		try {
 			while (moveToNext()) {
 				Map<String, Object> row = new LinkedHashMap<>();
