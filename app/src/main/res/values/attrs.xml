@@ -2,6 +2,13 @@
 <resources>
 	<declare-styleable name="SQLiteDBLayout">
 		<attr name="table" format="string" />
+		<attr name="ordHeader" format="string" />
 		<attr name="hScroll" format="boolean" />
+		<attr name="hideID" format="boolean" />
+		<attr name="hideColumn" format="integer" />
+		<attr name="hideColumn2" format="integer" />
+		<attr name="hideColumn3" format="integer" />
+		<attr name="hideColumn4" format="integer" />
+		<attr name="hideColumn5" format="integer" />
 	</declare-styleable>
 </resources>

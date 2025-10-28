@@ -114,7 +114,7 @@ public class Admin extends Activity
 							{
 								tblName = tableNames[index];
 								SQLiteDBLayout tblData = findViewById(R.id.admTableData);
-								tblData.setTable(tblName);
+								tblData.setTable(tblName).show();
 							}
 						});
 					dlgTable.create().show();

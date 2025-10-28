@@ -4,7 +4,10 @@ import android.content.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+import android.widget.LinearLayout.*;
 import java.util.*;
+
+import android.view.View.OnClickListener;
 
 public class StatusBar
 {
@@ -48,6 +51,8 @@ public class StatusBar
 	{
 		LayoutInflater sttInflater = LayoutInflater.from(context);
 		LinearLayout sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
+		LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		sttLayout.setLayoutParams(layout);
 		parent.addView(sttLayout);
 		iconType = (ImageView) sttLayout.getChildAt(0);
 		scrollBar = (HorizontalScrollView) sttLayout.getChildAt(1);

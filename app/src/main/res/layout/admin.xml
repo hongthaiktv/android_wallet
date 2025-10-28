@@ -4,8 +4,8 @@
 	xmlns:app="http://schemas.android.com/apk/res/app.web.onepagevn"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:gravity="center"
-	android:orientation="vertical">
+	android:orientation="vertical"
+	android:id="@+id/adminMain">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -79,10 +79,13 @@
 	<app.web.onepagevn.SQLiteDBLayout
 		android:id="@+id/admTableData"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:layout_weight="1"
 		app:table="logs"
-		app:hScroll="true">
+		app:hScroll="true"
+		app:hideID="true"
+		app:hideColumn="4"
+		app:hideColumn2="5">
 	</app.web.onepagevn.SQLiteDBLayout>
 
 </LinearLayout>
