@@ -52,6 +52,7 @@ public class SQLiteDBLayout extends LinearLayout
 		if (hideID) hideColumns.add(1);
 		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
 		if (colIndex > 0) hideColumns.add(--colIndex);
+		else stt.error("XML_hideColumn: Wrong column index.");
 		attrsMain.recycle();
 		
 		TypedArray attrsColumns = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout_columns);
