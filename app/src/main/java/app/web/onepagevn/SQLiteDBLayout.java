@@ -12,11 +12,12 @@ public class SQLiteDBLayout extends LinearLayout
 	private Context context;
 	private String tblName = "", ordHeader = "NO.";
 	private boolean hScroll = false, hideID = true;
-	private Integer[] hideCols;
+	private Set<Integer> hideColumns = new HashSet<>();
 	private ViewGroup container;
 	private TableLayout table, tBody;
 	private RowOnClickListener listener;
 	private int index = -1;
+	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
 	
 	public SQLiteDBLayout(Context context, String tblName) {
@@ -42,24 +43,22 @@ public class SQLiteDBLayout extends LinearLayout
 	public SQLiteDBLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = context;
-		TypedArray attrsArr = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout);
-		if (attrsArr.hasValue(R.styleable.SQLiteDBLayout_table)) tblName = attrsArr.getString(R.styleable.SQLiteDBLayout_table);
-		if (attrsArr.hasValue(R.styleable.SQLiteDBLayout_ordHeader)) ordHeader = attrsArr.getString(R.styleable.SQLiteDBLayout_ordHeader);
-		hScroll = attrsArr.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
-		hideID = attrsArr.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
-		List<Integer> hideCols = new ArrayList<>();
-		int colIndex = attrsArr.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
-		if (colIndex >= 0) hideCols.add(colIndex);
-		int colIndex2 = attrsArr.getInt(R.styleable.SQLiteDBLayout_hideColumn2, -1);
-		if (colIndex2 >= 0) hideCols.add(colIndex2);
-		int colIndex3 = attrsArr.getInt(R.styleable.SQLiteDBLayout_hideColumn3, -1);
-		if (colIndex3 >= 0) hideCols.add(colIndex3);
-		int colIndex4 = attrsArr.getInt(R.styleable.SQLiteDBLayout_hideColumn4, -1);
-		if (colIndex4 >= 0) hideCols.add(colIndex4);
-		int colIndex5 = attrsArr.getInt(R.styleable.SQLiteDBLayout_hideColumn5, -1);
-		if (colIndex5 >= 0) hideCols.add(colIndex5);
-		this.hideCols = hideCols.toArray(new Integer[0]);
-		attrsArr.recycle();
+		
+		TypedArray attrsMain = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout);
+		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_table)) tblName = attrsMain.getString(R.styleable.SQLiteDBLayout_table);
+		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_ordHeader)) ordHeader = attrsMain.getString(R.styleable.SQLiteDBLayout_ordHeader);
+		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
+		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
+		if (hideID) hideColumns.add(1);
+		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
+		if (colIndex >= 1) hideColumns.add(--colIndex);
+		attrsMain.recycle();
+		
+		TypedArray attrsColumns = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout_columns);
+		for (int index = 0; index < R.styleable.SQLiteDBLayout_columns.length; index++) {
+			if (!attrsColumns.getBoolean(index, true)) hideColumns.add(index);
+		}
+		attrsColumns.recycle();
 		show();
 	}
 	
@@ -70,6 +69,7 @@ public class SQLiteDBLayout extends LinearLayout
 		this.listener = listener;
 		LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
 		setLayoutParams(layout);
+		if (hideID) hideColumns.add(1);
 		if (container != null) container.addView(this);
 	}
 	
@@ -89,6 +89,13 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setHideID(boolean hideID) {
 		this.hideID = hideID;
+		if (hideID) {
+			hideColumns.add(1);
+			hideColumn(1, true);
+		} else {
+			hideColumns.remove(1);
+			hideColumn(1, false);
+		}
 		return this;
 	}
 	
@@ -98,15 +105,25 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout hideColumn(int index) {
-		table.setColumnCollapsed(index, true);
-		tBody.setColumnCollapsed(index, true);
+		hideColumns.add(index);
+		hideColumn(index, true);
 		return this;
 	}
 
 	public SQLiteDBLayout unhideColumn(int index) {
-		table.setColumnCollapsed(index, false);
-		tBody.setColumnCollapsed(index, false);
+		hideColumns.remove(index);
+		hideColumn(index, false);
 		return this;
+	}
+	
+	private void hideColumn(int index, boolean hide) {
+		if (hide) {
+			table.setColumnCollapsed(index, true);
+			tBody.setColumnCollapsed(index, true);
+		} else {
+			table.setColumnCollapsed(index, false);
+			tBody.setColumnCollapsed(index, false);
+		}
 	}
 	
 	public SQLiteDBLayout setRowOnClickListener(RowOnClickListener listener) {
@@ -125,6 +142,10 @@ public class SQLiteDBLayout extends LinearLayout
 	public int getIndex() {
 		index = ((ViewGroup) getParent()).indexOfChild(this);
 		return index;
+	}
+	
+	public int getHidden() {
+		return hideColumns.size();
 	}
 	
 	public void show() {
@@ -170,10 +191,9 @@ public class SQLiteDBLayout extends LinearLayout
 			}
 			tBody.addView(row);
 		}
-		if (hideID) hideColumn(1);
-		if (hideCols != null && hideCols.length > 0) {
-			for (int index : hideCols) {
-				hideColumn(index);
+		if (hideColumns.size() > 0) {
+			for (int index : hideColumns) {
+				hideColumn(index, true);
 			}
 		}
 		scroll.addView(tBody);

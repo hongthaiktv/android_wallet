@@ -82,10 +82,7 @@
 		android:layout_height="match_parent"
 		android:layout_weight="1"
 		app:table="logs"
-		app:hScroll="true"
-		app:hideID="true"
-		app:hideColumn="4"
-		app:hideColumn2="5">
+		app:hScroll="true">
 	</app.web.onepagevn.SQLiteDBLayout>
 
 </LinearLayout>

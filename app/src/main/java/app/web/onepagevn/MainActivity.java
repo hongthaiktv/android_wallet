@@ -29,7 +29,6 @@ public class MainActivity extends Activity
 		ibFAB = findViewById(R.id.mainIbFAB);
 		ivBGround = findViewById(R.id.mainIvBGround);
 		mainLayout = findViewById(R.id.mainLayout);
-		
 		stt = new StatusBar(this).init();
 		srv = AppSetting.getAppContext().getServiceConnection();
 		

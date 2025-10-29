@@ -6,9 +6,28 @@
 		<attr name="hScroll" format="boolean" />
 		<attr name="hideID" format="boolean" />
 		<attr name="hideColumn" format="integer" />
-		<attr name="hideColumn2" format="integer" />
-		<attr name="hideColumn3" format="integer" />
-		<attr name="hideColumn4" format="integer" />
-		<attr name="hideColumn5" format="integer" />
+	</declare-styleable>
+	
+	<declare-styleable name="SQLiteDBLayout_columns">
+		<attr name="column01" format="boolean" />
+		<attr name="column02" format="boolean" />
+		<attr name="column03" format="boolean" />
+		<attr name="column04" format="boolean" />
+		<attr name="column05" format="boolean" />
+		<attr name="column06" format="boolean" />
+		<attr name="column07" format="boolean" />
+		<attr name="column08" format="boolean" />
+		<attr name="column09" format="boolean" />
+		<attr name="column10" format="boolean" />
+		<attr name="column11" format="boolean" />
+		<attr name="column12" format="boolean" />
+		<attr name="column13" format="boolean" />
+		<attr name="column14" format="boolean" />
+		<attr name="column15" format="boolean" />
+		<attr name="column16" format="boolean" />
+		<attr name="column17" format="boolean" />
+		<attr name="column18" format="boolean" />
+		<attr name="column19" format="boolean" />
+		<attr name="column20" format="boolean" />
 	</declare-styleable>
 </resources>
