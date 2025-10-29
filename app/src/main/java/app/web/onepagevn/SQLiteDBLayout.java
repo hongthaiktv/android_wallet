@@ -1,16 +1,16 @@
 package app.web.onepagevn;
 import android.content.*;
 import android.content.res.*;
+import android.graphics.*;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.util.*;
-import android.graphics.*;
 
 public class SQLiteDBLayout extends LinearLayout
 {
 	private Context context;
-	private String tblName = "", ordHeader = "NO.";
+	private String tblName = "", ordHeader = "#";
 	private boolean hScroll = false, hideID = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private ViewGroup container;
@@ -163,16 +163,29 @@ public class SQLiteDBLayout extends LinearLayout
 		table.setLayoutParams(tblLayout);
 		TableRow rowHeader = new TableRow(context);
 		rowHeader.setBackgroundColor(Color.GRAY);
-		rowHeader.addView(createColHeader(ordHeader));
+		rowHeader.setGravity(Gravity.CENTER);
+		rowHeader.addView(createColHeader(ordHeader, 1));
 		String[] colNames = data.get(0).keySet().toArray(new String[0]);
 		int colNums = data.get(0).keySet().size();
+		int lastCol = colNums - 1;
 		for (int colIndex = 0; colIndex < colNums; colIndex++) {
 			String colName = colNames[colIndex];
-			rowHeader.addView(createColHeader(colName));
+			switch (colIndex) {
+				case 0:
+					rowHeader.addView(createColHeader(colName, 1));
+					break;
+				default:
+					if (colIndex == lastCol) {
+						rowHeader.addView(createColHeader(colName, 4));
+					} else rowHeader.addView(createColHeader(colName, 2));
+			}
 		}
 		
 		ScrollView scroll = new ScrollView(context);
+		ScrollView.LayoutParams svLayout = new ScrollView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
+		scroll.setLayoutParams(svLayout);
 		tBody = new TableLayout(context);
+		tBody.setLayoutParams(tblLayout);
 		int rowIndex = 0;
 		for (Map<String, Object> rowData : data) {
 			final Object[] colValues = rowData.values().toArray();
@@ -188,10 +201,19 @@ public class SQLiteDBLayout extends LinearLayout
 						}
 					});
 			if (rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
-			row.addView(createColumn(rowIndex));
+			row.setGravity(Gravity.CENTER);
+			row.addView(createColumn(rowIndex, 1));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
-				Object colData = rowData.get(colNames[colIndex]);
-				row.addView(createColumn(colData));
+				Object colData = colValues[colIndex];
+				switch (colIndex) {
+					case 0:
+						row.addView(createColumn(colData, 1));
+						break;
+					default:
+						if (colIndex == lastCol) {
+							row.addView(createColumn(colData, 4));
+						} else row.addView(createColumn(colData, 2));
+				}
 			}
 			tBody.addView(row);
 		}
@@ -212,20 +234,38 @@ public class SQLiteDBLayout extends LinearLayout
 		} else addView(table);
 	}
 	
-	private TextView createColumn(Object text) {
-		TableRow.LayoutParams colLayout = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
+	private TextView createColumn(Object text, int size) {
+		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
+		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
+		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3);
+		TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4);
 		TableRow.LayoutParams colHSLayout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		TextView col = new TextView(context);
-		if (hScroll) col.setLayoutParams(colHSLayout);
-		else col.setLayoutParams(colLayout);
+		if (!hScroll) {
+			switch (size) {
+				case 1:
+					col.setLayoutParams(colLayoutSM);
+					col.setGravity(Gravity.CENTER);
+					break;
+				case 3:
+					col.setLayoutParams(colLayoutXM);
+					break;
+				case 4:
+					col.setLayoutParams(colLayoutLG);
+					break;
+				default:
+					col.setLayoutParams(colLayoutMD);
+					col.setGravity(Gravity.CENTER);
+			}
+		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(25, 25, 25, 25);
 		String colText = text == null ? "" : String.valueOf(text);
 		col.setText(colText);
 		return col;
 	}
 	
-	private TextView createColHeader(String text) {
-		TextView header = createColumn(text.toUpperCase());
+	private TextView createColHeader(String text, int size) {
+		TextView header = createColumn(text.toUpperCase(), size);
 		header.setGravity(Gravity.CENTER);
 		header.setTextColor(Color.WHITE);
 		header.setTypeface(null, Typeface.BOLD);

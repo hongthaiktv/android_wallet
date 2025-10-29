@@ -11,7 +11,7 @@ import java.util.*;
 public class Admin extends Activity
 {
 	private EditText edtInput;
-	private Button btnRun, btnSQL, btnTest, btnUp, btnDown;
+	private Button btnRun, btnSQL, btnTest, btnLayout, btnUp, btnDown;
 	private AppSetting app;
 	private StatusBar stt;
 	private SQLiteDB db;
@@ -28,6 +28,7 @@ public class Admin extends Activity
 		btnRun = findViewById(R.id.admBtnRun);
 		btnSQL = findViewById(R.id.admBtnSQL);
 		btnTest = findViewById(R.id.admBtnTest);
+		btnLayout = findViewById(R.id.admBtnLayout);
 		btnUp = findViewById(R.id.admBtnUp);
 		btnDown = findViewById(R.id.admBtnDown);
 		tblData = findViewById(R.id.admTableData);
@@ -90,6 +91,7 @@ public class Admin extends Activity
 					if (cursor != null && !isData) stt.success("Success run: " + sql);
 					if (cursor != null) cursor.close();
 					writer.close();
+					tblData.show();
 				}
 			});
 			
@@ -118,6 +120,22 @@ public class Admin extends Activity
 							}
 						});
 					dlgTable.create().show();
+				}
+			});
+			
+		btnLayout.setOnClickListener(new OnClickListener() {
+				private boolean enable = false;
+				
+				@Override
+				public void onClick(View p1)
+				{
+					if (!enable) {
+						tblData.setHScroll(true).show();
+						enable = true;
+					} else {
+						tblData.setHScroll(false).show();
+						enable = false;
+					}
 				}
 			});
 			
