@@ -51,7 +51,7 @@ public class SQLiteDBLayout extends LinearLayout
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
 		if (hideID) hideColumns.add(1);
 		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
-		if (colIndex >= 1) hideColumns.add(--colIndex);
+		if (colIndex > 0) hideColumns.add(--colIndex);
 		attrsMain.recycle();
 		
 		TypedArray attrsColumns = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout_columns);
@@ -89,8 +89,8 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setHideID(boolean hideID) {
 		this.hideID = hideID;
-		if (hideID) hideColumn(1);
-		else unhideColumn(1);
+		if (hideID) hideColumn(2);
+		else unhideColumn(2);
 		return this;
 	}
 	
@@ -100,14 +100,22 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout hideColumn(int index) {
-		hideColumns.add(index);
-		hideColumn(index, true);
+		if (index > 0) {
+			--index;
+			if (index == 1) hideID = true;
+			hideColumns.add(index);
+			hideColumn(index, true);
+		} else stt.error("hideColumn(?): Wrong column index.");
 		return this;
 	}
 
 	public SQLiteDBLayout unhideColumn(int index) {
-		hideColumns.remove(index);
-		hideColumn(index, false);
+		if (index > 0) {
+			--index;
+			if (index == 1) hideID = false;
+			hideColumns.remove(index);
+			hideColumn(index, false);
+		} else stt.error("unhideColumn(?): Wrong column index.");
 		return this;
 	}
 	
