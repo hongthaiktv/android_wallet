@@ -89,13 +89,8 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setHideID(boolean hideID) {
 		this.hideID = hideID;
-		if (hideID) {
-			hideColumns.add(1);
-			hideColumn(1, true);
-		} else {
-			hideColumns.remove(1);
-			hideColumn(1, false);
-		}
+		if (hideID) hideColumn(1);
+		else unhideColumn(1);
 		return this;
 	}
 	
