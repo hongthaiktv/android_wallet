@@ -235,7 +235,7 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	private TextView createColumn(Object text, int size) {
-		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
+		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.1f);
 		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
 		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3);
 		TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4);
@@ -258,7 +258,7 @@ public class SQLiteDBLayout extends LinearLayout
 					col.setGravity(Gravity.CENTER);
 			}
 		} else col.setLayoutParams(colHSLayout);
-		col.setPadding(25, 25, 25, 25);
+		col.setPadding(15, 15, 15, 15);
 		String colText = text == null ? "" : String.valueOf(text);
 		col.setText(colText);
 		return col;
