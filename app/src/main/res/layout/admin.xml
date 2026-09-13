@@ -70,7 +70,7 @@
 				android:id="@+id/admBtnTest"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Test"/>
+				android:text="Table"/>
 			
 			<Button
 				android:id="@+id/admBtnLayout"

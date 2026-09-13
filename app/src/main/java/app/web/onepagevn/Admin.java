@@ -72,7 +72,6 @@ public class Admin extends Activity
 					SQLiteDatabase writer = db.getWritableDatabase();
 					boolean isData = false;
 					SQLiteDBCursor cursor = null;
-					//Toast.makeText(Admin.this, "test: " + Boolean.TRUE, Toast.LENGTH_SHORT).show();
 					try {
 						cursor = (SQLiteDBCursor) writer.rawQuery(sql, null);
 						//Toast.makeText(Admin.this, "test: " + cursor.getType(1), Toast.LENGTH_SHORT).show();
@@ -115,7 +114,6 @@ public class Admin extends Activity
 							public void onClick(DialogInterface dialog, int index)
 							{
 								tblName = tableNames[index];
-								SQLiteDBLayout tblData = findViewById(R.id.admTableData);
 								tblData.setTable(tblName).show();
 							}
 						});
