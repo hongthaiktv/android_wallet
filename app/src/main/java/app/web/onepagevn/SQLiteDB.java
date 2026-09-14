@@ -42,9 +42,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		try {
 			long now = new Date().getTime();
-			db.execSQL("CREATE TABLE logs(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
-			db.execSQL("CREATE TABLE setting(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
-			db.execSQL("CREATE TABLE cmdhistory(id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
+			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
+			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
+			db.execSQL("CREATE TABLE suppliers (id INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL, phone TEXT NOT NULL, gps TEXT NOT NULL, note TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL NOT NULL, unit TEXT NOT NULL, type TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch(CURRENT_TIMESTAMP)) NOT NULL, supplier INT REFERENCES suppliers (id) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, product INT REFERENCES products (id) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unit TEXT NOT NULL, price REAL NOT NULL, quantities REAL NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting(timestamp, name, value, datatype) VALUES(" + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
 			insertLog("Database created.", LogType.SUCCESS, compName, db);
 		} catch (Exception e) {
