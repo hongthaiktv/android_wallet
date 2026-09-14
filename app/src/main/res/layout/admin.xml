@@ -89,7 +89,8 @@
 		android:layout_weight="1"
 		app:table="logs"
 		app:hScroll="false"
-		app:hideID="true">
+		app:hideID="true"
+		app:limit="100">
 	</app.web.onepagevn.SQLiteDBLayout>
 
 </LinearLayout>

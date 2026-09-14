@@ -6,6 +6,7 @@
 		<attr name="hScroll" format="boolean" />
 		<attr name="hideID" format="boolean" />
 		<attr name="hideColumn" format="integer" />
+		<attr name="limit" format="integer" />
 	</declare-styleable>
 	
 	<declare-styleable name="SQLiteDBLayout_columns">

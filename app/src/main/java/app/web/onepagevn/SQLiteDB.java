@@ -355,19 +355,23 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getData(String table) {
-		return getData(table, null, null);
+		return getData(table, null, null, -1);
+	}
+	
+	public List<Map<String, Object>> getData(String table, int limit) {
+		return getData(table, null, null, limit);
 	}
 	
 	public List<Map<String, Object>> getData(String sql, String[] args) {
-		return getData(null, sql, args);
+		return getData(null, sql, args, -1);
 	}
 	
-	private List<Map<String, Object>> getData(String table, String sql, String[] args) {
+	private List<Map<String, Object>> getData(String table, String sql, String[] args, int limit) {
 		SQLiteDatabase db = getReadableDatabase();
 		List<Map<String, Object>> result = new ArrayList<>();
 		SQLiteDBCursor cursor = null;
 		try {
-			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table;
+			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table + " LIMIT " + limit;
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
 			result = cursor.getList();
 		} catch (Exception e) {
