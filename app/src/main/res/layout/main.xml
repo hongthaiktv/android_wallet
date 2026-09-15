@@ -76,7 +76,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_weight="1"
-			app:table="suppliers"
 			app:hScroll="false"
 			app:hideID="true"
 			app:sql="SELECT suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)">

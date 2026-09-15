@@ -45,6 +45,7 @@ public class MainActivity extends Activity
 				{
 					tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
+					tblData.setSQL("SELECT suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)").show();
 					tvTable.setText("99.500.000");
 				}
 			});
@@ -71,7 +72,7 @@ public class MainActivity extends Activity
 							tblName = tableNames[index];
 							tvTable.setText(tblName);
 							switch (tblName) {
-								case "bills":
+								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
 									break;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
 							}
+							tblData.setSQL(null);
 							tblData.setTable(tblName).show();
 						}
 					});
