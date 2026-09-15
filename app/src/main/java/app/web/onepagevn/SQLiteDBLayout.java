@@ -14,6 +14,7 @@ public class SQLiteDBLayout extends LinearLayout
 	private boolean hScroll = false, hideID = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private int limit = -1;
+	private String sql = "", sort = "";
 	private ViewGroup container;
 	private TableLayout table, tBody;
 	private RowOnClickListener listener;
@@ -51,6 +52,8 @@ public class SQLiteDBLayout extends LinearLayout
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
 		limit = attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1);
+		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
+		sort = attrsMain.getString(R.styleable.SQLiteDBLayout_sort);
 		if (hideID) hideColumns.add(1);
 		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
 		if (colIndex > 0) hideColumns.add(--colIndex);
@@ -98,6 +101,21 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setOrdHeader(String colName) {
 		this.ordHeader = colName;
+		return this;
+	}
+	
+	public SQLiteDBLayout setLimit(int limit) {
+		this.limit = limit;
+		return this;
+	}
+	
+	public SQLiteDBLayout setSQL(String sql) {
+		this.sql = sql;
+		return this;
+	}
+	
+	public SQLiteDBLayout setSort(String sort) {
+		this.sort = sort;
 		return this;
 	}
 	
@@ -156,7 +174,7 @@ public class SQLiteDBLayout extends LinearLayout
 	public void show() {
 		removeAllViews();
 		if (tblName == null && "".equals(tblName)) return;
-		List<Map<String, Object>> data = db.getData(tblName, limit);
+		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, limit) : db.getData(sql, null);
 		if (data.size() < 1) return;
 		
 		table = new TableLayout(context);
