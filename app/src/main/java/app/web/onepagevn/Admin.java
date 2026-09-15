@@ -82,12 +82,11 @@ public class Admin extends Activity
 								String value = cursor.getString(i);
 								result += name + " : " + value + " | ";
 							}
-							
 							stt.log(result);
 							if(!isData) isData = true;
 						}
+						if (cursor != null && !isData) stt.success("Success run: " + sql);
 					} catch (Exception e) {stt.error(e.getMessage());}
-					if (cursor != null && !isData) stt.success("Success run: " + sql);
 					if (cursor != null) cursor.close();
 					writer.close();
 					tblData.show();
