@@ -68,8 +68,8 @@
 			android:src="@drawable/bg_wallet_crypto"
 			android:scaleType="fitCenter"
 			android:padding="50dp"
-			android:alpha="0.2"
-			android:background="@drawable/bg_main"/>
+			android:background="@drawable/bg_main"
+			android:alpha="0.3"/>
 		
 		<app.web.onepagevn.SQLiteDBLayout
 			android:id="@+id/mainTableData"
@@ -78,7 +78,7 @@
 			android:layout_weight="1"
 			app:hScroll="false"
 			app:hideID="true"
-			app:sql="SELECT suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)">
+			app:sql="SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)">
 		</app.web.onepagevn.SQLiteDBLayout>
 
 		<LinearLayout

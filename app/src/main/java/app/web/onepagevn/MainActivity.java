@@ -45,7 +45,7 @@ public class MainActivity extends Activity
 				{
 					tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
-					tblData.setSQL("SELECT suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)").show();
+					tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)").show();
 					tvTable.setText("99.500.000");
 				}
 			});
@@ -71,10 +71,12 @@ public class MainActivity extends Activity
 						{
 							tblName = tableNames[index];
 							tvTable.setText(tblName);
+							tblData.setSQL(null);
 							switch (tblName) {
 								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
+									tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)");
 									break;
 								case "suppliers":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
@@ -83,12 +85,12 @@ public class MainActivity extends Activity
 								case "products":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
+									tblData.setSQL("SELECT products.productid AS id, products.name, products.price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid)");
 									break;
 								default:
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
 							}
-							tblData.setSQL(null);
 							tblData.setTable(tblName).show();
 						}
 					});

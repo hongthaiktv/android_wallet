@@ -49,7 +49,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL)");
-			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch(CURRENT_TIMESTAMP)) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
+			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (timestamp, name, value, datatype) VALUES (" + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");

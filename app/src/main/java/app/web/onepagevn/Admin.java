@@ -85,7 +85,7 @@ public class Admin extends Activity
 							stt.log(result);
 							if(!isData) isData = true;
 						}
-						if (cursor != null && !isData) stt.success("Success run: " + sql);
+						if (cursor != null && !isData) stt.success(sql);
 					} catch (Exception e) {stt.error(e.getMessage());}
 					if (cursor != null) cursor.close();
 					writer.close();
