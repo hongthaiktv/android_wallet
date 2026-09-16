@@ -7,6 +7,7 @@ import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.util.*;
+import java.text.*;
 
 public class MainActivity extends Activity 
 {
@@ -38,6 +39,8 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		tblData = findViewById(R.id.mainTableData);
 		
+		tvTable.setText(getBalanceRemain());
+		
 		ibWallet.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -45,8 +48,8 @@ public class MainActivity extends Activity
 				{
 					tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
-					tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)").show();
-					tvTable.setText("99.500.000");
+					tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)").show();
+					tvTable.setText(getBalanceRemain());
 				}
 			});
 		
@@ -70,31 +73,37 @@ public class MainActivity extends Activity
 						public void onClick(DialogInterface dialog, int index)
 						{
 							tblName = tableNames[index];
-							tvTable.setText(tblName);
 							tblData.setSQL(null);
 							switch (tblName) {
 								case "balance":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									tblData.setSQL("SELECT id, date(date, 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM balance");
+									tvTable.setText(tblName);
 									break;
 								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
-									tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, expends.quantity, expends.price * expends.quantity AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)");
+									tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid)");
+									List<Map<String, Object>> totalExpends = db.getData("SELECT PRINTF('%,.0f', sum(price * quantity)) AS total FROM expends", null);
+									Map<String, Object> totalExpend = totalExpends.get(0);
+									tvTable.setText(totalExpend.get("total").toString());
 									break;
 								case "suppliers":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
+									tvTable.setText(tblName);
 									break;
 								case "products":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
-									tblData.setSQL("SELECT products.productid AS id, products.name, products.price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid)");
+									tblData.setSQL("SELECT products.productid AS id, products.name, PRINTF('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid)");
+									tvTable.setText(tblName);
 									break;
 								default:
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
+									tvTable.setText(tblName);
 							}
 							tblData.setTable(tblName).show();
 						}
@@ -123,12 +132,25 @@ public class MainActivity extends Activity
 			}
 		});
     }
+	
+	private String getBalanceRemain() {
+		List<Map<String, Object>> balances = db.getData("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%.0f', amount) AS amount FROM balance", null);
+		Map<String, Object> balance = balances.get(0);
+		long amount = Long.valueOf(balance.get("amount").toString());
+		List<Map<String, Object>> totalExpends = db.getData("SELECT PRINTF('%.0f', sum(price * quantity)) AS total FROM expends", null);
+		Map<String, Object> totalExpend = totalExpends.get(0);
+		long expend = Long.valueOf(totalExpend.get("total").toString());
+		long remain = amount - expend;
+		DecimalFormat numFormatter = new DecimalFormat("#,###");
+		return numFormatter.format(remain);
+	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
 		tblData.show();
+		tvTable.setText(getBalanceRemain());
 		stt.update();
 	}
 

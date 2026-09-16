@@ -78,7 +78,7 @@
 			android:layout_weight="1"
 			app:hScroll="false"
 			app:hideID="true"
-			app:sql="SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, expends.price * expends.quantity AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)">
+			app:sql="SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid)">
 		</app.web.onepagevn.SQLiteDBLayout>
 
 		<LinearLayout
