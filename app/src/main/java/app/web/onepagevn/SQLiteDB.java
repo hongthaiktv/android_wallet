@@ -45,6 +45,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
 			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
+			db.execSQL("CREATE TABLE balance (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) NOT NULL, amount REAL NOT NULL)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");

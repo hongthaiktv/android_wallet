@@ -73,6 +73,11 @@ public class MainActivity extends Activity
 							tvTable.setText(tblName);
 							tblData.setSQL(null);
 							switch (tblName) {
+								case "balance":
+									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_budget);
+									tblData.setSQL("SELECT id, date(date, 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM balance");
+									break;
 								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
