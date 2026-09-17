@@ -11,7 +11,7 @@ public class SQLiteDBLayout extends LinearLayout
 {
 	private Context context;
 	private String tblName = "", ordHeader = "#";
-	private boolean hScroll = false, hideID = true;
+	private boolean hScroll = false, hideID = true, autoLoad = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private int limit = -1;
 	private String sql = "", sort = "";
@@ -51,6 +51,7 @@ public class SQLiteDBLayout extends LinearLayout
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_ordHeader)) ordHeader = attrsMain.getString(R.styleable.SQLiteDBLayout_ordHeader);
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
+		autoLoad = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_autoLoad, autoLoad);
 		limit = attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1);
 		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
 		sort = attrsMain.getString(R.styleable.SQLiteDBLayout_sort);
@@ -64,7 +65,7 @@ public class SQLiteDBLayout extends LinearLayout
 			if (!attrsColumns.getBoolean(index, true)) hideColumns.add(index);
 		}
 		attrsColumns.recycle();
-		show();
+		if (autoLoad) show();
 	}
 	
 	private void init(Context context, String tblName, ViewGroup container, RowOnClickListener listener) {

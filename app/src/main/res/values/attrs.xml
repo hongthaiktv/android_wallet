@@ -5,6 +5,7 @@
 		<attr name="ordHeader" format="string" />
 		<attr name="hScroll" format="boolean" />
 		<attr name="hideID" format="boolean" />
+		<attr name="autoLoad" format="boolean" />
 		<attr name="hideColumn" format="integer" />
 		<attr name="limit" format="integer" />
 		<attr name="sql" format="string" />

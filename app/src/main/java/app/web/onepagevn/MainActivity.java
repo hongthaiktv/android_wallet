@@ -26,7 +26,8 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.main);
 		
 		tvTable = findViewById(R.id.mainTvTable);
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
