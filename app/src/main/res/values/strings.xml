@@ -5,5 +5,6 @@
     <string name="act_admin">Admin</string>
 	<string name="act_editor">Editor</string>
 	<string name="act_appLog">Log</string>
+	<string name="act_srvManager">Services</string>
 
 </resources>

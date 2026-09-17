@@ -48,6 +48,12 @@
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
 		</activity>
 		
+		<activity
+            android:name=".ServiceManager"
+            android:label="@string/act_srvManager"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+		</activity>
+		
 		<service android:name=".AppService"/>
 		
     </application>
