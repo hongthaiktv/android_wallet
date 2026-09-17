@@ -22,6 +22,7 @@ public class Editor extends Activity
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
 		tblName = !"balance".equals(getIntent().getStringExtra("tblName")) ? getIntent().getStringExtra("tblName") : "expends";
+		setTitle(tblName.toUpperCase());
 		
 		List<Map<String, Object>> data = db.getData("SELECT * FROM " + tblName + " LIMIT 1", null);
 		Map<String, Object> rowData = data.get(0);
