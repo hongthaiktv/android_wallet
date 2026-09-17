@@ -45,7 +45,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
 			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
-			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) NOT NULL, amount REAL NOT NULL)");
+			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) UNIQUE NOT NULL, amount REAL NOT NULL)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
@@ -59,6 +59,10 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("INSERT INTO units (name) VALUES ('Pack')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Box')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Piece')");
+			db.execSQL("INSERT INTO units (name) VALUES ('Turn')");
+			db.execSQL("INSERT INTO units (name) VALUES ('Hour')");
+			db.execSQL("INSERT INTO units (name) VALUES ('Day')");
+			db.execSQL("INSERT INTO units (name) VALUES ('Night')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Food')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Street Food')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Gas')");
@@ -71,6 +75,18 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Donation')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Phone')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Motorbike')");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Bread-SM', 3800, 3, 1)");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Bread-MD', 7500, 3, 1)");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Bread-LG', 15000, 3, 1)");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Ice', 2000, 4, 2)");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Parking', 2000, 8, 5)");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Lotte', '58 Đ. 23/10, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Coop Mart', '02 Lê Hồng Phong, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Go', 'Lô 4 Đ. 19/5, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Mega Market', '10 Đ. 23/10, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('TH', 'Dũng', '14 Hương Lộ Ngọc Hiệp, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('TH', 'By Boy', '100 Đ. 2/4, TP. Nha Trang')");
+			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('TH', 'Đăng Khoa', '57 Nguyễn Đình Chiểu, TP. Nha Trang')");
 			insertLog("Database created.", LogType.SUCCESS, compName, db);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();

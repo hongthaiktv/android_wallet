@@ -81,7 +81,7 @@ public class MainActivity extends Activity
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									tblData.setSQL("SELECT id, date(date, 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget");
-									tvTable.setText(tblName);
+									tvTable.setText(getTotalBudget());
 									break;
 								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
@@ -150,6 +150,12 @@ public class MainActivity extends Activity
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		return totalExpend.get("total").toString();
 	}
+	
+	private String getTotalBudget() {
+		List<Map<String, Object>> budgets = db.getData("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget", null);
+		Map<String, Object> budget = budgets.get(0);
+		return budget.get("amount").toString();
+	}
 
 	@Override
 	protected void onResume()
@@ -157,6 +163,9 @@ public class MainActivity extends Activity
 		super.onResume();
 		tblData.show();
 		switch (tblName) {
+			case "budget":
+				tvTable.setText(getTotalBudget());
+				break;
 			case "expends":
 				tvTable.setText(getTotalExpend());
 				break;
