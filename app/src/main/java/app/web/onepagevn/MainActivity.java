@@ -136,11 +136,11 @@ public class MainActivity extends Activity
 	private String getBalanceRemain() {
 		List<Map<String, Object>> budgets = db.getData("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%.0f', amount) AS amount FROM budget", null);
 		Map<String, Object> budget = budgets.get(0);
-		long amount = Long.valueOf(budget.get("amount").toString());
+		double amount = Double.valueOf(budget.get("amount").toString());
 		List<Map<String, Object>> totalExpends = db.getData("SELECT PRINTF('%.0f', sum(price * quantity)) AS total FROM expends", null);
 		Map<String, Object> totalExpend = totalExpends.get(0);
-		long expend = Long.valueOf(totalExpend.get("total").toString());
-		long remain = amount - expend;
+		double expend = Double.valueOf(totalExpend.get("total").toString());
+		double remain = amount - expend;
 		DecimalFormat numFormatter = new DecimalFormat("#,###");
 		return numFormatter.format(remain);
 	}

@@ -6,25 +6,5 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="horizontal"
-		android:gravity="center">
-
-		<Button
-			android:id="@+id/applogButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Click"/>
-
-		<Button
-			android:id="@+id/applogBtnExit"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Exit"/>
-
-	</LinearLayout>
-
 </LinearLayout>
 

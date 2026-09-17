@@ -41,17 +41,16 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		try {
-			long now = new Date().getTime();
-			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
-			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
-			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME NOT NULL, datecreate DATETIME NOT NULL, command TEXT NOT NULL UNIQUE, times INTEGER NOT NULL)");
+			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
+			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, datecreate DATETIME DEFAULT (unixepoch()) NOT NULL, command TEXT UNIQUE NOT NULL, times INTEGER NOT NULL)");
 			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) UNIQUE NOT NULL, amount REAL NOT NULL)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL)");
 			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
-			db.execSQL("INSERT INTO setting (timestamp, name, value, datatype) VALUES (" + now + ", 'dlgMaxLogs', 100, 'INTEGER')");
+			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Each')");
@@ -145,6 +144,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 		else if (value instanceof Double) values.put("value", (Double) value);
 		else if (value instanceof Boolean) values.put("value", ((Boolean) value).toString());
 		else if (value instanceof JSONObject) values.put("value", ((JSONObject) value).toString());
+		values.put("timestamp", new Date().getTime() / 1000L);
 		String where = "name = ?";
 		String[] args = {keyName};
 		try {
@@ -161,7 +161,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getSetting(boolean full) {
-		String sql = "SELECT timestamp, name, value, datatype FROM setting ORDER BY name";
+		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM setting ORDER BY name";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
@@ -264,9 +264,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public long addCmdHistory(String command) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues values = new ContentValues();
-		long now = new Date().getTime();
-		values.put("timestamp", now);
-		values.put("datecreate", now);
 		values.put("command", command);
 		values.put("times", 1);
 		long result = -1;
@@ -281,7 +278,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	
 	public void updateCmdHistory(String command) {
 		SQLiteDatabase db = getWritableDatabase();
-		long now = new Date().getTime();
+		long now = new Date().getTime() / 1000L;
 		String sql = "UPDATE cmdhistory SET timestamp = " + now + ", times = times + 1 WHERE command = ?";
 		String[] args = {command};
 		try {
@@ -292,14 +289,14 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public RecentList<String> getCmdHistory() {
-		String sql = "SELECT timestamp, datecreate, command, times FROM cmdhistory ORDER BY timestamp";
+		String sql = "SELECT command FROM cmdhistory ORDER BY timestamp";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		RecentList<String> history = new RecentList<>();
 		try {
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
 			while (cursor.moveToNext()) {
-				history.add(cursor.getString(2));
+				history.add(cursor.getString(0));
 			}
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
@@ -319,8 +316,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 		ContentValues values = new ContentValues();
 		if (compName == null || "".equals(compName)) compName = "Logger";
 		if (type == null) type = LogType.LOG;
-		long timestamp = new Date().getTime();
-		values.put("timestamp", timestamp);
 		values.put("type", type.name());
 		values.put("component", compName);
 		values.put("message", msg);
@@ -376,7 +371,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 							row.put(key, cursor.getInt(i));
 							break;
 						case 1:
-							row.put(key, new Date(cursor.getLong(i)));
+							row.put(key, new Date(cursor.getLong(i) * 1000L));
 							break;
 						case 2:
 							row.put(key, LogType.valueOf(cursor.getString(i)));

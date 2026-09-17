@@ -11,12 +11,13 @@ import java.util.*;
 public class Admin extends Activity
 {
 	private EditText edtInput;
-	private Button btnRun, btnSQL, btnTest, btnLayout, btnUp, btnDown;
+	private Button btnLogSize, btnSQL, btnTable, btnLayout, btnUp, btnDown;
 	private AppSetting app;
 	private StatusBar stt;
 	private SQLiteDB db;
 	private RecentList<String> history;
 	private SQLiteDBLayout tblData;
+	private String tblName = "logs";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -25,9 +26,9 @@ public class Admin extends Activity
 		setContentView(R.layout.admin);
 		
 		edtInput = findViewById(R.id.admEdtInput);
-		btnRun = findViewById(R.id.admBtnRun);
+		btnLogSize = findViewById(R.id.admBtnLogSize);
 		btnSQL = findViewById(R.id.admBtnSQL);
-		btnTest = findViewById(R.id.admBtnTest);
+		btnTable = findViewById(R.id.admBtnTable);
 		btnLayout = findViewById(R.id.admBtnLayout);
 		btnUp = findViewById(R.id.admBtnUp);
 		btnDown = findViewById(R.id.admBtnDown);
@@ -47,7 +48,7 @@ public class Admin extends Activity
 				}
 			});
 		
-		btnRun.setOnClickListener(new OnClickListener() {
+		btnLogSize.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View p1)
@@ -55,6 +56,7 @@ public class Admin extends Activity
 					try {
 						int limit = Integer.valueOf(edtInput.getText().toString());
 						app.setDlgMaxLogs(limit);
+						if ("logs".equals(tblName) || "setting".equals(tblName)) tblData.show();
 					} catch (Exception e) {stt.error(e.getMessage());}
 				}
 			});
@@ -93,12 +95,12 @@ public class Admin extends Activity
 				}
 			});
 			
-		btnTest.setOnClickListener(new OnClickListener() {
-				String tblName = "";
+		btnTable.setOnClickListener(new OnClickListener() {
+			
 				@Override
 				public void onClick(View p1)
 				{
-					List<Map<String, Object>> listTable = db.getData("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%'", null);
+					List<Map<String, Object>> listTable = db.getData("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name ASC", null);
 					ArrayList<String> tables = new ArrayList<>();
 					for (Map<String, Object> table : listTable) {
 						tables.add((String) table.get("name"));
@@ -113,6 +115,18 @@ public class Admin extends Activity
 							public void onClick(DialogInterface dialog, int index)
 							{
 								tblName = tableNames[index];
+								tblData.setSQL(null);
+								switch (tblName) {
+									case "logs":
+										tblData.setSQL("SELECT id, datetime(timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100");
+										break;
+									case "setting":
+										tblData.setSQL("SELECT id, datetime(timestamp, 'unixepoch', 'localtime') AS timestamp, name, value, datatype FROM setting");
+										break;
+									case "cmdhistory":
+										tblData.setSQL("SELECT id, datetime(timestamp, 'unixepoch', 'localtime') AS timestamp, datetime(datecreate, 'unixepoch', 'localtime') AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");
+										break;
+								}
 								tblData.setTable(tblName).show();
 							}
 						});
