@@ -27,12 +27,14 @@
 		
 		<activity
             android:name=".Admin"
-            android:label="@string/act_admin" >
+            android:label="@string/act_admin"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
 		</activity>
 		
 		<activity
             android:name=".Editor"
-            android:label="@string/act_editor" >
+            android:label="@string/act_editor"
+			android:screenOrientation="portrait">
 			<intent-filter>
 				<action android:name="android.intent.action.SEND" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -42,7 +44,8 @@
 		
 		<activity
             android:name=".AppLog"
-            android:label="@string/act_appLog" >
+            android:label="@string/act_appLog"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
 		</activity>
 		
 		<service android:name=".AppService"/>
