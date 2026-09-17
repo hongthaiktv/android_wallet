@@ -3,12 +3,11 @@ import android.app.*;
 import android.content.*;
 import android.os.*;
 import android.widget.*;
-import android.widget.LinearLayout.*;
 import java.util.*;
 
 public class Editor extends Activity
 {
-	private LinearLayout editorTopLayout;
+	private GridLayout editorTopLayout;
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends";
@@ -29,17 +28,19 @@ public class Editor extends Activity
 		Set<String> keys = rowData.keySet();
 		String[] colNames = keys.toArray(new String[0]);
 		for (int i = 1; i < colNames.length; i++) {
-			LinearLayout row = new LinearLayout(this);
-			row.setOrientation(LinearLayout.HORIZONTAL);
-			LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			row.setLayoutParams(rowParams);
+			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
+			tvParams.setMargins(20, 0, 20, 0);
 			TextView tvName = new TextView(this);
-			tvName.setText(colNames[i]);
+			tvName.setLayoutParams(tvParams);
+			tvName.setText(colNames[i].toUpperCase());
+			GridLayout.LayoutParams iptParams = new GridLayout.LayoutParams();
+			iptParams.width = 0;
+			iptParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+			iptParams.setMargins(20, 0, 20, 0);
 			EditText input = new EditText(this);
-			input.setLayoutParams(rowParams);
-			row.addView(tvName);
-			row.addView(input);
-			editorTopLayout.addView(row);
+			input.setLayoutParams(iptParams);
+			editorTopLayout.addView(tvName);
+			editorTopLayout.addView(input);
 		}
 	}
 
