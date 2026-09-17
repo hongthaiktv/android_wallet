@@ -128,6 +128,7 @@ public class MainActivity extends Activity
 			public void onClick(View view)
 			{
 				Intent intEditor = new Intent(MainActivity.this, Editor.class);
+				intEditor.putExtra("tblName", tblName);
 				startActivity(intEditor);
 			}
 		});
