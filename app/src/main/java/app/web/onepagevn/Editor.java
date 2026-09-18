@@ -4,8 +4,10 @@ import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.view.View.*;
+import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
+import java.util.*;
 
 public class Editor extends Activity
 {
@@ -51,12 +53,14 @@ public class Editor extends Activity
 			editorTopLayout.addView(input);
 		}
 		
+		reset();
+		
 		btnClear.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view)
 				{
-					Toast.makeText(Editor.this, "" + colTypes[1], Toast.LENGTH_SHORT).show();
+					reset();
 				}
 			});
 			
@@ -75,7 +79,7 @@ public class Editor extends Activity
 						switch (type) {
 							case "DATETIME":
 								if (value.length() <= 10) value += " 00:00:00";
-								SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+								SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 								long date = -1;
 								try
 								{
@@ -101,6 +105,32 @@ public class Editor extends Activity
 
 				}
 			});
+	}
+	
+	private void reset() {
+		int numRow = editorTopLayout.getRowCount();
+		boolean isFocus = false;
+		for (int i = 1; i <= numRow; i++) {
+			EditText input = (EditText) getViewByIndex(i);
+			String type = colTypes[i];
+			switch (type) {
+				case "DATETIME":
+					SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					String date = formater.format(new Date());
+					input.setText(date);
+					break;
+				default:
+					input.setText("");
+					if (!isFocus) {
+						input.requestFocus();
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						if (imm != null) {
+							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+						}
+						isFocus = true;
+					}
+			}
+		}
 	}
 	
 	private void setViewID(View view, int index) {
