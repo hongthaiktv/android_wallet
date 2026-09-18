@@ -428,4 +428,20 @@ public class SQLiteDB extends SQLiteOpenHelper
 		}
 		db.close();
 	}
+	
+	public String[] getColumnNames(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT * FROM " + tblName + " LIMIT 0", null);
+		String[] names = cursor.getColumnNames();
+		cursor.close();
+		return names;
+	}
+	
+	public String[] getColumnTypes(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA table_info(" + tblName + ")", null);
+		String[] types = cursor.getColumnTypes();
+		cursor.close();
+		return types;
+	}
 }

@@ -6,5 +6,27 @@
 	<string name="act_editor">Editor</string>
 	<string name="act_appLog">Log</string>
 	<string name="act_srvManager">Services</string>
+	
+	<string name="view00">view00</string>
+	<string name="view01">view01</string>
+	<string name="view02">view02</string>
+	<string name="view03">view03</string>
+	<string name="view04">view04</string>
+	<string name="view05">view05</string>
+	<string name="view06">view06</string>
+	<string name="view07">view07</string>
+	<string name="view08">view08</string>
+	<string name="view09">view09</string>
+	<string name="view10">view10</string>
+	<string name="view11">view11</string>
+	<string name="view12">view12</string>
+	<string name="view13">view13</string>
+	<string name="view14">view14</string>
+	<string name="view15">view15</string>
+	<string name="view16">view16</string>
+	<string name="view17">view17</string>
+	<string name="view18">view18</string>
+	<string name="view19">view19</string>
+	<string name="view20">view20</string>
 
 </resources>

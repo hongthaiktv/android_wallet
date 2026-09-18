@@ -2,11 +2,15 @@ package app.web.onepagevn;
 
 public enum DataType
 {
-	TEXT,
 	INTEGER,
+	INT,
 	LONG,
+	NUMERIC,
+	NUM,
 	FLOAT,
 	DOUBLE,
+	REAL,
+	TEXT,
 	BOOLEAN,
 	BLOB,
 	DATETIME,

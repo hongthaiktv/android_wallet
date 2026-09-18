@@ -26,11 +26,13 @@
 			android:layout_marginTop="20dp">
 
 			<Button
+				android:id="@+id/editorBtnClear"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="Clear"/>
 
 			<Button
+				android:id="@+id/editorBtnAdd"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="Add"
@@ -38,6 +40,7 @@
 				android:layout_marginRight="5dp"/>
 
 			<Button
+				android:id="@+id/editorBtnCancel"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="Cancel"/>

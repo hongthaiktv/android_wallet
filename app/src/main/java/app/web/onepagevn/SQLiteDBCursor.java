@@ -22,12 +22,26 @@ public class SQLiteDBCursor extends SQLiteCursor
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
-			/*if (!"logs".equals(editTable)) insertLog(e.getMessage(), LogType.ERROR, compName);
-			else */Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
 	
 	public List<Map<String, Object>> getList() {
 		return list;
+	}
+	
+	public String[] getColumnTypes() {
+		String[] types = new String[getCount()];
+		try {
+			int i = 0;
+			while (moveToNext()) {
+				types[i] = getString(2);
+				++i;
+			}
+			moveToPosition(-1);
+		} catch (Exception e) {
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+		return types;
 	}
 }
