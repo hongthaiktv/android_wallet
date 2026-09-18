@@ -89,15 +89,28 @@ public class MainActivity extends Activity
 									tblData.setSQL("SELECT expends.id, datetime(expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
 									tvTable.setText(getTotalExpend());
 									break;
-								case "suppliers":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_address_book);
+								case "product_types":
+									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_database);
+									tblData.setSQL("SELECT * FROM product_types ORDER BY name");
 									tvTable.setText(tblName);
 									break;
 								case "products":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
-									tblData.setSQL("SELECT products.productid AS id, products.name, PRINTF('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid)");
+									tblData.setSQL("SELECT products.productid AS id, products.name, PRINTF('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name ASC");
+									tvTable.setText(tblName);
+									break;
+								case "suppliers":
+									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_address_book);
+									tblData.setSQL("SELECT * FROM suppliers ORDER BY type, name, address");
+									tvTable.setText(tblName);
+									break;
+								case "units":
+									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_database);
+									tblData.setSQL("SELECT * FROM units ORDER BY name");
 									tvTable.setText(tblName);
 									break;
 								default:
