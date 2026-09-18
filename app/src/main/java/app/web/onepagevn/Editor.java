@@ -48,6 +48,7 @@ public class Editor extends Activity
 			iptParams.setMargins(20, 0, 20, 0);
 			EditText input = new EditText(this);
 			input.setLayoutParams(iptParams);
+			input.setSingleLine();
 			setViewID(input, i);
 			editorTopLayout.addView(tvName);
 			editorTopLayout.addView(input);
@@ -94,7 +95,9 @@ public class Editor extends Activity
 						}
 					}
 					if (data.size() > 0) {
-						db.insert(tblName, data);
+						long result = db.insert(tblName, data);
+						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
+						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
 						reset();
 					}
 				}
@@ -115,15 +118,15 @@ public class Editor extends Activity
 		boolean isFocus = false;
 		for (int i = 1; i <= numRow; i++) {
 			EditText input = (EditText) getViewByIndex(i);
+			input.setText("");
 			String type = colTypes[i];
 			switch (type) {
 				case "DATETIME":
 					SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 					String date = formater.format(new Date());
-					input.setText(date);
+					input.setHint(date);
 					break;
 				default:
-					input.setText("");
 					if (!isFocus) {
 						input.requestFocus();
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
