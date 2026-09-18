@@ -93,7 +93,10 @@ public class Editor extends Activity
 								data.put(colNames[i], value);
 						}
 					}
-					if (data.size() > 0) db.insert(tblName, data);
+					if (data.size() > 0) {
+						db.insert(tblName, data);
+						reset();
+					}
 				}
 			});
 			
@@ -102,7 +105,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-
+					finish();
 				}
 			});
 	}
