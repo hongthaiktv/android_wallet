@@ -90,7 +90,7 @@
 		app:table="logs"
 		app:hScroll="false"
 		app:hideID="true"
-		app:sql="SELECT id, datetime(timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100">
+		app:sql="SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100">
 	</app.web.onepagevn.SQLiteDBLayout>
 
 </LinearLayout>

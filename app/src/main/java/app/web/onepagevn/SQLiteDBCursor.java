@@ -44,4 +44,19 @@ public class SQLiteDBCursor extends SQLiteCursor
 		}
 		return types;
 	}
+	
+	public DataType[] getDataTypes() {
+		DataType[] types = new DataType[getCount()];
+		try {
+			int i = 0;
+			while (moveToNext()) {
+				types[i] = DataType.valueOf(getString(2));
+				++i;
+			}
+			moveToPosition(-1);
+		} catch (Exception e) {
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+		return types;
+	}
 }

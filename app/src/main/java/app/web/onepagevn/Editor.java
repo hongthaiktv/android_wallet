@@ -18,6 +18,7 @@ public class Editor extends Activity
 	private SQLiteDB db;
 	private String tblName = "expends";
 	private String[] colNames, colTypes;
+	private DataType[] dataTypes;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -44,18 +45,19 @@ public class Editor extends Activity
 				@Override
 				public void onItemSelected(AdapterView<?> p1, View p2, int p3, long p4)
 				{
-					Toast.makeText(Editor.this, (String) p1.getItemAtPosition(p3), Toast.LENGTH_SHORT).show();
+					//Toast.makeText(Editor.this, (String) p1.getItemAtPosition(p3), Toast.LENGTH_SHORT).show();
 				}
 
 				@Override
 				public void onNothingSelected(AdapterView<?> p1)
 				{
-					Toast.makeText(Editor.this, "close dropdown", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(Editor.this, "close dropdown", Toast.LENGTH_SHORT).show();
 				}
 			});
 		
 		colNames = db.getColumnNames(tblName);
 		colTypes = db.getColumnTypes(tblName);
+		dataTypes = db.getDataTypes(tblName);
 		editorTopLayout.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
@@ -97,9 +99,9 @@ public class Editor extends Activity
 						EditText input = (EditText) getViewByIndex(i);
 						String value = input.getText().toString();
 						if ("".equals(value)) continue;
-						String type = colTypes[i];
+						DataType type = dataTypes[i];
 						switch (type) {
-							case "DATETIME":
+							case DATETIME:
 								if (value.length() <= 10) value += " 00:00:00";
 								SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 								long date = -1;

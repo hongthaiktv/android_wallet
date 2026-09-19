@@ -449,4 +449,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return types;
 	}
+	
+	public DataType[] getDataTypes(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA table_info(" + tblName + ")", null);
+		DataType[] types = cursor.getDataTypes();
+		cursor.close();
+		return types;
+	}
 }
