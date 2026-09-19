@@ -476,4 +476,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return catalog;
 	}
+	
+	public int[] getCatalogID(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name", null);
+		int[] ids = cursor.getCatalogID();
+		cursor.close();
+		return ids;
+	}
 }

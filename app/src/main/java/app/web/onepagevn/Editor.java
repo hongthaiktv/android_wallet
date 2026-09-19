@@ -99,30 +99,64 @@ public class Editor extends Activity
 		btnAdd.setOnClickListener(new OnClickListener() {
 
 				@Override
-				public void onClick(View view)
+				public void onClick(View button)
 				{
 					int numRow = editorTopLayout.getRowCount();
 					ContentValues data = new ContentValues();
 					for (int i = 1; i <= numRow; i++) {
-						EditText input = (EditText) getViewByIndex(i);
-						String value = input.getText().toString();
-						if ("".equals(value)) continue;
-						DataType type = dataTypes[i];
-						switch (type) {
-							case DATETIME:
-								if (value.length() <= 10) value += " 00:00:00";
-								SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-								long date = -1;
-								try
+						View view = getViewByIndex(i);
+						String name = view.getClass().getSimpleName();
+						switch (name) {
+							case "EditText":
 								{
-									date = formater.parse(value).getTime() / 1000L;
+									EditText input = (EditText) view;
+									String value = input.getText().toString();
+									if ("".equals(value)) continue;
+									DataType type = dataTypes[i];
+									switch (type) {
+										case DATETIME:
+											if (value.length() <= 10) value += " 00:00:00";
+											SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+											long date = -1;
+											try
+											{
+												date = formater.parse(value).getTime() / 1000L;
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+											data.put(colNames[i], date);
+											break;
+										default:
+											data.put(colNames[i], value);
+									}
+									break;
 								}
-								catch (ParseException e)
-								{stt.error(e.getMessage());}
-								data.put(colNames[i], date);
-								break;
-							default:
-								data.put(colNames[i], value);
+								
+							case "Spinner":
+								{
+									Spinner catalog = (Spinner) view;
+									String value = (String) catalog.getSelectedItem();
+									if ("".equals(value)) continue;
+									int id = -1;
+									String dstTable = "";
+									for (Map<String, String> fColumn : foreignColumns) {
+										String srcColumn = fColumn.get("srcColumn");
+										if (srcColumn.equals(colNames[i])) {
+											dstTable = fColumn.get("dstTable");
+											break;
+										}
+									}
+									int[] ids = db.getCatalogID(dstTable);
+									String[] items = db.getCatalog(dstTable);
+									for (int index = 0; index < items.length; index++) {
+										if (value.equals(items[index])) {
+											id = ids[index];
+											break;
+										}
+									}
+									data.put(colNames[i], id);
+									break;
+								}
 						}
 					}
 					if (data.size() > 0) {
@@ -152,21 +186,21 @@ public class Editor extends Activity
 			String name = view.getClass().getSimpleName();
 			switch (name) {
 				case "EditText":
-					EditText edt = (EditText) view;
-					edt.setText("");
+					EditText input = (EditText) view;
+					input.setText("");
 					DataType type = dataTypes[i];
 					switch (type) {
 						case DATETIME:
 							SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 							String date = formater.format(new Date());
-							edt.setHint(date);
+							input.setHint(date);
 							break;
 						default:
 							if (!isFocus) {
-								edt.requestFocus();
+								input.requestFocus();
 								InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 								if (imm != null) {
-									imm.showSoftInput(edt, InputMethodManager.SHOW_IMPLICIT);
+									imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
 								}
 								isFocus = true;
 							}

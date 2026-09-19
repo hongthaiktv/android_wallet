@@ -93,4 +93,19 @@ public class SQLiteDBCursor extends SQLiteCursor
 		}
 		return catalog;
 	}
+	
+	public int[] getCatalogID() {
+		int[] ids = new int[getCount()];
+		try {
+			int i = 0;
+			while (moveToNext()) {
+				ids[i] = getInt(0);
+				++i;
+			}
+			moveToPosition(-1);
+		} catch (Exception e) {
+			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+		return ids;
+	}
 }
