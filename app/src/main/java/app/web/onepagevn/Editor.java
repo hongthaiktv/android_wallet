@@ -142,10 +142,10 @@ public class Editor extends Activity
 		for (int i = 1; i <= numRow; i++) {
 			EditText input = (EditText) getViewByIndex(i);
 			input.setText("");
-			String type = colTypes[i];
+			DataType type = dataTypes[i];
 			switch (type) {
-				case "DATETIME":
-					SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				case DATETIME:
+					SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 					String date = formater.format(new Date());
 					input.setHint(date);
 					break;
