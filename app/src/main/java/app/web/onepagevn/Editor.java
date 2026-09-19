@@ -39,7 +39,6 @@ public class Editor extends Activity
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
 		foreignColumns = db.getForeignColumns(tblName);
-		//Toast.makeText(this, "" + (String) foreignColumns.get(0).get("dstTable"), Toast.LENGTH_SHORT).show();
 		editorTopLayout.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
@@ -55,17 +54,22 @@ public class Editor extends Activity
 					Map<String, String> fColumn = foreignColumns.get(index);
 					String dstTable = fColumn.get("dstTable");
 					String srcColumn = fColumn.get("srcColumn");
-					if (!srcColumn.equals(colNames[i])) continue;
-					//String[] items = db.getCatalog(dstTable);
-					//Spinner.LayoutParams ctlParams = new Spinner.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-					//Spinner catalog = new Spinner(this);
-					//catalog.setLayoutParams(ctlParams);
-					//ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
-					//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-					//catalog.setAdapter(adapter);
-					//editorTopLayout.addView(catalog);
-					isCatalog = true;
-					break;
+					if (srcColumn.equals(colNames[i])) {
+						String[] items = db.getCatalog(dstTable);
+						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
+						ctlParams.width = 0;
+						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+						ctlParams.setMargins(20, 50, 20, 0);
+						Spinner catalog = new Spinner(this);
+						catalog.setLayoutParams(ctlParams);
+						ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						catalog.setAdapter(adapter);
+						setViewID(catalog, i);
+						editorTopLayout.addView(catalog);
+						isCatalog = true;
+						break;
+					}
 				}
 				if (isCatalog) continue;
 			}
@@ -144,24 +148,30 @@ public class Editor extends Activity
 		int numRow = editorTopLayout.getRowCount();
 		boolean isFocus = false;
 		for (int i = 1; i <= numRow; i++) {
-			EditText input = (EditText) getViewByIndex(i);
-			input.setText("");
-			DataType type = dataTypes[i];
-			switch (type) {
-				case DATETIME:
-					SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-					String date = formater.format(new Date());
-					input.setHint(date);
-					break;
-				default:
-					if (!isFocus) {
-						input.requestFocus();
-						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-						if (imm != null) {
-							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-						}
-						isFocus = true;
+			View view = getViewByIndex(i);
+			String name = view.getClass().getSimpleName();
+			switch (name) {
+				case "EditText":
+					EditText edt = (EditText) view;
+					edt.setText("");
+					DataType type = dataTypes[i];
+					switch (type) {
+						case DATETIME:
+							SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+							String date = formater.format(new Date());
+							edt.setHint(date);
+							break;
+						default:
+							if (!isFocus) {
+								edt.requestFocus();
+								InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+								if (imm != null) {
+									imm.showSoftInput(edt, InputMethodManager.SHOW_IMPLICIT);
+								}
+								isFocus = true;
+							}
 					}
+					break;
 			}
 		}
 	}
