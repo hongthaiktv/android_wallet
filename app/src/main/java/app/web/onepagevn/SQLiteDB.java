@@ -390,24 +390,29 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
+	public List<Map<String, Object>> sql(String sql, String[] args) {
+		return getData(null, sql, args, null);
+	}
+	
 	public List<Map<String, Object>> getData(String table) {
-		return getData(table, null, null, -1);
+		return getData(table, null, null, null);
 	}
 	
-	public List<Map<String, Object>> getData(String table, int limit) {
-		return getData(table, null, null, limit);
+	public List<Map<String, Object>> getData(String table, Map<String, Object> attrs) {
+		return getData(table, null, null, attrs);
 	}
 	
-	public List<Map<String, Object>> getData(String sql, String[] args) {
-		return getData(null, sql, args, -1);
-	}
-	
-	private List<Map<String, Object>> getData(String table, String sql, String[] args, int limit) {
+	private List<Map<String, Object>> getData(String table, String sql, String[] args, Map<String, Object> attrs) {
 		SQLiteDatabase db = getReadableDatabase();
 		List<Map<String, Object>> result = new ArrayList<>();
 		SQLiteDBCursor cursor = null;
+		String sort = "rowid"; int limit = -1;
+		if (attrs != null) {
+			if ((String) attrs.get("sort") != null && !"".equals((String) attrs.get("sort"))) sort = (String) attrs.get("sort");
+			if (attrs.get("limit") != null) limit = attrs.get("limit");
+		}
 		try {
-			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table + " LIMIT " + limit;
+			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table + " ORDER BY " + sort + " LIMIT " + limit;
 			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
 			result = cursor.getList();
 		} catch (Exception e) {

@@ -13,8 +13,8 @@ public class SQLiteDBLayout extends LinearLayout
 	private String tblName = "", ordHeader = "#";
 	private boolean hScroll = false, hideID = true, autoLoad = true;
 	private Set<Integer> hideColumns = new HashSet<>();
-	private int limit = -1;
-	private String sql = "", sort = "";
+	private Map<String, Object> layoutAttrs = new HashMap<String, Object>();
+	private String sql = "";
 	private ViewGroup container;
 	private TableLayout table, tBody;
 	private RowOnClickListener listener;
@@ -52,9 +52,9 @@ public class SQLiteDBLayout extends LinearLayout
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
 		autoLoad = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_autoLoad, autoLoad);
-		limit = attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1);
+		layoutAttrs.put("limit", attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1));
+		layoutAttrs.put("sort", attrsMain.getString(R.styleable.SQLiteDBLayout_sort));
 		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
-		sort = attrsMain.getString(R.styleable.SQLiteDBLayout_sort);
 		if (hideID) hideColumns.add(1);
 		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
 		if (colIndex > 0) hideColumns.add(--colIndex);
@@ -106,7 +106,7 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout setLimit(int limit) {
-		this.limit = limit;
+		layoutAttrs.put("limit", limit);
 		return this;
 	}
 	
@@ -116,7 +116,7 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout setSort(String sort) {
-		this.sort = sort;
+		layoutAttrs.put("sort", sort);
 		return this;
 	}
 	
@@ -175,7 +175,7 @@ public class SQLiteDBLayout extends LinearLayout
 	public void show() {
 		removeAllViews();
 		if (tblName == null && "".equals(tblName)) return;
-		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, limit) : db.getData(sql, null);
+		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(sql, null);
 		if (data.size() < 1) return;
 		
 		table = new TableLayout(context);

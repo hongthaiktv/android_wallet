@@ -60,7 +60,7 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				List<Map<String, Object>> listTable = db.getData("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' ORDER BY name ASC", null);
+				List<Map<String, Object>> listTable = db.sql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' ORDER BY name ASC", null);
 				ArrayList<String> tables = new ArrayList<>();
 				for (Map<String, Object> table : listTable) {
 					tables.add((String) table.get("name"));
@@ -148,10 +148,10 @@ public class MainActivity extends Activity
     }
 	
 	private String getBalanceRemain() {
-		List<Map<String, Object>> budgets = db.getData("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%.0f', amount) AS amount FROM budget", null);
+		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%.0f', amount) AS amount FROM budget", null);
 		Map<String, Object> budget = budgets.get(0);
 		double amount = Double.valueOf(budget.get("amount").toString());
-		List<Map<String, Object>> totalExpends = db.getData("SELECT PRINTF('%.0f', sum(price * quantity)) AS total FROM expends", null);
+		List<Map<String, Object>> totalExpends = db.sql("SELECT PRINTF('%.0f', sum(price * quantity)) AS total FROM expends", null);
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		double expend = Double.valueOf(totalExpend.get("total").toString());
 		double remain = amount - expend;
@@ -160,13 +160,13 @@ public class MainActivity extends Activity
 	}
 	
 	private String getTotalExpend() {
-		List<Map<String, Object>> totalExpends = db.getData("SELECT PRINTF('%,.0f', sum(price * quantity)) AS total FROM expends", null);
+		List<Map<String, Object>> totalExpends = db.sql("SELECT PRINTF('%,.0f', sum(price * quantity)) AS total FROM expends", null);
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		return totalExpend.get("total").toString();
 	}
 	
 	private String getTotalBudget() {
-		List<Map<String, Object>> budgets = db.getData("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget", null);
+		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget", null);
 		Map<String, Object> budget = budgets.get(0);
 		return budget.get("amount").toString();
 	}

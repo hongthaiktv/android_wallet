@@ -8,6 +8,7 @@ import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
 import java.util.*;
+import android.widget.AdapterView.*;
 
 public class Editor extends Activity
 {
@@ -32,6 +33,26 @@ public class Editor extends Activity
 		db = new SQLiteDB();
 		tblName = !"balance".equals(getIntent().getStringExtra("tblName")) ? getIntent().getStringExtra("tblName") : "expends";
 		setTitle(tblName.toUpperCase());
+		
+		//test spiner
+		Spinner spin = findViewById(R.id.editorSpinner);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[] {"opt1", "opt2", "opt3"});
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spin.setAdapter(adapter);
+		spin.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> p1, View p2, int p3, long p4)
+				{
+					Toast.makeText(Editor.this, (String) p1.getItemAtPosition(p3), Toast.LENGTH_SHORT).show();
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> p1)
+				{
+					Toast.makeText(Editor.this, "close dropdown", Toast.LENGTH_SHORT).show();
+				}
+			});
 		
 		colNames = db.getColumnNames(tblName);
 		colTypes = db.getColumnTypes(tblName);

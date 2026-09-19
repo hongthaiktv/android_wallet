@@ -100,7 +100,7 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					List<Map<String, Object>> listTable = db.getData("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name ASC", null);
+					List<Map<String, Object>> listTable = db.sql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name ASC", null);
 					ArrayList<String> tables = new ArrayList<>();
 					for (Map<String, Object> table : listTable) {
 						tables.add((String) table.get("name"));
