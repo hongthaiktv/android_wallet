@@ -457,4 +457,23 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return types;
 	}
+	
+	public List<Map<String, String>> getForeignColumns(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA foreign_key_list(" + tblName + ")", null);
+		List<Map<String, String>> columns = cursor.getForeignColumns();
+		for (Map<String, String> column : columns) {
+			column.put("srcTable", tblName);
+		}
+		cursor.close();
+		return columns;
+	}
+	
+	public String[] getCatalog(String tblName) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT name FROM " + tblName + " ORDER BY name", null);
+		String[] catalog = cursor.getCatalog();
+		cursor.close();
+		return catalog;
+	}
 }

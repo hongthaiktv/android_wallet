@@ -17,8 +17,9 @@ public class Editor extends Activity
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends";
-	private String[] colNames, colTypes;
+	private String[] colNames;
 	private DataType[] dataTypes;
+	private List<Map<String, String>> foreignColumns;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -35,29 +36,10 @@ public class Editor extends Activity
 		tblName = !"balance".equals(getIntent().getStringExtra("tblName")) ? getIntent().getStringExtra("tblName") : "expends";
 		setTitle(tblName.toUpperCase());
 		
-		//test spiner
-		Spinner spin = findViewById(R.id.editorSpinner);
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[] {"opt1", "opt2", "opt3"});
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spin.setAdapter(adapter);
-		spin.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-				@Override
-				public void onItemSelected(AdapterView<?> p1, View p2, int p3, long p4)
-				{
-					//Toast.makeText(Editor.this, (String) p1.getItemAtPosition(p3), Toast.LENGTH_SHORT).show();
-				}
-
-				@Override
-				public void onNothingSelected(AdapterView<?> p1)
-				{
-					//Toast.makeText(Editor.this, "close dropdown", Toast.LENGTH_SHORT).show();
-				}
-			});
-		
 		colNames = db.getColumnNames(tblName);
-		colTypes = db.getColumnTypes(tblName);
 		dataTypes = db.getDataTypes(tblName);
+		foreignColumns = db.getForeignColumns(tblName);
+		//Toast.makeText(this, "" + (String) foreignColumns.get(0).get("dstTable"), Toast.LENGTH_SHORT).show();
 		editorTopLayout.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
@@ -65,6 +47,29 @@ public class Editor extends Activity
 			TextView tvName = new TextView(this);
 			tvName.setLayoutParams(tvParams);
 			tvName.setText(colNames[i].toUpperCase());
+			editorTopLayout.addView(tvName);
+			
+			if (foreignColumns.size() > 0) {
+				boolean isCatalog = false;
+				for (int index = 0; index < foreignColumns.size(); index++) {
+					Map<String, String> fColumn = foreignColumns.get(index);
+					String dstTable = fColumn.get("dstTable");
+					String srcColumn = fColumn.get("srcColumn");
+					if (!srcColumn.equals(colNames[i])) continue;
+					//String[] items = db.getCatalog(dstTable);
+					//Spinner.LayoutParams ctlParams = new Spinner.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+					//Spinner catalog = new Spinner(this);
+					//catalog.setLayoutParams(ctlParams);
+					//ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+					//adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+					//catalog.setAdapter(adapter);
+					//editorTopLayout.addView(catalog);
+					isCatalog = true;
+					break;
+				}
+				if (isCatalog) continue;
+			}
+			
 			GridLayout.LayoutParams iptParams = new GridLayout.LayoutParams();
 			iptParams.width = 0;
 			iptParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
@@ -73,7 +78,6 @@ public class Editor extends Activity
 			input.setLayoutParams(iptParams);
 			input.setSingleLine();
 			setViewID(input, i);
-			editorTopLayout.addView(tvName);
 			editorTopLayout.addView(input);
 		}
 		
