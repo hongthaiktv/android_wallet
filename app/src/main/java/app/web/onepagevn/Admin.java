@@ -56,12 +56,16 @@ public class Admin extends Activity
 				public void onClick(View p1)
 				{
 					try {
-						int limit = Integer.valueOf(edtInput.getText().toString());
-						app.setMaxLogs(limit);
+						int logSize = Integer.valueOf(edtInput.getText().toString());
+						app.setMaxLogs(logSize);
 						edtInput.setText("");
-						int logSize = app.getMaxLogs();
-						tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
-						if ("logs".equals(tblName) || "setting".equals(tblName)) tblData.show();
+						switch (tblName) {
+							case "logs":
+								tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+							case "setting":
+								tblData.show();
+								break;
+						}
 					} catch (Exception e) {stt.error(e.getMessage());}
 				}
 			});
