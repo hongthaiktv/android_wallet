@@ -133,6 +133,7 @@ public class Editor extends Activity
 								
 							case "Spinner":
 								{
+									if (foreignColumns.size() < 1) continue;
 									Spinner catalog = (Spinner) view;
 									String value = (String) catalog.getSelectedItem();
 									if ("".equals(value)) continue;
