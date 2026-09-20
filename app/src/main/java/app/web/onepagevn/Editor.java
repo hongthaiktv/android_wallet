@@ -169,9 +169,18 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					finish();
+					dateTimePicker();
+					//finish();
 				}
 			});
+	}
+
+	private void dateTimePicker()
+	{
+		AlertDialog.Builder picker = new AlertDialog.Builder(this);
+		ListAdapter adapter = new DateTimePickerAdapter(this, new String[8]);
+		picker.setAdapter(adapter, null);
+		picker.create().show();
 	}
 	
 	private void reset() {
