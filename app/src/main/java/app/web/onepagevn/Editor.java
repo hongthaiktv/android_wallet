@@ -184,10 +184,7 @@ public class Editor extends Activity
 		boolean isFocus = false;
 		for (int i = 1; i <= numRow; i++) {
 			View view = getViewByIndex(i);
-			if (view == null) {
-				stt.error("View at index \"" + i + "\" not found.");
-				continue;
-			}
+			if (view == null) continue;
 			String name = view.getClass().getSimpleName();
 			switch (name) {
 				case "EditText":
@@ -352,7 +349,10 @@ public class Editor extends Activity
 				id = R.string.view20;
 				break;
 		}
-		return findViewById(id);
+		View view = null;
+		if (id == -1) stt.error("View at index \"" + index + "\" not found.");
+		else view = findViewById(id);
+		return view;
 	}
 
 	@Override
