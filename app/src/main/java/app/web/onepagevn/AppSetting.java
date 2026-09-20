@@ -47,7 +47,7 @@ public class AppSetting extends Application
 		else {
 			db.updateSetting("dlgMaxLogs", limit);
 			setting.put("dlgMaxLogs", limit);
-			stt.success("Dialog max logs changed to " + limit);
+			stt.success("Max logs changed to " + limit);
 		}
 	}
 	
