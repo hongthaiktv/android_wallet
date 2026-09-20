@@ -31,7 +31,7 @@ public class AppLog extends Activity
 				}
 			});
 		
-		tblLog.setSQL("SELECT id, datetime(timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs");
+		tblLog.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs");
 		mainLayout.addView(tblLog, 0);
 		tblLog.setOrdHeader("#").setHScroll(true)
 		.show();

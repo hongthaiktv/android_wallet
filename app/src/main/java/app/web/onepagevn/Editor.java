@@ -114,8 +114,8 @@ public class Editor extends Activity
 									DataType type = dataTypes[i];
 									switch (type) {
 										case DATETIME:
-											if (value.length() <= 10) value += " 00:00:00";
-											SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+											if (value.length() <= 10) value += " 00:00";
+											SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 											long date = -1;
 											try
 											{
@@ -188,7 +188,7 @@ public class Editor extends Activity
 					DataType type = dataTypes[i];
 					switch (type) {
 						case DATETIME:
-							SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+							SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 							String date = formater.format(new Date());
 							input.setHint(date);
 							break;
