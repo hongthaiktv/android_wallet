@@ -80,7 +80,7 @@
 			app:hScroll="false"
 			app:hideID="true"
 			app:autoLoad="false"
-			app:sql="SELECT expends.id, strftime('%d-%m-%Y %T', expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC">
+			app:sql="SELECT expends.id, iif(strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %R', expends.date, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %R', expends.date, 'unixepoch', 'localtime')) AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC">
 		</app.web.onepagevn.SQLiteDBLayout>
 
 		<LinearLayout

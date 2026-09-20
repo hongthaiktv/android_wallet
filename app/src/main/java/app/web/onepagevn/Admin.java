@@ -118,13 +118,13 @@ public class Admin extends Activity
 								tblData.setSQL(null);
 								switch (tblName) {
 									case "logs":
-										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100");
+										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100");
 										break;
 									case "setting":
-										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
+										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
 										break;
 									case "cmdhistory":
-										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, strftime('%d-%m-%Y %T', datecreate, 'unixepoch', 'localtime') AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");
+										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, strftime('%d-%m-%Y %T', datecreate, 'unixepoch', 'localtime') AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");
 										break;
 								}
 								tblData.setTable(tblName).show();

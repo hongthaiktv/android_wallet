@@ -49,7 +49,7 @@ public class MainActivity extends Activity
 				{
 					tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
-					tblData.setSQL("SELECT expends.id, strftime('%d-%m-%Y %T', expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC").show();
+					tblData.setSQL("SELECT expends.id, iif(strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %R', expends.date, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %R', expends.date, 'unixepoch', 'localtime')) AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC").show();
 					tvTable.setText(getBalanceRemain());
 					tblName = "balance";
 				}
@@ -80,13 +80,13 @@ public class MainActivity extends Activity
 								case "budget":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									tblData.setSQL("SELECT id, strftime('%d-%m-%Y', date, 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget ORDER BY date");
+									tblData.setSQL("SELECT id, iif(strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %R', date, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %R', date, 'unixepoch', 'localtime')) AS date, PRINTF('%,.0f', amount) AS amount FROM budget ORDER BY date");
 									tvTable.setText(getTotalBudget());
 									break;
 								case "expends":
 									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
-									tblData.setSQL("SELECT expends.id, strftime('%d-%m-%Y %T', expends.date, 'unixepoch', 'localtime') AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
+									tblData.setSQL("SELECT expends.id, iif(strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %R', expends.date, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %R', expends.date, 'unixepoch', 'localtime')) AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
 									tvTable.setText(getTotalExpend());
 									break;
 								case "product_types":
