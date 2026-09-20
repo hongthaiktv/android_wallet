@@ -12,7 +12,8 @@ public class AppLog extends Activity
 {
 	private LinearLayout mainLayout;
 	private StatusBar stt;
-	SQLiteDBLayout tblLog;
+	private SQLiteDBLayout tblLog;
+	private AppSetting app;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -22,6 +23,8 @@ public class AppLog extends Activity
 		
 		mainLayout = findViewById(R.id.applogMainLayout);
 		stt = new StatusBar(this).init();
+		app = AppSetting.getAppContext();
+		
 		tblLog = new SQLiteDBLayout(this, "logs", new SQLiteDBLayout.RowOnClickListener() {
 
 				@Override
@@ -31,16 +34,17 @@ public class AppLog extends Activity
 				}
 			});
 		
-		tblLog.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs");
+		int logSize = app.getMaxLogs();
+		tblLog.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs LIMIT " + logSize);
 		mainLayout.addView(tblLog, 0);
-		tblLog.setOrdHeader("#").setHScroll(true)
-		.show();
+		tblLog.setOrdHeader("#").setHScroll(true);
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		tblLog.show();
 		stt.update();
 	}
 }

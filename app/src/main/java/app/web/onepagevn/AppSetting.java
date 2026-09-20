@@ -42,7 +42,7 @@ public class AppSetting extends Application
 		return appSrvConn;
 	}
 	
-	public void setDlgMaxLogs(int limit) {
+	public void setMaxLogs(int limit) {
 		if (limit <= 0) stt.error("Dialog max logs must >= 1");
 		else {
 			db.updateSetting("dlgMaxLogs", limit);
@@ -51,7 +51,7 @@ public class AppSetting extends Application
 		}
 	}
 	
-	public int getDlgMaxLogs() {
+	public int getMaxLogs() {
 		return setting.get("dlgMaxLogs");
 	}
 }

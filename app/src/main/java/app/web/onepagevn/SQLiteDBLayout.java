@@ -120,6 +120,15 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
+	public SQLiteDBLayout setAutoLoad(boolean autoLoad) {
+		this.autoLoad = autoLoad;
+		return this;
+	}
+	
+	public boolean getAutoLoad() {
+		return autoLoad;
+	}
+	
 	public SQLiteDBLayout hideColumn(int index) {
 		if (index > 0) {
 			--index;

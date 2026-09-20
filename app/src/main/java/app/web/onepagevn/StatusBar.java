@@ -117,7 +117,7 @@ public class StatusBar
 							});
 					}
 					
-					final List<Map<String, Object>> logs = db.getLogs(filterType, app.getDlgMaxLogs());
+					final List<Map<String, Object>> logs = db.getLogs(filterType, app.getMaxLogs());
 					ListAdapter sttAdapter = new StatusAdapter(context, logs);
 					dlgStatus.setAdapter(sttAdapter, new DialogInterface.OnClickListener() {
 

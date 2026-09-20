@@ -17,7 +17,7 @@ public class Admin extends Activity
 	private SQLiteDB db;
 	private RecentList<String> history;
 	private SQLiteDBLayout tblData;
-	private String tblName = "logs";
+	private String tblName = "";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -33,6 +33,8 @@ public class Admin extends Activity
 		btnUp = findViewById(R.id.admBtnUp);
 		btnDown = findViewById(R.id.admBtnDown);
 		tblData = findViewById(R.id.admTableData);
+		tblName = tblData.getTable();
+		if ("".equals(tblName) || tblName == null) tblName = "logs";
 		app = AppSetting.getAppContext();
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
@@ -55,7 +57,10 @@ public class Admin extends Activity
 				{
 					try {
 						int limit = Integer.valueOf(edtInput.getText().toString());
-						app.setDlgMaxLogs(limit);
+						app.setMaxLogs(limit);
+						edtInput.setText("");
+						int logSize = app.getMaxLogs();
+						tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 						if ("logs".equals(tblName) || "setting".equals(tblName)) tblData.show();
 					} catch (Exception e) {stt.error(e.getMessage());}
 				}
@@ -118,7 +123,8 @@ public class Admin extends Activity
 								tblData.setSQL(null);
 								switch (tblName) {
 									case "logs":
-										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100");
+										int logSize = app.getMaxLogs();
+										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 										break;
 									case "setting":
 										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
@@ -183,7 +189,11 @@ public class Admin extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-		
+		if ("logs".equals(tblName)) {
+			int logSize = app.getMaxLogs();
+			tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+		}
+		tblData.show();
 		stt.update();
 	}
 
