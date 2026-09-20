@@ -100,7 +100,7 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					List<Map<String, Object>> listTable = db.sql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name ASC", null);
+					List<Map<String, Object>> listTable = db.sql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name COLLATE NOCASE", null);
 					ArrayList<String> tables = new ArrayList<>();
 					for (Map<String, Object> table : listTable) {
 						tables.add((String) table.get("name"));
@@ -121,7 +121,7 @@ public class Admin extends Activity
 										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT 100");
 										break;
 									case "setting":
-										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, name, value, datatype FROM setting");
+										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
 										break;
 									case "cmdhistory":
 										tblData.setSQL("SELECT id, strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime') AS timestamp, strftime('%d-%m-%Y %T', datecreate, 'unixepoch', 'localtime') AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");

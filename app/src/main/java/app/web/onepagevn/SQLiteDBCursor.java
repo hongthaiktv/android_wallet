@@ -60,12 +60,12 @@ public class SQLiteDBCursor extends SQLiteCursor
 		return types;
 	}
 	
-	public List<Map<String, String>> getForeignColumns() {
-		List<Map<String, String>> columns = new ArrayList<Map<String, String>>();
+	public List<Map<String, Object>> getForeignColumns() {
+		List<Map<String, Object>> columns = new ArrayList<Map<String, Object>>();
 		try {
 			int i = 0;
 			while (moveToNext()) {
-				Map<String, String> column = new LinkedHashMap<String, String>();
+				Map<String, Object> column = new LinkedHashMap<String, Object>();
 				column.put("dstColumn", getString(4));
 				column.put("dstTable", getString(2));
 				column.put("srcColumn", getString(3));
@@ -79,18 +79,23 @@ public class SQLiteDBCursor extends SQLiteCursor
 		return columns;
 	}
 	
-	public String[] getCatalog() {
-		String[] catalog = new String[getCount()];
+	public List<Object> getCatalog() {
+		List<Object> catalog = new ArrayList<Object>();
+		int[] ids = new int[getCount()];
+		String[] names = new String[getCount()];
 		try {
 			int i = 0;
 			while (moveToNext()) {
-				catalog[i] = getString(0);
+				ids[i] = getInt(0);
+				names[i] = getString(1);
 				++i;
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
+		catalog.add(ids);
+		catalog.add(names);
 		return catalog;
 	}
 	

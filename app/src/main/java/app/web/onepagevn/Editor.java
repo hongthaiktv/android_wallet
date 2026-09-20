@@ -19,7 +19,7 @@ public class Editor extends Activity
 	private String tblName = "expends";
 	private String[] colNames;
 	private DataType[] dataTypes;
-	private List<Map<String, String>> foreignColumns;
+	private List<Map<String, Object>> foreignColumns;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -50,12 +50,10 @@ public class Editor extends Activity
 			
 			if (foreignColumns.size() > 0) {
 				boolean isCatalog = false;
-				for (int index = 0; index < foreignColumns.size(); index++) {
-					Map<String, String> fColumn = foreignColumns.get(index);
-					String dstTable = fColumn.get("dstTable");
-					String srcColumn = fColumn.get("srcColumn");
+				for (Map<String, Object> fColumn : foreignColumns) {
+					String srcColumn = (String) fColumn.get("srcColumn");
 					if (srcColumn.equals(colNames[i])) {
-						String[] items = db.getCatalog(dstTable);
+						String[] items = (String[]) fColumn.get("names");
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
 						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
@@ -105,6 +103,7 @@ public class Editor extends Activity
 					ContentValues data = new ContentValues();
 					for (int i = 1; i <= numRow; i++) {
 						View view = getViewByIndex(i);
+						if (view == null) continue;
 						String name = view.getClass().getSimpleName();
 						switch (name) {
 							case "EditText":
@@ -138,23 +137,18 @@ public class Editor extends Activity
 									String value = (String) catalog.getSelectedItem();
 									if ("".equals(value)) continue;
 									int id = -1;
-									String dstTable = "";
-									for (Map<String, String> fColumn : foreignColumns) {
-										String srcColumn = fColumn.get("srcColumn");
+									for (Map<String, Object> fColumn : foreignColumns) {
+										String srcColumn = (String) fColumn.get("srcColumn");
 										if (srcColumn.equals(colNames[i])) {
-											dstTable = fColumn.get("dstTable");
-											break;
+											int[] ids = (int[]) fColumn.get("ids");
+											String[] names = (String[]) fColumn.get("names");
+											for (int index = 0; index < names.length; index++) {
+												String item = names[index];
+												if (item.equals(value)) id = ids[index];
+											}
 										}
 									}
-									int[] ids = db.getCatalogID(dstTable);
-									String[] items = db.getCatalog(dstTable);
-									for (int index = 0; index < items.length; index++) {
-										if (value.equals(items[index])) {
-											id = ids[index];
-											break;
-										}
-									}
-									data.put(colNames[i], id);
+									if (id != -1) data.put(colNames[i], id);
 									break;
 								}
 						}

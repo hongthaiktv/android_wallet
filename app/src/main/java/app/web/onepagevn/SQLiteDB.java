@@ -161,7 +161,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getSetting(boolean full) {
-		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM setting ORDER BY name";
+		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
@@ -458,30 +458,30 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return types;
 	}
 	
-	public List<Map<String, String>> getForeignColumns(String tblName) {
+	public List<Map<String, Object>> getForeignColumns(String tblName) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA foreign_key_list(" + tblName + ")", null);
-		List<Map<String, String>> columns = cursor.getForeignColumns();
-		for (Map<String, String> column : columns) {
+		List<Map<String, Object>> columns = cursor.getForeignColumns();
+		cursor.close();
+		for (Map<String, Object> column : columns) {
 			column.put("srcTable", tblName);
+			tblName = (String) column.get("dstTable");
+			cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name COLLATE NOCASE", null);
+			List<Object> catalog = cursor.getCatalog();
+			int[] ids = (int[]) catalog.get(0);
+			String[] names = (String[]) catalog.get(1);
+			column.put("ids", ids);
+			column.put("names", names);
 		}
 		cursor.close();
 		return columns;
 	}
 	
-	public String[] getCatalog(String tblName) {
+	public List<Object> getCatalog(String tblName) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT name FROM " + tblName + " ORDER BY name", null);
-		String[] catalog = cursor.getCatalog();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name COLLATE NOCASE", null);
+		List<Object> catalog = cursor.getCatalog();
 		cursor.close();
 		return catalog;
-	}
-	
-	public int[] getCatalogID(String tblName) {
-		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name", null);
-		int[] ids = cursor.getCatalogID();
-		cursor.close();
-		return ids;
 	}
 }
