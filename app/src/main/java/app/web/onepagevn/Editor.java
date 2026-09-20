@@ -349,9 +349,8 @@ public class Editor extends Activity
 				id = R.string.view20;
 				break;
 		}
-		View view = null;
-		if (id == -1) stt.error("View at index \"" + index + "\" not found.");
-		else view = findViewById(id);
+		View view = findViewById(id);
+		if (view == null) stt.error("View at index \"" + index + "\" not found.");
 		return view;
 	}
 
