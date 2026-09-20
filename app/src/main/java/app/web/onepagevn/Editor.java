@@ -163,7 +163,8 @@ public class Editor extends Activity
 						long result = db.insert(tblName, data);
 						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
-						reset();
+						if ("budget".equals(tblName)) finish();
+						else reset();
 					}
 				}
 			});
@@ -183,6 +184,10 @@ public class Editor extends Activity
 		boolean isFocus = false;
 		for (int i = 1; i <= numRow; i++) {
 			View view = getViewByIndex(i);
+			if (view == null) {
+				stt.error("View at index \"" + i + "\" not found.");
+				continue;
+			}
 			String name = view.getClass().getSimpleName();
 			switch (name) {
 				case "EditText":
