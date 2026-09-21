@@ -239,7 +239,8 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					finish();
+					stt.success(getDateTime(1).toLocaleString());
+					//finish();
 				}
 			});
 	}
@@ -260,18 +261,43 @@ public class Editor extends Activity
 					Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
 					Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
 					if (pickedDate != null) {
-						pickedRows[pickedRow][0] = pickedDate.getTime();
 						btnDatePicker.setText(df.format(pickedDate));
+						pickedRows[pickedRow][0] = pickedDate.getTime();
+						try
+						{
+							pickedRows[pickedRow][1] = tf.parse(btnTimePicker.getText().toString()).getTime();
+						}
+						catch (ParseException e)
+						{stt.error(e.getMessage());}
 					}
 					if (pickedTime != null) {
-						pickedRows[pickedRow][1] = pickedTime.getTime();
 						btnTimePicker.setText(tf.format(pickedTime));
+						pickedRows[pickedRow][1] = pickedTime.getTime();
+						try
+						{
+							pickedRows[pickedRow][0] = df.parse(btnDatePicker.getText().toString()).getTime();
+						}
+						catch (ParseException e)
+						{stt.error(e.getMessage());}
 					}
 				}
 			});
 		AlertDialog picker = builder.create();
 		adapter.setDialog(picker);
 		picker.show();
+	}
+	
+	private Date getDateTime(int row) {
+		String date = df.format(new Date(pickedRows[row][0]));
+		String time = tf.format(new Date(pickedRows[row][1]));
+		Date datetime = null;
+		try
+		{
+			datetime = ff.parse(date + " " + time);
+		}
+		catch (ParseException e)
+		{stt.error(e.getMessage());}
+		return datetime;
 	}
 	
 	private void reset() {
