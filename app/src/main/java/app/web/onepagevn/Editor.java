@@ -8,6 +8,8 @@ import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
 import java.util.*;
+import android.widget.TableRow.*;
+import android.util.*;
 
 public class Editor extends Activity
 {
@@ -71,6 +73,44 @@ public class Editor extends Activity
 					}
 				}
 				if (isCatalog) continue;
+			}
+			
+			switch (dataTypes[i]) {
+				case DATETIME:
+					TypedValue backGround = new TypedValue();
+					getTheme().resolveAttribute(android.R.attr.selectableItemBackground, backGround, true);
+					
+					GridLayout.LayoutParams lPickerParams = new GridLayout.LayoutParams();
+					lPickerParams.width = 0;
+					lPickerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+					lPickerParams.setMargins(20, 0, 20, 0);
+					LinearLayout layoutPicker = new LinearLayout(this);
+					layoutPicker.setLayoutParams(lPickerParams);
+					layoutPicker.setPadding(0, 0, 0, 0);
+					layoutPicker.setOrientation(LinearLayout.HORIZONTAL);
+					layoutPicker.setBaselineAligned(true);
+					
+					LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(300, 80);
+					Button btnDatePicker = new Button(this);
+					btnDatePicker.setLayoutParams(dateParams);
+					btnDatePicker.setPadding(0, 0, 0, 0);
+					btnDatePicker.setTextSize(17f);
+					btnDatePicker.setBackgroundResource(backGround.resourceId);
+					btnDatePicker.setText("20:12:2026");
+					
+					LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(150, 80);
+					Button btnTimePicker = new Button(this);
+					btnTimePicker.setLayoutParams(timeParams);
+					btnTimePicker.setPadding(0, 0, 0, 0);
+					btnTimePicker.setTextSize(17f);
+					btnTimePicker.setBackgroundResource(backGround.resourceId);
+					btnTimePicker.setText("10:10");
+					
+					layoutPicker.addView(btnDatePicker);
+					layoutPicker.addView(btnTimePicker);
+					layoutPicker.setBaselineAlignedChildIndex(0);
+					editorTopLayout.addView(layoutPicker);
+					continue;
 			}
 			
 			GridLayout.LayoutParams iptParams = new GridLayout.LayoutParams();
