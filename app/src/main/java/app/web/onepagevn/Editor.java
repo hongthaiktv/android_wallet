@@ -23,6 +23,11 @@ public class Editor extends Activity
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate;
 	private Date pickedTime;
+	private int pickedRow = -1;
+	private long[][] pickedRows = new long[20][2];
+	private SimpleDateFormat df;
+	private SimpleDateFormat tf;
+	private SimpleDateFormat ff;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -38,6 +43,9 @@ public class Editor extends Activity
 		db = new SQLiteDB();
 		tblName = !"balance".equals(getIntent().getStringExtra("tblName")) ? getIntent().getStringExtra("tblName") : "expends";
 		setTitle(tblName.toUpperCase());
+		df = new SimpleDateFormat("dd-MM-yyyy");
+		tf = new SimpleDateFormat("HH:mm");
+		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
@@ -79,6 +87,8 @@ public class Editor extends Activity
 				case DATETIME:
 					TypedValue backGround = new TypedValue();
 					getTheme().resolveAttribute(android.R.attr.selectableItemBackground, backGround, true);
+					Date now = new Date();
+					final int row = i;
 					
 					GridLayout.LayoutParams lPickerParams = new GridLayout.LayoutParams();
 					lPickerParams.width = 0;
@@ -89,6 +99,7 @@ public class Editor extends Activity
 					layoutPicker.setPadding(0, 0, 0, 0);
 					layoutPicker.setOrientation(LinearLayout.HORIZONTAL);
 					layoutPicker.setBaselineAligned(true);
+					setViewID(layoutPicker, i);
 					
 					LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(300, 80);
 					Button btnDatePicker = new Button(this);
@@ -96,7 +107,16 @@ public class Editor extends Activity
 					btnDatePicker.setPadding(0, 0, 0, 0);
 					btnDatePicker.setTextSize(17f);
 					btnDatePicker.setBackgroundResource(backGround.resourceId);
-					btnDatePicker.setText("20:12:2026");
+					btnDatePicker.setText(df.format(now));
+					btnDatePicker.setOnClickListener(new OnClickListener() {
+						
+							@Override
+							public void onClick(View v)
+							{
+								dateTimePicker(R.layout.date_picker);
+								pickedRow = row;
+							}
+						});
 					
 					LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(150, 80);
 					Button btnTimePicker = new Button(this);
@@ -104,7 +124,16 @@ public class Editor extends Activity
 					btnTimePicker.setPadding(0, 0, 0, 0);
 					btnTimePicker.setTextSize(17f);
 					btnTimePicker.setBackgroundResource(backGround.resourceId);
-					btnTimePicker.setText("10:10");
+					btnTimePicker.setText(tf.format(now));
+					btnTimePicker.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v)
+							{
+								dateTimePicker(R.layout.time_picker);
+								pickedRow = row;
+							}
+						});
 					
 					layoutPicker.addView(btnDatePicker);
 					layoutPicker.addView(btnTimePicker);
@@ -227,6 +256,17 @@ public class Editor extends Activity
 				{
 					pickedDate = adapter.getPickedDate();
 					pickedTime = adapter.getPickedTime();
+					LinearLayout layoutPicker = (LinearLayout) getViewByIndex(pickedRow);
+					Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
+					Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
+					if (pickedDate != null) {
+						pickedRows[pickedRow][0] = pickedDate.getTime();
+						btnDatePicker.setText(df.format(pickedDate));
+					}
+					if (pickedTime != null) {
+						pickedRows[pickedRow][1] = pickedTime.getTime();
+						btnTimePicker.setText(tf.format(pickedTime));
+					}
 				}
 			});
 		AlertDialog picker = builder.create();
