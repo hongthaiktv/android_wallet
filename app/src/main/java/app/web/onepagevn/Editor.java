@@ -268,22 +268,10 @@ public class Editor extends Activity
 					if (pickedDate != null) {
 						btnDatePicker.setText(df.format(pickedDate));
 						pickedRows[pickedRow][0] = pickedDate.getTime();
-						try
-						{
-							pickedRows[pickedRow][1] = tf.parse(btnTimePicker.getText().toString()).getTime();
-						}
-						catch (ParseException e)
-						{stt.error(e.getMessage());}
 					}
 					if (pickedTime != null) {
 						btnTimePicker.setText(tf.format(pickedTime));
 						pickedRows[pickedRow][1] = pickedTime.getTime();
-						try
-						{
-							pickedRows[pickedRow][0] = df.parse(btnDatePicker.getText().toString()).getTime();
-						}
-						catch (ParseException e)
-						{stt.error(e.getMessage());}
 					}
 				}
 			});
