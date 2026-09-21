@@ -108,6 +108,7 @@ public class Editor extends Activity
 					btnDatePicker.setTextSize(17f);
 					btnDatePicker.setBackgroundResource(backGround.resourceId);
 					btnDatePicker.setText(df.format(now));
+					pickedRows[row][0] = now.getTime();
 					btnDatePicker.setOnClickListener(new OnClickListener() {
 						
 							@Override
@@ -125,6 +126,7 @@ public class Editor extends Activity
 					btnTimePicker.setTextSize(17f);
 					btnTimePicker.setBackgroundResource(backGround.resourceId);
 					btnTimePicker.setText(tf.format(now));
+					pickedRows[row][1] = now.getTime();
 					btnTimePicker.setOnClickListener(new OnClickListener() {
 
 							@Override
@@ -222,6 +224,10 @@ public class Editor extends Activity
 									if (id != -1) data.put(colNames[i], id);
 									break;
 								}
+							case "LinearLayout":
+								{
+									data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+								}
 						}
 					}
 					if (data.size() > 0) {
@@ -239,8 +245,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					stt.success(getDateTime(1).toLocaleString());
-					//finish();
+					finish();
 				}
 			});
 	}
