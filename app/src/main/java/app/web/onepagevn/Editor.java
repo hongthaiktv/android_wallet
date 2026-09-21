@@ -316,22 +316,27 @@ public class Editor extends Activity
 				case "EditText":
 					EditText input = (EditText) view;
 					input.setText("");
-					DataType type = dataTypes[i];
-					switch (type) {
+					if (!isFocus) {
+						input.requestFocus();
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						if (imm != null) {
+							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+						}
+						isFocus = true;
+					}
+					break;
+				case "LinearLayout":
+					switch (dataTypes[i]) {
 						case DATETIME:
-							SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-							String date = formater.format(new Date());
-							input.setHint(date);
+							LinearLayout layoutPicker = (LinearLayout) view;
+							Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
+							Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
+							Date now = new Date();
+							btnDatePicker.setText(df.format(now));
+							btnTimePicker.setText(tf.format(now));
+							pickedRows[i][0] = now.getTime();
+							pickedRows[i][1] = now.getTime();
 							break;
-						default:
-							if (!isFocus) {
-								input.requestFocus();
-								InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-								if (imm != null) {
-									imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-								}
-								isFocus = true;
-							}
 					}
 					break;
 			}
