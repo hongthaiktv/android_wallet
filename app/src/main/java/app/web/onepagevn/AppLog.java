@@ -35,7 +35,7 @@ public class AppLog extends Activity
 			});
 		
 		int logSize = app.getMaxLogs();
-		tblLog.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs LIMIT " + logSize);
+		tblLog.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		mainLayout.addView(tblLog, 0);
 		tblLog.setOrdHeader("#").setHScroll(true);
 	}

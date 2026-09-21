@@ -8,7 +8,6 @@ import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
 import java.util.*;
-import android.widget.AdapterView.*;
 
 public class Editor extends Activity
 {
@@ -20,6 +19,8 @@ public class Editor extends Activity
 	private String[] colNames;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
+	private Date pickedDate;
+	private Date pickedTime;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -169,18 +170,28 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					dateTimePicker();
-					//finish();
+					finish();
 				}
 			});
 	}
 
-	private void dateTimePicker()
+	private void dateTimePicker(int resource)
 	{
-		AlertDialog.Builder picker = new AlertDialog.Builder(this);
-		ListAdapter adapter = new DateTimePickerAdapter(this, new String[8]);
-		picker.setAdapter(adapter, null);
-		picker.create().show();
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		final DateTimePickerAdapter adapter = new DateTimePickerAdapter(this, resource);
+		builder.setAdapter(adapter, null);
+		builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface d)
+				{
+					pickedDate = adapter.getPickedDate();
+					pickedTime = adapter.getPickedTime();
+				}
+			});
+		AlertDialog picker = builder.create();
+		adapter.setDialog(picker);
+		picker.show();
 	}
 	
 	private void reset() {

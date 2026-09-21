@@ -1,48 +1,87 @@
 package app.web.onepagevn;
 
+import android.app.*;
 import android.content.*;
 import android.view.*;
 import android.widget.*;
-import java.util.*;
+import android.widget.DatePicker.*;
 import java.text.*;
-import android.view.View.*;
-import android.widget.Toolbar.*;
+import java.util.*;
 
 public class DateTimePickerAdapter extends ArrayAdapter<String>
 {
 	private Context context;
+	private int resource;
+	private StatusBar stt;
+	private AlertDialog dialog;
+	private DatePicker dPicker;
+	private TimePicker tPicker;
+	private Date pickedDate;
+	private Date pickedTime;
 	
-	public DateTimePickerAdapter(Context context, String[] items) {
-		super(context, R.layout.datetime_picker, items);
+	public DateTimePickerAdapter(Context context, int resource) {
+		super(context, resource, new String[1]);
 		this.context = context;
+		this.resource = resource;
+		stt = new StatusBar("DateTimePickerAdapter");
+	}
+
+	public Date getPickedTime()
+	{
+		return pickedTime;
+	}
+
+	public Date getPickedDate()
+	{
+		return pickedDate;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
 		LayoutInflater inflater = LayoutInflater.from(context);
-		final View view = inflater.inflate(R.layout.datetime_picker, parent, false);
-		Button btnDate = view.findViewById(R.id.dtPickerBtnDate);
-		SimpleDateFormat formater = new SimpleDateFormat("dd-MMM-yyyy");
-		Date now = new Date();
-		btnDate.setText(formater.format(now));
-		btnDate.setOnClickListener(new OnClickListener() {
+		View view = inflater.inflate(resource, parent, false);
+		View picker = view.findViewById(R.id.picker);
+		String name = picker.getClass().getSimpleName();
+		switch (name) {
+			case "DatePicker":
+				dPicker = (DatePicker) picker;
+				dPicker.setOnDateChangedListener(new OnDateChangedListener() {
 
-				@Override
-				public void onClick(View v)
-				{
-					DatePicker dPicker = new DatePicker(context);
-					LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-					dPicker.setLayoutParams(params);
-					LinearLayout layout = (LinearLayout) view;
-					layout.removeAllViews();
-					layout.addView(dPicker);
-				}
-			});
-		
-		Button btnTime = view.findViewById(R.id.dtPickerBtnTime);
-		formater.applyPattern("HH:mm");
-		btnTime.setText(formater.format(now));
+					@Override
+					public void onDateChanged(DatePicker p, int year, int month, int day)
+					{
+						SimpleDateFormat formater = new SimpleDateFormat("d-M-yyyy");
+						String sDate = day + "-" + ++month + "-" + year;
+						try
+						{
+							pickedDate = formater.parse(sDate);
+						}
+						catch (ParseException e)
+						{stt.error(e.getMessage());}
+						if (dialog != null) dialog.dismiss();
+					}
+				});
+				break;
+			case "TimePicker":
+				tPicker = (TimePicker) picker;
+				tPicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+					
+						@Override
+						public void onTimeChanged(TimePicker p, int hour, int minute)
+						{
+							pickedTime = new Date();
+							pickedTime.setHours(hour);
+							pickedTime.setMinutes(minute);
+							pickedTime.setSeconds(0);
+						}
+					});
+				break;
+		}
 		return view;
+	}
+	
+	public void setDialog(AlertDialog dialog) {
+		this.dialog = dialog;
 	}
 }
