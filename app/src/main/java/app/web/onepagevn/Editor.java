@@ -245,14 +245,12 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					WidgetProvider wp = WidgetProvider.getInstance();
-					AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(Editor.this);
-					ComponentName myWidget = new ComponentName(Editor.this, WidgetProvider.class);
-					int[] widgetIds = appWidgetManager.getAppWidgetIds(myWidget);
-
+					AppWidgetManager widgetManager = AppWidgetManager.getInstance(Editor.this);
+					ComponentName widget = new ComponentName(Editor.this, WidgetProvider.class);
+					int[] widgetIDs = widgetManager.getAppWidgetIds(widget);
 					Intent intent = new Intent(Editor.this, WidgetProvider.class);
 					intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-					intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+					intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIDs);
 					Editor.this.sendBroadcast(intent);
 					
 					//finish();
