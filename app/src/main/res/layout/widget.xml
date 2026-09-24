@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res/app.web.onepagevn"
+    android:id="@+id/widgetRootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:orientation="vertical"
+    android:background="#222222"
+    android:gravity="center"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/widgetTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wallet Widget"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+	
+	<GridLayout
+		android:id="@+id/widgetMainLayout"
+		android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="8dp"
+		android:columnCount="3"
+		android:alignmentMode="alignBounds">
+	</GridLayout>
+	
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:gravity="center">
+		
+		<Button
+			android:id="@+id/widgetBtnUpdate"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Update" />
+
+		<Button
+			android:id="@+id/widgetBtnOpen"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Open App" />
+		
+	</LinearLayout>
+
+</LinearLayout>
+
