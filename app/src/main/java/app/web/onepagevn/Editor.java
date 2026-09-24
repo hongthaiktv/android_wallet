@@ -1,15 +1,15 @@
 package app.web.onepagevn;
 import android.app.*;
+import android.appwidget.*;
 import android.content.*;
 import android.os.*;
+import android.util.*;
 import android.view.*;
 import android.view.View.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
 import java.util.*;
-import android.widget.TableRow.*;
-import android.util.*;
 
 public class Editor extends Activity
 {
@@ -245,7 +245,17 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					finish();
+					WidgetProvider wp = WidgetProvider.getInstance();
+					AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(Editor.this);
+					ComponentName myWidget = new ComponentName(Editor.this, WidgetProvider.class);
+					int[] widgetIds = appWidgetManager.getAppWidgetIds(myWidget);
+
+					Intent intent = new Intent(Editor.this, WidgetProvider.class);
+					intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+					intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+					Editor.this.sendBroadcast(intent);
+					
+					//finish();
 				}
 			});
 	}
