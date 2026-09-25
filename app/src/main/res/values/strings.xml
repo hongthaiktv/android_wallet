@@ -6,6 +6,7 @@
 	<string name="act_editor">Editor</string>
 	<string name="act_appLog">Log</string>
 	<string name="act_srvManager">Services</string>
+	<string name="act_widgetPopup">Widget Popup</string>
 	
 	<string name="view00">view00</string>
 	<string name="view01">view01</string>

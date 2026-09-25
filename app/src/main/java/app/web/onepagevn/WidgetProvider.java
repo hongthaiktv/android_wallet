@@ -32,7 +32,7 @@ public class WidgetProvider extends AppWidgetProvider
 	
 	private RemoteViews createWidget(Context context, int[] widgetIDs, int flag) {
 		RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.widget);
-		Intent intBtnOpen = new Intent(context, MainActivity.class);
+		Intent intBtnOpen = new Intent(context, WidgetPopup.class);
 		intBtnOpen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendBtnOpen = PendingIntent.getActivity(context, 0, intBtnOpen, flag);
 		widget.setOnClickPendingIntent(R.id.widgetBtnOpen, pendBtnOpen);

@@ -2,4 +2,15 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
 	</style>
+	
+	<!-- Native framework dialog theme for non-AppCompat projects -->
+	<style name="Theme.TransparentActivityPopup" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+    </style>
 </resources>
+
