@@ -1,5 +1,6 @@
 package app.web.onepagevn;
 import android.app.*;
+import android.content.*;
 import android.os.*;
 import android.view.*;
 import android.widget.*;
@@ -32,5 +33,20 @@ public class WidgetPopup extends Activity
 					finish();
 				}
 			});
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		
+		Intent intent = getIntent();
+		String intAction = intent.getAction();
+		String intType = intent.getType();
+
+		if (Intent.ACTION_SEND.equals(intAction) && intType != null) {
+			String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+			Toast.makeText(this, sharedText, Toast.LENGTH_SHORT).show();
+		}
 	}
 }

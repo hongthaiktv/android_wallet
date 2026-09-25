@@ -29,8 +29,8 @@
 		<activity
             android:name=".Admin"
             android:label="@string/act_admin"
-			android:screenOrientation="sensor"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+			android:windowSoftInputMode="adjustResize"
 			android:exported="false">
 		</activity>
 		
@@ -38,6 +38,7 @@
             android:name=".Editor"
             android:label="@string/act_editor"
 			android:screenOrientation="portrait"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:windowSoftInputMode="adjustResize"
 			android:exported="true">
 			<intent-filter>
@@ -50,7 +51,9 @@
 		<activity
             android:name=".AppLog"
             android:label="@string/act_appLog"
-			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+			android:screenOrientation="sensor"
+			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+			android:exported="false">
 		</activity>
 		
 		<activity
@@ -63,11 +66,18 @@
             android:name=".WidgetPopup"
             android:label="@string/act_widgetPopup"
 			android:theme="@style/Theme.TransparentActivityPopup"
+			android:screenOrientation="portrait"
 			android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
 			android:launchMode="singleInstance"
 			android:excludeFromRecents="true"
 			android:taskAffinity=""
-			android:exported="false">
+			android:exported="true"
+			android:windowSoftInputMode="adjustResize">
+			<intent-filter>
+				<action android:name="android.intent.action.SEND" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="text/plain" />
+			</intent-filter>
 		</activity>
 		
 		<receiver
