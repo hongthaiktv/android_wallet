@@ -61,7 +61,8 @@ public class Admin extends Activity
 						edtInput.setText("");
 						switch (tblName) {
 							case "logs":
-								tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+								tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize).show();
+								break;
 							case "setting":
 								tblData.show();
 								break;
@@ -128,13 +129,13 @@ public class Admin extends Activity
 								switch (tblName) {
 									case "logs":
 										int logSize = app.getMaxLogs();
-										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+										tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 										break;
 									case "setting":
-										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
+										tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
 										break;
 									case "cmdhistory":
-										tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, strftime('%d-%m-%Y %T', datecreate, 'unixepoch', 'localtime') AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");
+										tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, CASE WHEN strftime('%Y', datecreate, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', datecreate, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', datecreate, 'unixepoch', 'localtime') END AS datecreate, command, times FROM cmdhistory ORDER BY timestamp DESC");
 										break;
 								}
 								tblData.setTable(tblName).show();
@@ -195,7 +196,7 @@ public class Admin extends Activity
 		super.onResume();
 		if ("logs".equals(tblName)) {
 			int logSize = app.getMaxLogs();
-			tblData.setSQL("SELECT id, iif(strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime'), strftime('%d-%m %T', timestamp, 'unixepoch', 'localtime'), strftime('%d-%m-%Y %T', timestamp, 'unixepoch', 'localtime')) AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+			tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		}
 		tblData.show();
 		stt.update();

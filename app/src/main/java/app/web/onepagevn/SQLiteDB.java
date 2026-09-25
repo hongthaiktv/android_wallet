@@ -41,15 +41,15 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public void onCreate(SQLiteDatabase db)
 	{
 		try {
-			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
-			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, name TEXT NOT NULL UNIQUE, value NOT NULL, datatype TEXT NOT NULL)");
-			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (unixepoch()) NOT NULL, datecreate DATETIME DEFAULT (unixepoch()) NOT NULL, command TEXT UNIQUE NOT NULL, times INTEGER NOT NULL)");
-			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) UNIQUE NOT NULL, amount REAL NOT NULL)");
+			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (strftime('%s', 'now')) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
+			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (strftime('%s', 'now')) NOT NULL, name TEXT UNIQUE NOT NULL, value NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (strftime('%s', 'now')) NOT NULL, datecreate DATETIME DEFAULT (strftime('%s', 'now')) NOT NULL, command TEXT UNIQUE NOT NULL, times INTEGER NOT NULL)");
+			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (strftime('%s', 'now')) UNIQUE NOT NULL, amount REAL NOT NULL)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL)");
-			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (unixepoch()) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
+			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (strftime('%s', 'now')) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");
