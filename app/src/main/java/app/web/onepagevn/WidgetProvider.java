@@ -18,7 +18,8 @@ public class WidgetProvider extends AppWidgetProvider
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			flag |= PendingIntent.FLAG_IMMUTABLE;
 		}
-		RemoteViews widget = createWidget(context, appWidgetIds, flag);
+		title = new Date().toLocaleString();
+		RemoteViews widget = createWidget(context, flag);
 		widget.setTextViewText(R.id.widgetTitle, title);
 		appWidgetManager.updateAppWidget(appWidgetIds, widget);
 	}
@@ -30,8 +31,12 @@ public class WidgetProvider extends AppWidgetProvider
 		super.onReceive(context, intent);
 	}
 	
-	private RemoteViews createWidget(Context context, int[] widgetIDs, int flag) {
+	private RemoteViews createWidget(Context context, int flag) {
 		RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.widget);
+		AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
+		ComponentName widgetComponent = new ComponentName(context, WidgetProvider.class);
+		int[] widgetIDs = widgetManager.getAppWidgetIds(widgetComponent);
+		
 		Intent intBtnOpen = new Intent(context, WidgetPopup.class);
 		intBtnOpen.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent pendBtnOpen = PendingIntent.getActivity(context, 0, intBtnOpen, flag);
