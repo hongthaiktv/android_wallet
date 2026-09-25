@@ -21,13 +21,10 @@ public class Editor extends Activity
 	private String[] colNames;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
-	private Date pickedDate;
-	private Date pickedTime;
+	private Date pickedDate, pickedTime;
 	private int pickedRow = -1;
 	private long[][] pickedRows = new long[20][2];
-	private SimpleDateFormat df;
-	private SimpleDateFormat tf;
-	private SimpleDateFormat ff;
+	private SimpleDateFormat df, tf, tff, ff, flocal;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -45,7 +42,9 @@ public class Editor extends Activity
 		setTitle(tblName.toUpperCase());
 		df = new SimpleDateFormat("dd-MM-yyyy");
 		tf = new SimpleDateFormat("HH:mm");
+		tff = new SimpleDateFormat("HH:mm:ss");
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
@@ -176,6 +175,7 @@ public class Editor extends Activity
 					for (int i = 1; i <= numRow; i++) {
 						View view = getViewByIndex(i);
 						if (view == null) continue;
+						DataType type = dataTypes[i];
 						String name = view.getClass().getSimpleName();
 						switch (name) {
 							case "EditText":
@@ -183,20 +183,7 @@ public class Editor extends Activity
 									EditText input = (EditText) view;
 									String value = input.getText().toString();
 									if ("".equals(value)) continue;
-									DataType type = dataTypes[i];
 									switch (type) {
-										case DATETIME:
-											if (value.length() <= 10) value += " 00:00";
-											SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-											long date = -1;
-											try
-											{
-												date = formater.parse(value).getTime() / 1000L;
-											}
-											catch (ParseException e)
-											{stt.error(e.getMessage());}
-											data.put(colNames[i], date);
-											break;
 										default:
 											data.put(colNames[i], value);
 									}
@@ -226,7 +213,11 @@ public class Editor extends Activity
 								}
 							case "LinearLayout":
 								{
-									data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+									switch (type) {
+										case DATETIME:
+											data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+									}
+									break;
 								}
 						}
 					}
@@ -245,6 +236,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
+					/*
 					AppWidgetManager widgetManager = AppWidgetManager.getInstance(Editor.this);
 					ComponentName widget = new ComponentName(Editor.this, WidgetProvider.class);
 					int[] widgetIDs = widgetManager.getAppWidgetIds(widget);
@@ -252,8 +244,8 @@ public class Editor extends Activity
 					intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 					intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIDs);
 					Editor.this.sendBroadcast(intent);
-					
-					//finish();
+					*/
+					finish();
 				}
 			});
 	}
@@ -290,11 +282,11 @@ public class Editor extends Activity
 	
 	private Date getDateTime(int row) {
 		String date = df.format(new Date(pickedRows[row][0]));
-		String time = tf.format(new Date(pickedRows[row][1]));
+		String time = tff.format(new Date(pickedRows[row][1]));
 		Date datetime = null;
 		try
 		{
-			datetime = ff.parse(date + " " + time);
+			datetime = flocal.parse(date + " " + time);
 		}
 		catch (ParseException e)
 		{stt.error(e.getMessage());}

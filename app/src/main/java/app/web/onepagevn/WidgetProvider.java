@@ -33,6 +33,7 @@ public class WidgetProvider extends AppWidgetProvider
 	
 	private RemoteViews createWidget(Context context, int flag) {
 		RemoteViews widget = new RemoteViews(context.getPackageName(), R.layout.widget);
+		//fix for appWidgetIds not update all widgets id at onUpdate method
 		AppWidgetManager widgetManager = AppWidgetManager.getInstance(context);
 		ComponentName widgetComponent = new ComponentName(context, WidgetProvider.class);
 		int[] widgetIDs = widgetManager.getAppWidgetIds(widgetComponent);
