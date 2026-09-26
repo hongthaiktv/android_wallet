@@ -111,14 +111,14 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public String getVersion() {
-		List<Map<String, Object>> result = query("SELECT sqlite_version() AS version");
+		List<Map<String, Object>> result = sql("SELECT sqlite_version() AS version", null);
 		String version = (String) result.get(0).get("version");
 		version = "SQLite version: " + version;
 		return version;
 	}
 	
 	public List<Map<String, Object>> query(String sql) {
-		SQLiteDatabase db = getWritableDatabase();
+		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
 		List<Map<String, Object>> result = cursor.getList();
 		cursor.close();
@@ -483,5 +483,15 @@ public class SQLiteDB extends SQLiteOpenHelper
 		List<Object> catalog = cursor.getCatalog();
 		cursor.close();
 		return catalog;
+	}
+
+	public List<Map<String, Object>> queryTable(String sql, String tblName)
+	{
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, null, tblName);
+		List<Map<String, Object>> result = cursor.getList();
+		cursor.close();
+		db.close();
+		return result;
 	}
 }

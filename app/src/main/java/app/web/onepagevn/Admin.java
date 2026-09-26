@@ -151,6 +151,9 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
+					List<Map<String, Object>> result = db.queryTable("SELECT * FROM test", "logs");
+					stt.success(result.get(0).get("timestamp").toString());
+					/*
 					if (!enable) {
 						tblData.setHScroll(true).show();
 						enable = true;
@@ -158,6 +161,7 @@ public class Admin extends Activity
 						tblData.setHScroll(false).show();
 						enable = false;
 					}
+					*/
 				}
 			});
 			
