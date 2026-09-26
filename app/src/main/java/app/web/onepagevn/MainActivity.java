@@ -7,7 +7,6 @@ import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.util.*;
-import java.text.*;
 
 public class MainActivity extends Activity 
 {
@@ -156,8 +155,7 @@ public class MainActivity extends Activity
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		double expend = Double.valueOf(totalExpend.get("total").toString());
 		double remain = amount - expend;
-		DecimalFormat numFormatter = new DecimalFormat("#,###");
-		return numFormatter.format(remain);
+		return String.format(Locale.US, "%,.0f", remain);
 	}
 	
 	private String getTotalExpend() {
