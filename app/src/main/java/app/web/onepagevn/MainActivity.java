@@ -11,8 +11,7 @@ import java.text.*;
 
 public class MainActivity extends Activity 
 {
-	TextView tvTable;
-	Button btnAdmin;
+	Button btnTable, btnAdmin;
 	ImageButton ibFAB, ibWallet;
 	ImageView ivBGround;
 	String tblName = "balance";
@@ -29,7 +28,7 @@ public class MainActivity extends Activity
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
-		tvTable = findViewById(R.id.mainTvTable);
+		btnTable = findViewById(R.id.mainBtnTable);
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
 		ibFAB = findViewById(R.id.mainIbFAB);
 		ibWallet = findViewById(R.id.mainIbWallet);
@@ -40,7 +39,7 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		tblData = findViewById(R.id.mainTableData);
 		
-		tvTable.setText(getBalanceRemain());
+		btnTable.setText(getBalanceRemain());
 		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC";
 		tblData.setSQL(sqlTblBalance);
 		
@@ -49,15 +48,15 @@ public class MainActivity extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
+					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
 					tblData.setSQL(sqlTblBalance).show();
-					tvTable.setText(getBalanceRemain());
+					btnTable.setText(getBalanceRemain());
 					tblName = "balance";
 				}
 			});
 		
-		tvTable.setOnClickListener(new OnClickListener() {
+		btnTable.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View view)
@@ -80,45 +79,45 @@ public class MainActivity extends Activity
 							tblData.setSQL(null);
 							switch (tblName) {
 								case "budget":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', date, 'unixepoch', 'localtime') END AS date, PRINTF('%,.0f', amount) AS amount FROM budget ORDER BY date");
-									tvTable.setText(getTotalBudget());
+									btnTable.setText(getTotalBudget());
 									break;
 								case "expends":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
 									tblData.setSQL("SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
-									tvTable.setText(getTotalExpend());
+									btnTable.setText(getTotalExpend());
 									break;
 								case "product_types":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
 									tblData.setSQL("SELECT * FROM product_types ORDER BY name COLLATE NOCASE");
-									tvTable.setText(tblName);
+									btnTable.setText(tblName);
 									break;
 								case "products":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
 									tblData.setSQL("SELECT products.productid AS id, products.name, PRINTF('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
-									tvTable.setText(tblName);
+									btnTable.setText(tblName);
 									break;
 								case "suppliers":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
 									tblData.setSQL("SELECT * FROM suppliers ORDER BY type COLLATE NOCASE, name COLLATE NOCASE, address COLLATE NOCASE");
-									tvTable.setText(tblName);
+									btnTable.setText(tblName);
 									break;
 								case "units":
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
 									tblData.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
-									tvTable.setText(tblName);
+									btnTable.setText(tblName);
 									break;
 								default:
-									tvTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
-									tvTable.setText(tblName);
+									btnTable.setText(tblName);
 							}
 							tblData.setTable(tblName).show();
 						}
@@ -180,13 +179,13 @@ public class MainActivity extends Activity
 		tblData.show();
 		switch (tblName) {
 			case "budget":
-				tvTable.setText(getTotalBudget());
+				btnTable.setText(getTotalBudget());
 				break;
 			case "expends":
-				tvTable.setText(getTotalExpend());
+				btnTable.setText(getTotalExpend());
 				break;
 			case "balance":
-				tvTable.setText(getBalanceRemain());
+				btnTable.setText(getBalanceRemain());
 		}
 		stt.update();
 	}
