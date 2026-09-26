@@ -40,7 +40,7 @@ public class MainActivity extends Activity
 		tblData = findViewById(R.id.mainTableData);
 		
 		btnTable.setText(getBalanceRemain());
-		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, PRINTF('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC";
 		tblData.setSQL(sqlTblBalance);
 		
 		ibWallet.setOnClickListener(new OnClickListener() {
@@ -81,13 +81,13 @@ public class MainActivity extends Activity
 								case "budget":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', date, 'unixepoch', 'localtime') END AS date, PRINTF('%,.0f', amount) AS amount FROM budget ORDER BY date");
+									tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', amount) AS amount FROM budget ORDER BY date");
 									btnTable.setText(getTotalBudget());
 									break;
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
-									tblData.setSQL("SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, PRINTF('%,.0f', expends.price) AS price, expends.quantity, PRINTF('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
+									tblData.setSQL("SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, printf('%,.0f', expends.price) AS price, expends.quantity, printf('%,.0f', expends.price * expends.quantity) AS total, IFNULL(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
 									btnTable.setText(getTotalExpend());
 									break;
 								case "product_types":
@@ -99,7 +99,7 @@ public class MainActivity extends Activity
 								case "products":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
-									tblData.setSQL("SELECT products.productid AS id, products.name, PRINTF('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
+									tblData.setSQL("SELECT products.productid AS id, products.name, printf('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "suppliers":
@@ -149,10 +149,10 @@ public class MainActivity extends Activity
     }
 	
 	private String getBalanceRemain() {
-		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%.0f', amount) AS amount FROM budget", null);
+		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, printf('%.0f', amount) AS amount FROM budget", null);
 		Map<String, Object> budget = budgets.get(0);
 		double amount = Double.valueOf(budget.get("amount").toString());
-		List<Map<String, Object>> totalExpends = db.sql("SELECT PRINTF('%.0f', sum(price * quantity)) AS total FROM expends", null);
+		List<Map<String, Object>> totalExpends = db.sql("SELECT printf('%.0f', sum(price * quantity)) AS total FROM expends", null);
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		double expend = Double.valueOf(totalExpend.get("total").toString());
 		double remain = amount - expend;
@@ -161,13 +161,13 @@ public class MainActivity extends Activity
 	}
 	
 	private String getTotalExpend() {
-		List<Map<String, Object>> totalExpends = db.sql("SELECT PRINTF('%,.0f', sum(price * quantity)) AS total FROM expends", null);
+		List<Map<String, Object>> totalExpends = db.sql("SELECT printf('%,.0f', sum(price * quantity)) AS total FROM expends", null);
 		Map<String, Object> totalExpend = totalExpends.get(0);
 		return totalExpend.get("total").toString();
 	}
 	
 	private String getTotalBudget() {
-		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, PRINTF('%,.0f', amount) AS amount FROM budget", null);
+		List<Map<String, Object>> budgets = db.sql("SELECT date(max(date), 'unixepoch', 'localtime') AS date, printf('%,.0f', amount) AS amount FROM budget", null);
 		Map<String, Object> budget = budgets.get(0);
 		return budget.get("amount").toString();
 	}
