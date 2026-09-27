@@ -111,7 +111,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public String getVersion() {
-		List<Map<String, Object>> result = sql("SELECT sqlite_version() AS version", null);
+		List<Map<String, Object>> result = query("SELECT sqlite_version() AS version");
 		String version = (String) result.get(0).get("version");
 		version = "SQLite version: " + version;
 		return version;
@@ -161,11 +161,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getSetting(boolean full) {
-		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE";
+		String table = "setting";
+		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM " + table + " ORDER BY name COLLATE NOCASE";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		try {
-			cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
+			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, null, table);
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
@@ -289,12 +290,13 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public RecentList<String> getCmdHistory() {
-		String sql = "SELECT command FROM cmdhistory ORDER BY timestamp";
+		String table = "cmdhistory";
+		String sql = "SELECT command FROM " + table + " ORDER BY timestamp";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
 		RecentList<String> history = new RecentList<>();
 		try {
-			cursor = (SQLiteDBCursor) db.rawQuery(sql, null);
+			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, null, table);
 			while (cursor.moveToNext()) {
 				history.add(cursor.getString(0));
 			}
@@ -330,14 +332,16 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getLogs() {
-		String sql = "SELECT * FROM logs ORDER BY timestamp DESC";
-		return getLogs(sql, null);
+		String table = "logs";
+		String sql = "SELECT * FROM " + table + " ORDER BY timestamp DESC";
+		return getLogs(table, sql, null);
 	}
 	
 	public List<Map<String, Object>> getLogs(int limit) {
-		String sql = "SELECT * FROM logs ORDER BY timestamp DESC LIMIT ?";
+		String table = "logs";
+		String sql = "SELECT * FROM " + table + " ORDER BY timestamp DESC LIMIT ?";
 		String[] args = {String.valueOf(limit)};
-		return getLogs(sql, args);
+		return getLogs(table, sql, args);
 	}
 	
 	public List<Map<String, Object>> getLogs(LogType type) {
@@ -345,23 +349,24 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public List<Map<String, Object>> getLogs(LogType type, int limit) {
-		String sql; String[] args;
+		String table = "logs", sql;
+		String[] args;
 		if (type == null) {
-			sql = "SELECT * FROM logs ORDER BY timestamp DESC LIMIT ?";
+			sql = "SELECT * FROM " + table + " ORDER BY timestamp DESC LIMIT ?";
 			args = new String[] {String.valueOf(limit)};
 		} else {
-			sql = "SELECT * FROM logs WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
+			sql = "SELECT * FROM " + table + " WHERE type = ? ORDER BY timestamp DESC LIMIT ?";
 			args = new String[] {type.name(), String.valueOf(limit)};
 		}
-		return getLogs(sql, args);
+		return getLogs(table, sql, args);
 	}
 	
-	private List<Map<String, Object>> getLogs(String sql, String[] args) {
+	private List<Map<String, Object>> getLogs(String table, String sql, String[] args) {
 		SQLiteDatabase db = getReadableDatabase();
 		List<Map<String, Object>> result = new ArrayList<>();
 		SQLiteDBCursor cursor = null;
 		try {
-			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
+			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, args, table);
 			while (cursor.moveToNext()) {
 				Map<String, Object> row = new LinkedHashMap<>();
 				for (int i = 0; i < cursor.getColumnCount(); i++) {
@@ -390,8 +395,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
-	public List<Map<String, Object>> sql(String sql, String[] args) {
-		return getData(null, sql, args, null);
+	public List<Map<String, Object>> sql(String table, String sql, String[] args) {
+		return getData(table, sql, args, null);
 	}
 	
 	public List<Map<String, Object>> getData(String table) {
@@ -413,7 +418,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 		}
 		try {
 			if (sql == null || "".equals(sql)) sql = "SELECT * FROM " + table + " ORDER BY " + sort + " LIMIT " + limit;
-			cursor = (SQLiteDBCursor) db.rawQuery(sql, args);
+			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, args, table);
 			result = cursor.getList();
 		} catch (Exception e) {
 			if (!"logs".equals(table)) insertLog(e.getMessage(), LogType.ERROR, compName);
@@ -424,49 +429,52 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
-	public void clearLogs() {
+	public int clearLogs() {
+		String table = "logs";
 		SQLiteDatabase db = getWritableDatabase();
+		int result = -1;
 		try {
-			db.execSQL("DELETE FROM logs");
+			result = db.delete(table, null, null);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		db.close();
+		return result;
 	}
 	
-	public String[] getColumnNames(String tblName) {
+	public String[] getColumnNames(String table) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT * FROM " + tblName + " LIMIT 0", null);
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT * FROM " + table + " LIMIT 0", null, table);
 		String[] names = cursor.getColumnNames();
 		cursor.close();
 		return names;
 	}
 	
-	public String[] getColumnTypes(String tblName) {
+	public String[] getColumnTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA table_info(" + tblName + ")", null);
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
 		String[] types = cursor.getColumnTypes();
 		cursor.close();
 		return types;
 	}
 	
-	public DataType[] getDataTypes(String tblName) {
+	public DataType[] getDataTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA table_info(" + tblName + ")", null);
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
 		DataType[] types = cursor.getDataTypes();
 		cursor.close();
 		return types;
 	}
 	
-	public List<Map<String, Object>> getForeignColumns(String tblName) {
+	public List<Map<String, Object>> getForeignColumns(String table) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA foreign_key_list(" + tblName + ")", null);
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA foreign_key_list(" + table + ")", null, table);
 		List<Map<String, Object>> columns = cursor.getForeignColumns();
 		cursor.close();
 		for (Map<String, Object> column : columns) {
-			column.put("srcTable", tblName);
-			tblName = (String) column.get("dstTable");
-			cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name COLLATE NOCASE", null);
+			column.put("srcTable", table);
+			table = (String) column.get("dstTable");
+			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT rowid, name FROM " + table + " ORDER BY name COLLATE NOCASE", null, table);
 			List<Object> catalog = cursor.getCatalog();
 			int[] ids = (int[]) catalog.get(0);
 			String[] names = (String[]) catalog.get(1);
@@ -477,21 +485,11 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return columns;
 	}
 	
-	public List<Object> getCatalog(String tblName) {
+	public List<Object> getCatalog(String table) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQuery("SELECT rowid, name FROM " + tblName + " ORDER BY name COLLATE NOCASE", null);
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT rowid, name FROM " + table + " ORDER BY name COLLATE NOCASE", null, table);
 		List<Object> catalog = cursor.getCatalog();
 		cursor.close();
 		return catalog;
-	}
-
-	public List<Map<String, Object>> queryTable(String sql, String tblName)
-	{
-		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, null, tblName);
-		List<Map<String, Object>> result = cursor.getList();
-		cursor.close();
-		db.close();
-		return result;
 	}
 }

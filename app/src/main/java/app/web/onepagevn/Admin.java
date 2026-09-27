@@ -110,7 +110,7 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					List<Map<String, Object>> listTable = db.sql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name COLLATE NOCASE", null);
+					List<Map<String, Object>> listTable = db.sql(tblName, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' ORDER BY name COLLATE NOCASE", null);
 					ArrayList<String> tables = new ArrayList<>();
 					for (Map<String, Object> table : listTable) {
 						tables.add((String) table.get("name"));
@@ -151,8 +151,6 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					List<Map<String, Object>> result = db.queryTable("SELECT * FROM test", "logs");
-					stt.success(result.get(0).get("timestamp").toString());
 					/*
 					if (!enable) {
 						tblData.setHScroll(true).show();
