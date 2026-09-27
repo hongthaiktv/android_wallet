@@ -234,6 +234,25 @@ public class SQLiteDBCursor extends SQLiteCursor
 				case NULL:
 					row.put(getColumnName(i), null);
 					break;
+				default:
+					int aggrType = getType(i);
+					switch (aggrType) {
+						case Cursor.FIELD_TYPE_INTEGER:
+							row.put(getColumnName(i), getInt(i));
+							break;
+						case Cursor.FIELD_TYPE_FLOAT:
+							row.put(getColumnName(i), getDouble(i));
+							break;
+						case Cursor.FIELD_TYPE_STRING:
+							row.put(getColumnName(i), getString(i));
+							break;
+						case Cursor.FIELD_TYPE_BLOB:
+							row.put(getColumnName(i), getBlob(i));
+							break;
+						case Cursor.FIELD_TYPE_NULL:
+							row.put(getColumnName(i), null);
+							break;
+					}
 			}
 		}
 		return row;

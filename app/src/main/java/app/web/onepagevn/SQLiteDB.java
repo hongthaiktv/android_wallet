@@ -142,8 +142,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 		else if (value instanceof Long) values.put("value", (Long) value);
 		else if (value instanceof Float) values.put("value", (Float) value);
 		else if (value instanceof Double) values.put("value", (Double) value);
-		else if (value instanceof Boolean) values.put("value", ((Boolean) value).toString());
+		else if (value instanceof Boolean) values.put("value", (Boolean) value);
 		else if (value instanceof JSONObject) values.put("value", ((JSONObject) value).toString());
+		else if (value instanceof JSONArray) values.put("value", ((JSONArray) value).toString());
 		values.put("timestamp", new Date().getTime() / 1000L);
 		String where = "name = ?";
 		String[] args = {keyName};
@@ -171,7 +172,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
-		//Toast.makeText(app, setting.get("dlgMaxLogs") + "", Toast.LENGTH_SHORT).show();
 		if (cursor != null) cursor.close();
 		db.close();
 		return setting;
