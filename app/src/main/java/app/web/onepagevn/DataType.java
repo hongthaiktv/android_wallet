@@ -14,5 +14,6 @@ public enum DataType
 	DOUBLE,
 	TEXT,
 	BLOB,
-	JSON
+	JSON,
+	NULL
 }

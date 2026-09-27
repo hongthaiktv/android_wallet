@@ -148,13 +148,18 @@ public class MainActivity extends Activity
     }
 	
 	private String getBalanceRemain() {
-		List<Map<String, Object>> budgets = db.sql(tblName, "SELECT date(max(date), 'unixepoch', 'localtime') AS date, printf('%.0f', amount) AS amount FROM budget", null);
-		Map<String, Object> budget = budgets.get(0);
-		double amount = Double.valueOf(budget.get("amount").toString());
-		List<Map<String, Object>> totalExpends = db.sql(tblName, "SELECT printf('%.0f', sum(price * quantity)) AS total FROM expends", null);
-		Map<String, Object> totalExpend = totalExpends.get(0);
-		double expend = Double.valueOf(totalExpend.get("total").toString());
-		double remain = amount - expend;
+		double amount = 0, expend = 0, remain = 0;
+		List<Map<String, Object>> budgets = db.sql("aggregate", "SELECT max(date) AS date, CAST(printf('%.0f', amount) AS REAL) AS amount FROM budget", null);
+		if (budgets.size() > 0) {
+			Map<String, Object> budget = budgets.get(0);
+			amount = budget.get("amount");
+		}
+		List<Map<String, Object>> totalExpends = db.sql("aggregate", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends", null);
+		if (totalExpends.size() > 0) {
+			Map<String, Object> totalExpend = totalExpends.get(0);
+			expend = totalExpend.get("total");
+		}
+		remain = amount - expend;
 		return String.format(Locale.US, "%,.0f", remain);
 	}
 	

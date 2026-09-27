@@ -15,7 +15,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 		super(db, driver, editTable, query);
 		DataType[] types = null;
 		
-		if (editTable != null && !"".equals(editTable) && !"balance".equals(editTable)) {
+		if (editTable != null && !"".equals(editTable) && !"balance".equals(editTable) && !"aggregate".equals(editTable)) {
 			Cursor cursorTypes = null;
 			try {
 				cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
@@ -25,13 +25,39 @@ public class SQLiteDBCursor extends SQLiteCursor
 					while (cursorTypes.moveToNext()) {
 						types[i] = DataType.valueOf(cursorTypes.getString(2));
 						++i;
-						//Toast.makeText(app, editTable + " : " + cursorTypes.getString(1) + " : " + type.name(), Toast.LENGTH_SHORT).show();
 					}
 				}
 			} catch (Exception e) {
 				Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 			}
 			cursorTypes.close();
+		}
+		
+		if ("aggregate".equals(editTable)) {
+			if (moveToFirst()) {
+				types = new DataType[getColumnCount()];
+				for (int i = 0; i < getColumnCount(); i++) {
+					int columnType = getType(i);
+					switch (columnType) {
+						case Cursor.FIELD_TYPE_INTEGER:
+							types[i] = DataType.INTEGER;
+							break;
+						case Cursor.FIELD_TYPE_FLOAT:
+							types[i] = DataType.DOUBLE;
+							break;
+						case Cursor.FIELD_TYPE_STRING:
+							types[i] = DataType.TEXT;
+							break;
+						case Cursor.FIELD_TYPE_BLOB:
+							types[i] = DataType.BLOB;
+							break;
+						case Cursor.FIELD_TYPE_NULL:
+							types[i] = DataType.NULL;
+							break;
+					}
+				}
+				moveToPosition(-1);
+			}
 		}
 		
 		try {
@@ -51,6 +77,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
+		Toast.makeText(app, editTable + " : " + list.size(), Toast.LENGTH_SHORT).show();
 	}
 	
 	public List<Map<String, Object>> getList() {
@@ -181,6 +208,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 						catch (JSONException e)
 						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
 					}
+					break;
+				case NULL:
+					row.put(getColumnName(i), null);
 					break;
 			}
 		}
