@@ -1,8 +1,10 @@
 package app.web.onepagevn;
 
+import android.database.*;
 import android.database.sqlite.*;
 import android.widget.*;
 import java.util.*;
+import org.json.*;
 
 public class SQLiteDBCursor extends SQLiteCursor
 {
@@ -11,15 +13,39 @@ public class SQLiteDBCursor extends SQLiteCursor
 	
 	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
 		super(db, driver, editTable, query);
-		Toast.makeText(app, editTable + "", Toast.LENGTH_SHORT).show();
+		DataType[] types = null;
+		
+		if (editTable != null && !"".equals(editTable) && !"balance".equals(editTable)) {
+			Cursor cursorTypes = null;
+			try {
+				cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
+				if (cursorTypes.getCount() > 0) {
+					types = new DataType[cursorTypes.getCount()];
+					int i = 0;
+					while (cursorTypes.moveToNext()) {
+						types[i] = DataType.valueOf(cursorTypes.getString(2));
+						++i;
+						//Toast.makeText(app, editTable + " : " + cursorTypes.getString(1) + " : " + type.name(), Toast.LENGTH_SHORT).show();
+					}
+				}
+			} catch (Exception e) {
+				Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+			}
+			cursorTypes.close();
+		}
+		
 		try {
 			while (moveToNext()) {
-				Map<String, Object> row = new LinkedHashMap<>();
-				for (int i = 0; i < getColumnCount(); i++) {
-					//switch column type to get
-					row.put(getColumnName(i), getString(i));
+				if (types != null && types.length > 0) {
+					list.add(getTypedRow(types));
 				}
-				list.add(row);
+				else {
+					Map<String, Object> row = new LinkedHashMap<>();
+					for (int i = 0; i < getColumnCount(); i++) {
+						row.put(getColumnName(i), getString(i));
+					}
+					list.add(row);
+				}
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
@@ -113,5 +139,51 @@ public class SQLiteDBCursor extends SQLiteCursor
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		return ids;
+	}
+	
+	private Map<String, Object> getTypedRow(DataType[] columnTypes) {
+		Map<String, Object> row = new LinkedHashMap<>();
+		for (int i = 0; i < columnTypes.length; i++) {
+			switch (columnTypes[i]) {
+				case INTEGER: case INT: case BOOLEAN:
+					row.put(getColumnName(i), getInt(i));
+					break;
+				case NUMERIC: case NUM: case LONG: case DATETIME:
+					row.put(getColumnName(i), getLong(i));
+					break;
+				case REAL: case FLOAT: case DOUBLE:
+					row.put(getColumnName(i), getDouble(i));
+					break;
+				case TEXT:
+					row.put(getColumnName(i), getString(i));
+					break;
+				case BLOB:
+					row.put(getColumnName(i), getBlob(i));
+					break;
+				case JSON:
+					String jsonText = getString(i);
+					boolean isObject = jsonText.startsWith("{");
+					if (isObject) {
+						try
+						{
+							JSONObject jObj = new JSONObject(jsonText);
+							row.put(getColumnName(i), jObj);
+						}
+						catch (JSONException e)
+						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
+					}
+					else {
+						try
+						{
+							JSONArray jArr = new JSONArray(jsonText);
+							row.put(getColumnName(i), jArr);
+						}
+						catch (JSONException e)
+						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
+					}
+					break;
+			}
+		}
+		return row;
 	}
 }

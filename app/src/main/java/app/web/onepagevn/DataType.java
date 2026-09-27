@@ -4,15 +4,15 @@ public enum DataType
 {
 	INTEGER,
 	INT,
-	LONG,
+	BOOLEAN,
 	NUMERIC,
 	NUM,
+	LONG,
+	DATETIME,
+	REAL,
 	FLOAT,
 	DOUBLE,
-	REAL,
 	TEXT,
-	BOOLEAN,
 	BLOB,
-	DATETIME,
 	JSON
 }
