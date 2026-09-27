@@ -157,94 +157,24 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public Map<String, Object> getSetting() {
-		return getSetting(false).get(0);
-	}
-	
-	public List<Map<String, Object>> getSetting(boolean full) {
 		String table = "setting";
-		String sql = "SELECT timestamp * 1000 AS timestamp, name, value, datatype FROM " + table + " ORDER BY name COLLATE NOCASE";
+		String sql = "SELECT name, value FROM " + table + " ORDER BY name COLLATE NOCASE";
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = null;
+		Map<String, Object> setting = new LinkedHashMap<>();
 		try {
 			cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, sql, null, table);
+			List<Map<String, Object>> settings = cursor.getList();
+			for (Map<String, Object> item : settings) {
+				setting.put((String) item.get("name"), item.get("value"));
+			}
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
-		List<Map<String, Object>> result = new ArrayList<>();
-		List<Map<String, Object>> brief = new ArrayList<>();
-		Map<String, Object> config = new HashMap<>();
-		while (cursor.moveToNext()) {
-			Map<String, Object> row = new LinkedHashMap<>();
-			String configName = "";
-			for (int i = 0; i < cursor.getColumnCount(); i++) {
-				String key = cursor.getColumnName(i);
-				switch (i) {
-					case 0:
-						row.put(key, new Date(cursor.getLong(i)));
-						break;
-					case 1:
-						row.put(key, cursor.getString(i));
-						configName = cursor.getString(i);
-						break;
-					case 2:
-						DataType type = DataType.valueOf(cursor.getString(3));
-						switch (type) {
-							case TEXT:
-								row.put(key, cursor.getString(i));
-								config.put(configName, cursor.getString(i));
-								break;
-							case INTEGER:
-								row.put(key, cursor.getInt(i));
-								config.put(configName, cursor.getInt(i));
-								break;
-							case LONG:
-								row.put(key, cursor.getLong(i));
-								config.put(configName, cursor.getLong(i));
-								break;
-							case FLOAT:
-								row.put(key, cursor.getFloat(i));
-								config.put(configName, cursor.getFloat(i));
-								break;
-							case DOUBLE:
-								row.put(key, cursor.getDouble(i));
-								config.put(configName, cursor.getDouble(i));
-								break;
-							case BOOLEAN:
-								row.put(key, Boolean.valueOf(cursor.getString(i)));
-								config.put(configName, Boolean.valueOf(cursor.getString(i)));
-								break;
-							case BLOB:
-								row.put(key, cursor.getBlob(i));
-								config.put(configName, cursor.getBlob(i));
-								break;
-							case DATETIME:
-								row.put(key, new Date(cursor.getLong(i)));
-								config.put(configName, new Date(cursor.getLong(i)));
-								break;
-							case JSON:
-								try {
-									JSONObject json = new JSONObject(cursor.getString(i));
-									row.put(key, json);
-									config.put(configName, json);
-								}
-								catch (Exception e) {
-									insertLog(e.getMessage(), LogType.ERROR, compName);
-								}
-								break;
-						}
-						break;
-					case 3:
-						row.put(key, DataType.valueOf(cursor.getString(i)));
-						break;
-				}
-			}
-			result.add(row);
-		}
-		brief.add(config);
-		cursor.close();
+		//Toast.makeText(app, setting.get("dlgMaxLogs") + "", Toast.LENGTH_SHORT).show();
+		if (cursor != null) cursor.close();
 		db.close();
-		if (!full) return brief;
-		return result;
+		return setting;
 	}
 	
 	public long addCmdHistory(RecentList<String> commands) {

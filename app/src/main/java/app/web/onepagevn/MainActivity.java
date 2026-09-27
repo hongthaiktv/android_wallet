@@ -38,10 +38,10 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		tblData = findViewById(R.id.mainTableData);
 		
-		btnTable.setText(getBalanceRemain());
 		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC";
 		tblData.setSQL(sqlTblBalance);
-		
+		btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
+		db.getSetting();
 		ibWallet.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -50,7 +50,7 @@ public class MainActivity extends Activity
 					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
 					tblData.setSQL(sqlTblBalance).show();
-					btnTable.setText(getBalanceRemain());
+					btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
 					tblName = "balance";
 				}
 			});
@@ -60,7 +60,7 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				List<Map<String, Object>> listTable = db.sql(tblName, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' ORDER BY name COLLATE NOCASE", null);
+				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' ORDER BY name COLLATE NOCASE");
 				ArrayList<String> tables = new ArrayList<>();
 				for (Map<String, Object> table : listTable) {
 					tables.add((String) table.get("name"));
@@ -81,13 +81,13 @@ public class MainActivity extends Activity
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', amount) AS amount FROM budget ORDER BY date");
-									btnTable.setText(getTotalBudget());
+									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalBudget()));
 									break;
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
 									tblData.setSQL("SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, printf('%,.0f', expends.price) AS price, expends.quantity, printf('%,.0f', expends.price * expends.quantity) AS total, ifnull(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
-									btnTable.setText(getTotalExpend());
+									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalExpend()));
 									break;
 								case "product_types":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
@@ -131,6 +131,7 @@ public class MainActivity extends Activity
 			public void onClick(View view)
 			{
 				Intent intAdmin = new Intent(MainActivity.this, Admin.class);
+				intAdmin.putExtra("tblName", tblName);
 				startActivity(intAdmin);
 			}
 		});
@@ -147,32 +148,31 @@ public class MainActivity extends Activity
 		});
     }
 	
-	private String getBalanceRemain() {
-		double amount = 0, expend = 0, remain = 0;
-		List<Map<String, Object>> budgets = db.sql("aggregate", "SELECT max(date) AS date, CAST(printf('%.0f', amount) AS REAL) AS amount FROM budget", null);
-		if (budgets.size() > 0) {
-			Map<String, Object> budget = budgets.get(0);
-			amount = budget.get("amount");
-		}
+	private double getBalanceRemain() {
+		double budget = getTotalBudget(),
+		expend = getTotalExpend();
+		double remain = budget - expend;
+		return remain;
+	}
+	
+	private double getTotalExpend() {
+		double expend = 0;
 		List<Map<String, Object>> totalExpends = db.sql("aggregate", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends", null);
 		if (totalExpends.size() > 0) {
 			Map<String, Object> totalExpend = totalExpends.get(0);
 			expend = totalExpend.get("total");
 		}
-		remain = amount - expend;
-		return String.format(Locale.US, "%,.0f", remain);
+		return expend;
 	}
 	
-	private String getTotalExpend() {
-		List<Map<String, Object>> totalExpends = db.sql(tblName, "SELECT printf('%,.0f', sum(price * quantity)) AS total FROM expends", null);
-		Map<String, Object> totalExpend = totalExpends.get(0);
-		return totalExpend.get("total").toString();
-	}
-	
-	private String getTotalBudget() {
-		List<Map<String, Object>> budgets = db.sql(tblName, "SELECT date(max(date), 'unixepoch', 'localtime') AS date, printf('%,.0f', amount) AS amount FROM budget", null);
-		Map<String, Object> budget = budgets.get(0);
-		return budget.get("amount").toString();
+	private double getTotalBudget() {
+		double budget = 0;
+		List<Map<String, Object>> totalBudgets = db.sql("aggregate", "SELECT max(date) AS date, CAST(printf('%.0f', amount) AS REAL) AS amount FROM budget", null);
+		if (totalBudgets.size() > 0) {
+			Map<String, Object> totalBudget = totalBudgets.get(0);
+			budget = totalBudget.get("amount");
+		}
+		return budget;
 	}
 
 	@Override
@@ -182,13 +182,13 @@ public class MainActivity extends Activity
 		tblData.show();
 		switch (tblName) {
 			case "budget":
-				btnTable.setText(getTotalBudget());
+				btnTable.setText(String.format(Locale.US, "%,.0f", getTotalBudget()));
 				break;
 			case "expends":
-				btnTable.setText(getTotalExpend());
+				btnTable.setText(String.format(Locale.US, "%,.0f", getTotalExpend()));
 				break;
 			case "balance":
-				btnTable.setText(getBalanceRemain());
+				btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
 		}
 		stt.update();
 	}

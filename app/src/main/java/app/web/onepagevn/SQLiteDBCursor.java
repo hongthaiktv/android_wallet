@@ -15,22 +15,26 @@ public class SQLiteDBCursor extends SQLiteCursor
 		super(db, driver, editTable, query);
 		DataType[] types = null;
 		
-		if (editTable != null && !"".equals(editTable) && !"balance".equals(editTable) && !"aggregate".equals(editTable)) {
+		if (editTable != null && !"".equals(editTable) && !"aggregate".equals(editTable)) {
 			Cursor cursorTypes = null;
 			try {
 				cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
 				if (cursorTypes.getCount() > 0) {
-					types = new DataType[cursorTypes.getCount()];
-					int i = 0;
+					int numCol = getColumnCount();
+					String[] colNames = getColumnNames();
+					types = new DataType[numCol];
 					while (cursorTypes.moveToNext()) {
-						types[i] = DataType.valueOf(cursorTypes.getString(2));
-						++i;
+						String defineName = cursorTypes.getString(1);
+						for (int i = 0; i < colNames.length; i++) {
+							String colName = colNames[i];
+							if (defineName.equals(colName)) types[i] = DataType.valueOf(cursorTypes.getString(2));
+						}
 					}
 				}
 			} catch (Exception e) {
 				Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 			}
-			cursorTypes.close();
+			if (cursorTypes != null) cursorTypes.close();
 		}
 		
 		if ("aggregate".equals(editTable)) {
@@ -77,7 +81,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-		Toast.makeText(app, editTable + " : " + list.size(), Toast.LENGTH_SHORT).show();
+		//Toast.makeText(app, editTable + " : " + list.size(), Toast.LENGTH_SHORT).show();
 	}
 	
 	public List<Map<String, Object>> getList() {
@@ -176,7 +180,8 @@ public class SQLiteDBCursor extends SQLiteCursor
 					row.put(getColumnName(i), getInt(i));
 					break;
 				case NUMERIC: case NUM: case LONG: case DATETIME:
-					row.put(getColumnName(i), getLong(i));
+					if (columnTypes[i] == DataType.DATETIME) row.put(getColumnName(i), getLong(i) * 1000);
+					else row.put(getColumnName(i), getLong(i));
 					break;
 				case REAL: case FLOAT: case DOUBLE:
 					row.put(getColumnName(i), getDouble(i));
@@ -185,7 +190,24 @@ public class SQLiteDBCursor extends SQLiteCursor
 					row.put(getColumnName(i), getString(i));
 					break;
 				case BLOB:
-					row.put(getColumnName(i), getBlob(i));
+					int dataType = getType(i);
+					switch (dataType) {
+						case Cursor.FIELD_TYPE_INTEGER:
+							row.put(getColumnName(i), getInt(i));
+							break;
+						case Cursor.FIELD_TYPE_FLOAT:
+							row.put(getColumnName(i), getDouble(i));
+							break;
+						case Cursor.FIELD_TYPE_STRING:
+							row.put(getColumnName(i), getString(i));
+							break;
+						case Cursor.FIELD_TYPE_BLOB:
+							row.put(getColumnName(i), getBlob(i));
+							break;
+						case Cursor.FIELD_TYPE_NULL:
+							row.put(getColumnName(i), null);
+							break;
+					}
 					break;
 				case JSON:
 					String jsonText = getString(i);

@@ -36,9 +36,9 @@ public class Admin extends Activity
 		tblName = tblData.getTable();
 		if ("".equals(tblName) || tblName == null) tblName = "logs";
 		app = AppSetting.getAppContext();
-		stt = new StatusBar(this).init();
+		//stt = new StatusBar(this).init();
 		db = new SQLiteDB();
-		history = db.getCmdHistory();
+		//history = db.getCmdHistory();
 		
 		edtInput.setOnKeyListener(new OnKeyListener() {
 
@@ -151,7 +151,6 @@ public class Admin extends Activity
 				@Override
 				public void onClick(View p1)
 				{
-					/*
 					if (!enable) {
 						tblData.setHScroll(true).show();
 						enable = true;
@@ -159,7 +158,6 @@ public class Admin extends Activity
 						tblData.setHScroll(false).show();
 						enable = false;
 					}
-					*/
 				}
 			});
 			
@@ -200,9 +198,9 @@ public class Admin extends Activity
 			int logSize = app.getMaxLogs();
 			tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		}
-		tblData.show();
+		/*tblData.show();
 		stt.update();
-	}
+	*/}
 
 	@Override
 	protected void onDestroy()
