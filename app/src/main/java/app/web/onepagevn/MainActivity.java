@@ -38,7 +38,7 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		tblData = findViewById(R.id.mainTableData);
 		
-		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM budget) ORDER BY expends.date DESC";
 		tblData.setSQL(sqlTblBalance);
 		btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
 		db.getSetting();
@@ -77,10 +77,16 @@ public class MainActivity extends Activity
 							tblName = tableNames[index];
 							tblData.setSQL(null);
 							switch (tblName) {
+								case "banks":
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_budget);
+									tblData.setSQL("SELECT * FROM banks ORDER BY name COLLATE NOCASE");
+									btnTable.setText(tblName);
+									break;
 								case "budget":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', amount) AS amount FROM budget ORDER BY date");
+									tblData.setSQL("SELECT budget.id, CASE WHEN strftime('%Y', budget.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', budget.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', budget.date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', budget.cash) AS cash, bank1.name AS bank1, printf('%,.0f', budget.balance1) AS balance1, bank2.name AS bank2, printf('%,.0f', budget.balance2) AS balance2, budget.note FROM budget INNER JOIN banks AS bank1 ON budget.bank1=bank1.bankid INNER JOIN banks AS bank2 ON budget.bank2=bank2.bankid ORDER BY budget.date");
 									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalBudget()));
 									break;
 								case "expends":
@@ -157,7 +163,7 @@ public class MainActivity extends Activity
 	
 	private double getTotalExpend() {
 		double expend = 0;
-		List<Map<String, Object>> totalExpends = db.sql("aggregate", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends", null);
+		List<Map<String, Object>> totalExpends = db.sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends WHERE expends.date > (SELECT max(date) FROM budget)", null);
 		if (totalExpends.size() > 0) {
 			Map<String, Object> totalExpend = totalExpends.get(0);
 			expend = totalExpend.get("total");
@@ -166,11 +172,14 @@ public class MainActivity extends Activity
 	}
 	
 	private double getTotalBudget() {
-		double budget = 0;
-		List<Map<String, Object>> totalBudgets = db.sql("aggregate", "SELECT max(date) AS date, CAST(printf('%.0f', amount) AS REAL) AS amount FROM budget", null);
+		double cash = 0, balance1 = 0, balance2 = 0, budget = 0;
+		List<Map<String, Object>> totalBudgets = db.sql("budget", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash, CAST(printf('%.0f', balance1) AS REAL) AS balance1, CAST(printf('%.0f', balance2) AS REAL) AS balance2 FROM budget", null);
 		if (totalBudgets.size() > 0) {
 			Map<String, Object> totalBudget = totalBudgets.get(0);
-			budget = totalBudget.get("amount");
+			cash = totalBudget.get("cash");
+			balance1 = totalBudget.get("balance1");
+			balance2 = totalBudget.get("balance2");
+			budget = cash + balance1 + balance2;
 		}
 		return budget;
 	}

@@ -180,7 +180,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 					row.put(getColumnName(i), getInt(i));
 					break;
 				case NUMERIC: case NUM: case LONG: case DATETIME:
-					if (columnTypes[i] == DataType.DATETIME) row.put(getColumnName(i), getLong(i) * 1000);
+					if (columnTypes[i] == DataType.DATETIME) row.put(getColumnName(i), new Date(getLong(i) * 1000));
 					else row.put(getColumnName(i), getLong(i));
 					break;
 				case REAL: case FLOAT: case DOUBLE:
