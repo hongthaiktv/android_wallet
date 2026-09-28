@@ -27,7 +27,8 @@ public class WidgetProvider extends AppWidgetProvider
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		title = new Date().toLocaleString();
+		SQLiteDB db = new SQLiteDB();
+		title = String.format("%,.0f", db.getBalanceRemain());
 		super.onReceive(context, intent);
 	}
 	

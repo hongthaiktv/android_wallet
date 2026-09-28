@@ -427,4 +427,34 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return catalog;
 	}
+	
+	public double getBalanceRemain() {
+		double budget = getTotalBudget(),
+			expend = getTotalExpend();
+		double remain = budget - expend;
+		return remain;
+	}
+
+	public double getTotalExpend() {
+		double expend = 0;
+		List<Map<String, Object>> totalExpends = sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends WHERE expends.date > (SELECT max(date) FROM budget)", null);
+		if (totalExpends.size() > 0) {
+			Map<String, Object> totalExpend = totalExpends.get(0);
+			expend = totalExpend.get("total");
+		}
+		return expend;
+	}
+
+	public double getTotalBudget() {
+		double cash = 0, balance1 = 0, balance2 = 0, budget = 0;
+		List<Map<String, Object>> totalBudgets = sql("budget", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash, CAST(printf('%.0f', balance1) AS REAL) AS balance1, CAST(printf('%.0f', balance2) AS REAL) AS balance2 FROM budget", null);
+		if (totalBudgets.size() > 0) {
+			Map<String, Object> totalBudget = totalBudgets.get(0);
+			cash = totalBudget.get("cash");
+			balance1 = totalBudget.get("balance1");
+			balance2 = totalBudget.get("balance2");
+			budget = cash + balance1 + balance2;
+		}
+		return budget;
+	}
 }

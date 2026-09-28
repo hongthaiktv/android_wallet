@@ -10,6 +10,7 @@ import android.view.inputmethod.*;
 import android.widget.*;
 import java.text.*;
 import java.util.*;
+import android.widget.AdapterView.*;
 
 public class Editor extends Activity
 {
@@ -25,6 +26,7 @@ public class Editor extends Activity
 	private int pickedRow = -1;
 	private long[][] pickedRows = new long[20][2];
 	private SimpleDateFormat df, tf, tff, ff, flocal;
+	private NumberFormat numConverter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -45,6 +47,7 @@ public class Editor extends Activity
 		tff = new SimpleDateFormat("HH:mm:ss");
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		numConverter = NumberFormat.getInstance(Locale.US);
 		
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
@@ -156,6 +159,62 @@ public class Editor extends Activity
 		
 		reset();
 		
+		if ("expends".equals(tblName)) {
+			final int iptPriceIndex[] = new int[1];
+			int numRow = editorTopLayout.getRowCount();
+			for (int i = 1; i <= numRow; i++) {
+				View view = getViewByIndex(i);
+				String viewName = view.getClass().getSimpleName();
+				switch (viewName) {
+					case "Spinner":
+					{
+						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
+						switch (label) {
+							case "productid":
+								Spinner catalog = (Spinner) view;
+								catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+										@Override
+										public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+										{
+											String item = ((TextView) v).getText().toString();
+											EditText inputPrice = (EditText) getViewByIndex(iptPriceIndex[0]);
+											List<Map<String, Object>> prices = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
+											for (Map<String, Object> price : prices) {
+												String pName = (String) price.get("name");
+												if (item.equals(pName)) {
+													double priceValue = price.get("price");
+													inputPrice.setText(String.format("%,.0f", priceValue));
+													break;
+												}
+											}
+										}
+
+										@Override
+										public void onNothingSelected(AdapterView<?> adapter)
+										{
+
+										}
+									});
+								break;
+						}
+						break;
+					}
+						
+					case "EditText":
+					{
+						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
+						switch (label) {
+							case "price":
+								iptPriceIndex[0] = i;
+								break;
+						}
+						break;
+					}
+				}
+			}
+		}
+		
 		btnClear.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -184,6 +243,36 @@ public class Editor extends Activity
 									String value = input.getText().toString();
 									if ("".equals(value)) continue;
 									switch (type) {
+										case INTEGER: case INT:
+											try
+											{
+												int intValue = numConverter.parse(value).intValue();
+												data.put(colNames[i], intValue);
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+											break;
+											
+										case NUMERIC: case NUM: case LONG:
+											try
+											{
+												long longValue = numConverter.parse(value).longValue();
+												data.put(colNames[i], longValue);
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+											break;
+											
+										case REAL: case FLOAT: case DOUBLE:
+											try
+											{
+												double doubleValue = numConverter.parse(value).doubleValue();
+												data.put(colNames[i], doubleValue);
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+											break;
+											
 										default:
 											data.put(colNames[i], value);
 									}
@@ -236,15 +325,6 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					/*
-					AppWidgetManager widgetManager = AppWidgetManager.getInstance(Editor.this);
-					ComponentName widget = new ComponentName(Editor.this, WidgetProvider.class);
-					int[] widgetIDs = widgetManager.getAppWidgetIds(widget);
-					Intent intent = new Intent(Editor.this, WidgetProvider.class);
-					intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-					intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIDs);
-					Editor.this.sendBroadcast(intent);
-					*/
 					finish();
 				}
 			});

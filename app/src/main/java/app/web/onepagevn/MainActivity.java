@@ -40,7 +40,7 @@ public class MainActivity extends Activity
 		
 		final String sqlTblBalance = "SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM budget) ORDER BY expends.date DESC";
 		tblData.setSQL(sqlTblBalance);
-		btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
+		btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 		db.getSetting();
 		ibWallet.setOnClickListener(new OnClickListener() {
 
@@ -50,7 +50,7 @@ public class MainActivity extends Activity
 					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
 					tblData.setSQL(sqlTblBalance).show();
-					btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
+					btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 					tblName = "balance";
 				}
 			});
@@ -87,13 +87,13 @@ public class MainActivity extends Activity
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									tblData.setSQL("SELECT budget.id, CASE WHEN strftime('%Y', budget.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', budget.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', budget.date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', budget.cash) AS cash, bank1.name AS bank1, printf('%,.0f', budget.balance1) AS balance1, bank2.name AS bank2, printf('%,.0f', budget.balance2) AS balance2, budget.note FROM budget INNER JOIN banks AS bank1 ON budget.bank1=bank1.bankid INNER JOIN banks AS bank2 ON budget.bank2=bank2.bankid ORDER BY budget.date");
-									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalBudget()));
+									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalBudget()));
 									break;
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
 									tblData.setSQL("SELECT expends.id, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, printf('%,.0f', expends.price) AS price, expends.quantity, printf('%,.0f', expends.price * expends.quantity) AS total, ifnull(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY expends.date DESC");
-									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalExpend()));
+									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpend()));
 									break;
 								case "product_types":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_table, 0, R.drawable.ico_caret_down, 0);
@@ -153,36 +153,6 @@ public class MainActivity extends Activity
 			}
 		});
     }
-	
-	private double getBalanceRemain() {
-		double budget = getTotalBudget(),
-		expend = getTotalExpend();
-		double remain = budget - expend;
-		return remain;
-	}
-	
-	private double getTotalExpend() {
-		double expend = 0;
-		List<Map<String, Object>> totalExpends = db.sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends WHERE expends.date > (SELECT max(date) FROM budget)", null);
-		if (totalExpends.size() > 0) {
-			Map<String, Object> totalExpend = totalExpends.get(0);
-			expend = totalExpend.get("total");
-		}
-		return expend;
-	}
-	
-	private double getTotalBudget() {
-		double cash = 0, balance1 = 0, balance2 = 0, budget = 0;
-		List<Map<String, Object>> totalBudgets = db.sql("budget", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash, CAST(printf('%.0f', balance1) AS REAL) AS balance1, CAST(printf('%.0f', balance2) AS REAL) AS balance2 FROM budget", null);
-		if (totalBudgets.size() > 0) {
-			Map<String, Object> totalBudget = totalBudgets.get(0);
-			cash = totalBudget.get("cash");
-			balance1 = totalBudget.get("balance1");
-			balance2 = totalBudget.get("balance2");
-			budget = cash + balance1 + balance2;
-		}
-		return budget;
-	}
 
 	@Override
 	protected void onResume()
@@ -191,13 +161,13 @@ public class MainActivity extends Activity
 		tblData.show();
 		switch (tblName) {
 			case "budget":
-				btnTable.setText(String.format(Locale.US, "%,.0f", getTotalBudget()));
+				btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalBudget()));
 				break;
 			case "expends":
-				btnTable.setText(String.format(Locale.US, "%,.0f", getTotalExpend()));
+				btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpend()));
 				break;
 			case "balance":
-				btnTable.setText(String.format(Locale.US, "%,.0f", getBalanceRemain()));
+				btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 		}
 		stt.update();
 	}
