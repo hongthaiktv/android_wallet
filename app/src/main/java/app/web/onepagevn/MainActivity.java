@@ -78,8 +78,8 @@ public class MainActivity extends Activity
 							tblData.setSQL(null);
 							switch (tblName) {
 								case "banks":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_budget);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_store, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_bank);
 									tblData.setSQL("SELECT * FROM banks ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
@@ -96,8 +96,8 @@ public class MainActivity extends Activity
 									btnTable.setText(String.format(Locale.US, "%,.0f", getTotalExpend()));
 									break;
 								case "product_types":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_database);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_table, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_grocery_list);
 									tblData.setSQL("SELECT * FROM product_types ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
@@ -114,8 +114,8 @@ public class MainActivity extends Activity
 									btnTable.setText(tblName);
 									break;
 								case "units":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_database);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_chart_bar, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_measurement);
 									tblData.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
