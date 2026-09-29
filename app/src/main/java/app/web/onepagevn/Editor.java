@@ -14,6 +14,7 @@ import java.text.*;
 import java.util.*;
 
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 
 public class Editor extends Activity
@@ -161,69 +162,10 @@ public class Editor extends Activity
 			editorTopLayout.addView(input);
 		}
 		
+		if ("expends".equals(tblName)) createTotalRow();
 		reset();
 		
 		if ("expends".equals(tblName)) {
-			LinearLayout mainLayout = (LinearLayout) editorTopLayout.getParent();
-			LinearLayout.LayoutParams totalRowParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			totalRowParams.setMargins(20, 0, 20, 0);
-			LinearLayout totalRow = new LinearLayout(this);
-			totalRow.setLayoutParams(totalRowParams);
-			totalRow.setOrientation(LinearLayout.HORIZONTAL);
-			totalRow.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
-			
-			LinearLayout.LayoutParams tvTotalParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			tvTotalParams.setMargins(0, 0, 20, 0);
-			TextView tvTotal = new TextView(this);
-			tvTotal.setLayoutParams(tvTotalParams);
-			tvTotal.setTypeface(tvTotal.getTypeface(), Typeface.BOLD);
-			tvTotal.setText("TOTAL :");
-			totalRow.addView(tvTotal);
-
-			LinearLayout.LayoutParams iptTotalParams = new LinearLayout.LayoutParams(310, LayoutParams.WRAP_CONTENT);
-			EditText iptTotal = new EditText(this);
-			iptTotal.setLayoutParams(iptTotalParams);
-			iptTotal.setTypeface(iptTotal.getTypeface(), Typeface.BOLD);
-			iptTotal.setSingleLine();
-			iptTotal.setGravity(Gravity.RIGHT);
-			iptTotal.setBackground(null);
-			iptTotal.setFocusable(false);
-			iptTotal.setId(R.id.viewTotal);
-			iptTotal.setText("0");
-			totalRow.addView(iptTotal);
-			
-			iptTotal.setOnClickListener(new OnClickListener() {
-					boolean enable = false;
-					@Override
-					public void onClick(View v)
-					{
-						EditText iptTotal = (EditText) v;
-						iptTotal.setFocusable(true);
-						iptTotal.setFocusableInTouchMode(true);
-						iptTotal.requestFocus();
-						if (!enable) {
-							iptTotal.setSelection(iptTotal.getText().toString().length());
-							enable = true;
-						}
-					}
-				});
-			
-			iptTotal.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-					@Override
-					public void onFocusChange(View v, boolean focus)
-					{
-						if (!focus) v.setBackground(null);
-						else {
-							TypedValue dfEdtBackground = new TypedValue();
-							getTheme().resolveAttribute(android.R.attr.editTextBackground, dfEdtBackground, true);
-							v.setBackgroundResource(dfEdtBackground.resourceId);
-						}
-					}
-				});
-			
-			mainLayout.addView(totalRow, 1);
-			
 			final int iptPriceIndex[] = new int[1];
 			int numRow = editorTopLayout.getRowCount();
 			for (int i = 1; i <= numRow; i++) {
@@ -476,6 +418,8 @@ public class Editor extends Activity
 					break;
 			}
 		}
+		EditText iptTotal = findViewById(R.id.viewTotal);
+		if (iptTotal != null && iptTotal.isFocusable()) iptTotal.setFocusable(false);
 	}
 	
 	private void setViewID(View view, int index) {
@@ -618,6 +562,71 @@ public class Editor extends Activity
 		View view = findViewById(id);
 		if (view == null) stt.error("View at index \"" + index + "\" not found.");
 		return view;
+	}
+	
+	private void createTotalRow() {
+		LinearLayout mainLayout = (LinearLayout) editorTopLayout.getParent();
+		LinearLayout.LayoutParams totalRowParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		totalRowParams.setMargins(20, 0, 20, 0);
+		LinearLayout totalRow = new LinearLayout(this);
+		totalRow.setLayoutParams(totalRowParams);
+		totalRow.setOrientation(LinearLayout.HORIZONTAL);
+		totalRow.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+
+		LinearLayout.LayoutParams tvTotalParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		tvTotalParams.setMargins(0, 0, 20, 0);
+		TextView tvTotal = new TextView(this);
+		tvTotal.setLayoutParams(tvTotalParams);
+		tvTotal.setTypeface(tvTotal.getTypeface(), Typeface.BOLD);
+		tvTotal.setText("TOTAL :");
+		totalRow.addView(tvTotal);
+
+		LinearLayout.LayoutParams iptTotalParams = new LinearLayout.LayoutParams(310, LayoutParams.WRAP_CONTENT);
+		EditText iptTotal = new EditText(this);
+		iptTotal.setLayoutParams(iptTotalParams);
+		iptTotal.setTypeface(iptTotal.getTypeface(), Typeface.BOLD);
+		iptTotal.setSingleLine();
+		iptTotal.setGravity(Gravity.RIGHT);
+		iptTotal.setBackground(null);
+		iptTotal.setFocusable(false);
+		iptTotal.setId(R.id.viewTotal);
+		iptTotal.setText("0");
+		totalRow.addView(iptTotal);
+
+		iptTotal.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v)
+				{
+					if (!v.isFocusable()) {
+						EditText iptTotal = (EditText) v;
+						iptTotal.setFocusable(true);
+						iptTotal.setFocusableInTouchMode(true);
+						iptTotal.requestFocus();
+						iptTotal.setSelection(iptTotal.getText().toString().length());
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						if (imm != null) {
+							imm.showSoftInput(iptTotal, InputMethodManager.SHOW_IMPLICIT);
+						}
+					}
+				}
+			});
+
+		iptTotal.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+				@Override
+				public void onFocusChange(View v, boolean focus)
+				{
+					if (!focus) v.setBackground(null);
+					else {
+						TypedValue dfEdtBackground = new TypedValue();
+						getTheme().resolveAttribute(android.R.attr.editTextBackground, dfEdtBackground, true);
+						v.setBackgroundResource(dfEdtBackground.resourceId);
+					}
+				}
+			});
+
+		mainLayout.addView(totalRow, 1);
 	}
 
 	@Override
