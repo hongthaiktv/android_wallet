@@ -16,6 +16,7 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import android.text.*;
 
 public class Editor extends Activity
 {
@@ -32,6 +33,7 @@ public class Editor extends Activity
 	private long[][] pickedRows = new long[20][2];
 	private SimpleDateFormat df, tf, tff, ff, flocal;
 	private NumberFormat numConverter;
+	private Map<String, Integer> indexViews = new HashMap<>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -163,10 +165,8 @@ public class Editor extends Activity
 		}
 		
 		if ("expends".equals(tblName)) createTotalRow();
-		reset();
 		
 		if ("expends".equals(tblName)) {
-			final int iptPriceIndex[] = new int[1];
 			int numRow = editorTopLayout.getRowCount();
 			for (int i = 1; i <= numRow; i++) {
 				View view = getViewByIndex(i);
@@ -177,19 +177,20 @@ public class Editor extends Activity
 						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
 						switch (label) {
 							case "productid":
+								indexViews.put("indexProduct", i);
 								Spinner catalog = (Spinner) view;
 								catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 										@Override
 										public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
 										{
-											String item = ((TextView) v).getText().toString();
-											EditText inputPrice = (EditText) getViewByIndex(iptPriceIndex[0]);
-											List<Map<String, Object>> prices = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
-											for (Map<String, Object> price : prices) {
-												String pName = (String) price.get("name");
-												if (item.equals(pName)) {
-													double priceValue = price.get("price");
+											String selected = ((TextView) v).getText().toString();
+											EditText inputPrice = (EditText) getViewByIndex(indexViews.get("indexPrice"));
+											List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
+											for (Map<String, Object> product : products) {
+												String pName = (String) product.get("name");
+												if (selected.equals(pName)) {
+													double priceValue = product.get("price");
 													inputPrice.setText(String.format("%,.0f", priceValue));
 													break;
 												}
@@ -212,10 +213,80 @@ public class Editor extends Activity
 						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
 						switch (label) {
 							case "price":
-								iptPriceIndex[0] = i;
+								indexViews.put("indexPrice", i);
+								EditText inputPrice = (EditText) view;
+								inputPrice.addTextChangedListener(new TextWatcher() {
+
+										@Override
+										public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
+										{
+											
+										}
+
+										@Override
+										public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
+										{
+											
+										}
+
+										@Override
+										public void afterTextChanged(Editable textChanged)
+										{
+											EditText iptTotal = findViewById(R.id.viewTotal);
+											if (iptTotal.isFocused()) return;
+											EditText iptQuantity = (EditText) getViewByIndex(indexViews.get("indexQuantity"));
+											try
+											{
+												String sPrice = textChanged.toString();
+												String sQuantity = iptQuantity.getText().toString();
+												if (!"".equals(sPrice) && !"".equals(sQuantity)) {
+													double price = numConverter.parse(sPrice).doubleValue();
+													double quantity = numConverter.parse(sQuantity).doubleValue();
+													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
+												} else iptTotal.setText("NaN");
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+										}
+									});
 								break;
 							case "quantity":
-								((EditText) view).setText("1");
+								indexViews.put("indexQuantity", i);
+								EditText inputQuantity = (EditText) view;
+								inputQuantity.addTextChangedListener(new TextWatcher() {
+
+										@Override
+										public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
+										{
+
+										}
+
+										@Override
+										public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
+										{
+
+										}
+
+										@Override
+										public void afterTextChanged(Editable textChanged)
+										{
+											EditText iptTotal = findViewById(R.id.viewTotal);
+											if (iptTotal.isFocused()) return;
+											EditText iptPrice = (EditText) getViewByIndex(indexViews.get("indexPrice"));
+											try
+											{
+												String sQuantity = textChanged.toString();
+												String sPrice = iptPrice.getText().toString();
+												if (!"".equals(sPrice) && !"".equals(sQuantity)) {
+													double price = numConverter.parse(sPrice).doubleValue();
+													double quantity = numConverter.parse(sQuantity).doubleValue();
+													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
+												} else iptTotal.setText("NaN");
+											}
+											catch (ParseException e)
+											{stt.error(e.getMessage());}
+										}
+									});
 								break;
 						}
 						break;
@@ -223,6 +294,8 @@ public class Editor extends Activity
 				}
 			}
 		}
+		
+		reset();
 		
 		btnClear.setOnClickListener(new OnClickListener() {
 
@@ -392,7 +465,24 @@ public class Editor extends Activity
 			switch (name) {
 				case "EditText":
 					EditText input = (EditText) view;
-					input.setText("");
+					int indexProduct = indexViews.get("indexProduct");
+					int indexPrice = indexViews.get("indexPrice");
+					int indexQuantity = indexViews.get("indexQuantity");
+					if ("expends".equals(tblName) && i == indexPrice) {
+						Spinner catalog = (Spinner) getViewByIndex(indexProduct);
+						String selected = (String) catalog.getSelectedItem();
+						List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
+						for (Map<String, Object> product : products) {
+							String pName = (String) product.get("name");
+							if (selected.equals(pName)) {
+								double priceValue = product.get("price");
+								input.setText(String.format("%,.0f", priceValue));
+								break;
+							}
+						}
+					}
+					else if ("expends".equals(tblName) && i == indexQuantity) input.setText("1");
+					else input.setText("");
 					if (!isFocus) {
 						input.requestFocus();
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -582,7 +672,7 @@ public class Editor extends Activity
 		totalRow.addView(tvTotal);
 
 		LinearLayout.LayoutParams iptTotalParams = new LinearLayout.LayoutParams(310, LayoutParams.WRAP_CONTENT);
-		EditText iptTotal = new EditText(this);
+		final EditText iptTotal = new EditText(this);
 		iptTotal.setLayoutParams(iptTotalParams);
 		iptTotal.setTypeface(iptTotal.getTypeface(), Typeface.BOLD);
 		iptTotal.setSingleLine();
@@ -623,6 +713,41 @@ public class Editor extends Activity
 						getTheme().resolveAttribute(android.R.attr.editTextBackground, dfEdtBackground, true);
 						v.setBackgroundResource(dfEdtBackground.resourceId);
 					}
+				}
+			});
+			
+		iptTotal.addTextChangedListener(new TextWatcher() {
+
+				@Override
+				public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
+				{
+
+				}
+
+				@Override
+				public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
+				{
+
+				}
+
+				@Override
+				public void afterTextChanged(Editable textChanged)
+				{
+					if (!iptTotal.isFocused()) return;
+					EditText iptPrice = (EditText) getViewByIndex(indexViews.get("indexPrice"));
+					EditText iptQuantity = (EditText) getViewByIndex(indexViews.get("indexQuantity"));
+					try
+					{
+						String sTotal = textChanged.toString();
+						String sPrice = iptPrice.getText().toString();
+						if (!"".equals(sTotal) && !"".equals(sPrice)) {
+							double total = numConverter.parse(sTotal).doubleValue();
+							double price = numConverter.parse(sPrice).doubleValue();
+							iptQuantity.setText(String.format(Locale.US, "%,.7f", total / price));
+						} else iptQuantity.setText("NaN");
+					}
+					catch (ParseException e)
+					{stt.error(e.getMessage());}
 				}
 			});
 
