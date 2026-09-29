@@ -17,12 +17,12 @@ public class SQLiteDBCursor extends SQLiteCursor
 		
 		if (editTable != null && !"".equals(editTable) && !"aggregate".equals(editTable)) {
 			Cursor cursorTypes = null;
+			int numCol = getColumnCount();
+			types = new DataType[numCol];
 			try {
 				cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
 				if (cursorTypes.getCount() > 0) {
-					int numCol = getColumnCount();
 					String[] colNames = getColumnNames();
-					types = new DataType[numCol];
 					while (cursorTypes.moveToNext()) {
 						String defineName = cursorTypes.getString(1);
 						for (int i = 0; i < colNames.length; i++) {
@@ -39,8 +39,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 		
 		if ("aggregate".equals(editTable)) {
 			if (moveToFirst()) {
-				types = new DataType[getColumnCount()];
-				for (int i = 0; i < getColumnCount(); i++) {
+				int numCol = getColumnCount();
+				types = new DataType[numCol];
+				for (int i = 0; i < numCol; i++) {
 					int columnType = getType(i);
 					switch (columnType) {
 						case Cursor.FIELD_TYPE_INTEGER:
@@ -81,7 +82,6 @@ public class SQLiteDBCursor extends SQLiteCursor
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-		//Toast.makeText(app, editTable + " : " + list.size(), Toast.LENGTH_SHORT).show();
 	}
 	
 	public List<Map<String, Object>> getList() {
@@ -189,26 +189,6 @@ public class SQLiteDBCursor extends SQLiteCursor
 				case TEXT:
 					row.put(getColumnName(i), getString(i));
 					break;
-				case BLOB:
-					int dataType = getType(i);
-					switch (dataType) {
-						case Cursor.FIELD_TYPE_INTEGER:
-							row.put(getColumnName(i), getInt(i));
-							break;
-						case Cursor.FIELD_TYPE_FLOAT:
-							row.put(getColumnName(i), getDouble(i));
-							break;
-						case Cursor.FIELD_TYPE_STRING:
-							row.put(getColumnName(i), getString(i));
-							break;
-						case Cursor.FIELD_TYPE_BLOB:
-							row.put(getColumnName(i), getBlob(i));
-							break;
-						case Cursor.FIELD_TYPE_NULL:
-							row.put(getColumnName(i), null);
-							break;
-					}
-					break;
 				case JSON:
 					String jsonText = getString(i);
 					boolean isObject = jsonText.startsWith("{");
@@ -234,9 +214,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 				case NULL:
 					row.put(getColumnName(i), null);
 					break;
-				default:
-					int aggrType = getType(i);
-					switch (aggrType) {
+				case BLOB: default:
+					int dataType = getType(i);
+					switch (dataType) {
 						case Cursor.FIELD_TYPE_INTEGER:
 							row.put(getColumnName(i), getInt(i));
 							break;
@@ -252,6 +232,8 @@ public class SQLiteDBCursor extends SQLiteCursor
 						case Cursor.FIELD_TYPE_NULL:
 							row.put(getColumnName(i), null);
 							break;
+						default:
+							row.put(getColumnName(i), getString(i));
 					}
 			}
 		}

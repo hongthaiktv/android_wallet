@@ -208,6 +208,9 @@ public class Editor extends Activity
 							case "price":
 								iptPriceIndex[0] = i;
 								break;
+							case "quantity":
+								((EditText) view).setText("1");
+								break;
 						}
 						break;
 					}
