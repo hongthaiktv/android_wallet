@@ -1,16 +1,20 @@
 package app.web.onepagevn;
 import android.app.*;
-import android.appwidget.*;
 import android.content.*;
+import android.graphics.*;
 import android.os.*;
 import android.util.*;
 import android.view.*;
 import android.view.View.*;
+import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
+import android.widget.AdapterView.*;
 import java.text.*;
 import java.util.*;
-import android.widget.AdapterView.*;
+
+import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 
 public class Editor extends Activity
 {
@@ -160,6 +164,66 @@ public class Editor extends Activity
 		reset();
 		
 		if ("expends".equals(tblName)) {
+			LinearLayout mainLayout = (LinearLayout) editorTopLayout.getParent();
+			LinearLayout.LayoutParams totalRowParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			totalRowParams.setMargins(20, 0, 20, 0);
+			LinearLayout totalRow = new LinearLayout(this);
+			totalRow.setLayoutParams(totalRowParams);
+			totalRow.setOrientation(LinearLayout.HORIZONTAL);
+			totalRow.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+			
+			LinearLayout.LayoutParams tvTotalParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			tvTotalParams.setMargins(0, 0, 20, 0);
+			TextView tvTotal = new TextView(this);
+			tvTotal.setLayoutParams(tvTotalParams);
+			tvTotal.setTypeface(tvTotal.getTypeface(), Typeface.BOLD);
+			tvTotal.setText("TOTAL :");
+			totalRow.addView(tvTotal);
+
+			LinearLayout.LayoutParams iptTotalParams = new LinearLayout.LayoutParams(310, LayoutParams.WRAP_CONTENT);
+			EditText iptTotal = new EditText(this);
+			iptTotal.setLayoutParams(iptTotalParams);
+			iptTotal.setTypeface(iptTotal.getTypeface(), Typeface.BOLD);
+			iptTotal.setSingleLine();
+			iptTotal.setGravity(Gravity.RIGHT);
+			iptTotal.setBackground(null);
+			iptTotal.setFocusable(false);
+			iptTotal.setId(R.id.viewTotal);
+			iptTotal.setText("0");
+			totalRow.addView(iptTotal);
+			
+			iptTotal.setOnClickListener(new OnClickListener() {
+					boolean enable = false;
+					@Override
+					public void onClick(View v)
+					{
+						EditText iptTotal = (EditText) v;
+						iptTotal.setFocusable(true);
+						iptTotal.setFocusableInTouchMode(true);
+						iptTotal.requestFocus();
+						if (!enable) {
+							iptTotal.setSelection(iptTotal.getText().toString().length());
+							enable = true;
+						}
+					}
+				});
+			
+			iptTotal.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+					@Override
+					public void onFocusChange(View v, boolean focus)
+					{
+						if (!focus) v.setBackground(null);
+						else {
+							TypedValue dfEdtBackground = new TypedValue();
+							getTheme().resolveAttribute(android.R.attr.editTextBackground, dfEdtBackground, true);
+							v.setBackgroundResource(dfEdtBackground.resourceId);
+						}
+					}
+				});
+			
+			mainLayout.addView(totalRow, 1);
+			
 			final int iptPriceIndex[] = new int[1];
 			int numRow = editorTopLayout.getRowCount();
 			for (int i = 1; i <= numRow; i++) {
@@ -418,67 +482,67 @@ public class Editor extends Activity
 		int id = -1;
 		switch (index) {
 			case 0:
-				id = R.string.view00;
+				id = R.id.view00;
 				break;
 			case 1:
-				id = R.string.view01;
+				id = R.id.view01;
 				break;
 			case 2:
-				id = R.string.view02;
+				id = R.id.view02;
 				break;
 			case 3:
-				id = R.string.view03;
+				id = R.id.view03;
 				break;
 			case 4:
-				id = R.string.view04;
+				id = R.id.view04;
 				break;
 			case 5:
-				id = R.string.view05;
+				id = R.id.view05;
 				break;
 			case 6:
-				id = R.string.view06;
+				id = R.id.view06;
 				break;
 			case 7:
-				id = R.string.view07;
+				id = R.id.view07;
 				break;
 			case 8:
-				id = R.string.view08;
+				id = R.id.view08;
 				break;
 			case 9:
-				id = R.string.view09;
+				id = R.id.view09;
 				break;
 			case 10:
-				id = R.string.view10;
+				id = R.id.view10;
 				break;
 			case 11:
-				id = R.string.view11;
+				id = R.id.view11;
 				break;
 			case 12:
-				id = R.string.view12;
+				id = R.id.view12;
 				break;
 			case 13:
-				id = R.string.view13;
+				id = R.id.view13;
 				break;
 			case 14:
-				id = R.string.view14;
+				id = R.id.view14;
 				break;
 			case 15:
-				id = R.string.view15;
+				id = R.id.view15;
 				break;
 			case 16:
-				id = R.string.view16;
+				id = R.id.view16;
 				break;
 			case 17:
-				id = R.string.view17;
+				id = R.id.view17;
 				break;
 			case 18:
-				id = R.string.view18;
+				id = R.id.view18;
 				break;
 			case 19:
-				id = R.string.view19;
+				id = R.id.view19;
 				break;
 			case 20:
-				id = R.string.view20;
+				id = R.id.view20;
 				break;
 		}
 		view.setId(id);
@@ -488,67 +552,67 @@ public class Editor extends Activity
 		int id = -1;
 		switch (index) {
 			case 0:
-				id = R.string.view00;
+				id = R.id.view00;
 				break;
 			case 1:
-				id = R.string.view01;
+				id = R.id.view01;
 				break;
 			case 2:
-				id = R.string.view02;
+				id = R.id.view02;
 				break;
 			case 3:
-				id = R.string.view03;
+				id = R.id.view03;
 				break;
 			case 4:
-				id = R.string.view04;
+				id = R.id.view04;
 				break;
 			case 5:
-				id = R.string.view05;
+				id = R.id.view05;
 				break;
 			case 6:
-				id = R.string.view06;
+				id = R.id.view06;
 				break;
 			case 7:
-				id = R.string.view07;
+				id = R.id.view07;
 				break;
 			case 8:
-				id = R.string.view08;
+				id = R.id.view08;
 				break;
 			case 9:
-				id = R.string.view09;
+				id = R.id.view09;
 				break;
 			case 10:
-				id = R.string.view10;
+				id = R.id.view10;
 				break;
 			case 11:
-				id = R.string.view11;
+				id = R.id.view11;
 				break;
 			case 12:
-				id = R.string.view12;
+				id = R.id.view12;
 				break;
 			case 13:
-				id = R.string.view13;
+				id = R.id.view13;
 				break;
 			case 14:
-				id = R.string.view14;
+				id = R.id.view14;
 				break;
 			case 15:
-				id = R.string.view15;
+				id = R.id.view15;
 				break;
 			case 16:
-				id = R.string.view16;
+				id = R.id.view16;
 				break;
 			case 17:
-				id = R.string.view17;
+				id = R.id.view17;
 				break;
 			case 18:
-				id = R.string.view18;
+				id = R.id.view18;
 				break;
 			case 19:
-				id = R.string.view19;
+				id = R.id.view19;
 				break;
 			case 20:
-				id = R.string.view20;
+				id = R.id.view20;
 				break;
 		}
 		View view = findViewById(id);
