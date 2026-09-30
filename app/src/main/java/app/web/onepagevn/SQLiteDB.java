@@ -67,6 +67,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("INSERT INTO units (name) VALUES ('Hour')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Day')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Night')");
+			db.execSQL("INSERT INTO units (name) VALUES ('Litre')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Food')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Street Food')");
 			db.execSQL("INSERT INTO product_types (name) VALUES ('Gas')");

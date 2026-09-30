@@ -465,9 +465,9 @@ public class Editor extends Activity
 			switch (name) {
 				case "EditText":
 					EditText input = (EditText) view;
-					int indexProduct = indexViews.get("indexProduct");
-					int indexPrice = indexViews.get("indexPrice");
-					int indexQuantity = indexViews.get("indexQuantity");
+					Integer indexProduct = indexViews.get("indexProduct");
+					Integer indexPrice = indexViews.get("indexPrice");
+					Integer indexQuantity = indexViews.get("indexQuantity");
 					if ("expends".equals(tblName) && i == indexPrice) {
 						Spinner catalog = (Spinner) getViewByIndex(indexProduct);
 						String selected = (String) catalog.getSelectedItem();
