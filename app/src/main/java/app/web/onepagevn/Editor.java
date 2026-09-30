@@ -74,11 +74,11 @@ public class Editor extends Activity
 					String srcColumn = (String) fColumn.get("srcColumn");
 					if (srcColumn.equals(colNames[i])) {
 						String[] items = (String[]) fColumn.get("names");
-						/*if ("funds".equals(tblName)) {
+						if ("funds".equals(tblName)) {
 							List<String> itemsNoCash = new ArrayList<String>(Arrays.asList(items));
 							itemsNoCash.remove("Cash");
 							items = itemsNoCash.toArray(new String[0]);
-						}*/
+						}
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
 						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
