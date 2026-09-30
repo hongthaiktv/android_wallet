@@ -74,6 +74,11 @@ public class Editor extends Activity
 					String srcColumn = (String) fColumn.get("srcColumn");
 					if (srcColumn.equals(colNames[i])) {
 						String[] items = (String[]) fColumn.get("names");
+						/*if ("funds".equals(tblName)) {
+							List<String> itemsNoCash = new ArrayList<String>(Arrays.asList(items));
+							itemsNoCash.remove("Cash");
+							items = itemsNoCash.toArray(new String[0]);
+						}*/
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
 						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
@@ -164,9 +169,8 @@ public class Editor extends Activity
 			editorTopLayout.addView(input);
 		}
 		
-		if ("expends".equals(tblName)) createTotalRow();
-		
 		if ("expends".equals(tblName)) {
+			createTotalRow();
 			int numRow = editorTopLayout.getRowCount();
 			for (int i = 1; i <= numRow; i++) {
 				View view = getViewByIndex(i);
@@ -365,8 +369,8 @@ public class Editor extends Activity
 								{
 									if (foreignColumns.size() < 1) continue;
 									Spinner catalog = (Spinner) view;
-									String value = (String) catalog.getSelectedItem();
-									if ("".equals(value)) continue;
+									String selected = (String) catalog.getSelectedItem();
+									if ("".equals(selected)) continue;
 									int id = -1;
 									for (Map<String, Object> fColumn : foreignColumns) {
 										String srcColumn = (String) fColumn.get("srcColumn");
@@ -375,7 +379,7 @@ public class Editor extends Activity
 											String[] names = (String[]) fColumn.get("names");
 											for (int index = 0; index < names.length; index++) {
 												String item = names[index];
-												if (item.equals(value)) id = ids[index];
+												if (item.equals(selected)) id = ids[index];
 											}
 										}
 									}
