@@ -46,7 +46,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, datecreate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, command TEXT UNIQUE NOT NULL, times INT NOT NULL)");
 			db.execSQL("CREATE TABLE budgets_protected (budgetid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT, protected INT DEFAULT 0 NOT NULL)");
 			db.execSQL("CREATE VIEW budgets AS SELECT budgetid, name, note FROM budgets_protected");
-			db.execSQL("CREATE TRIGGER prevent_modify_budgets BEFORE DELETE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
+			db.execSQL("CREATE TRIGGER prevent_delete_budgets BEFORE DELETE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
+			db.execSQL("CREATE TRIGGER prevent_update_budgets BEFORE UPDATE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
 			db.execSQL("CREATE TABLE funds (fundid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) UNIQUE NOT NULL, cash REAL DEFAULT 0 NOT NULL, bank1 INT REFERENCES budgets (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance1 REAL DEFAULT 0 NOT NULL, bank2 INT REFERENCES budgets (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance2 REAL DEFAULT 0 NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
