@@ -44,18 +44,17 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
 			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, name TEXT UNIQUE NOT NULL, value BLOB NOT NULL, datatype TEXT NOT NULL)");
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, datecreate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, command TEXT UNIQUE NOT NULL, times INT NOT NULL)");
-			db.execSQL("CREATE TABLE banks (bankid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
-			db.execSQL("CREATE TABLE budget (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) UNIQUE NOT NULL, cash REAL DEFAULT (0) NOT NULL, bank1 INT REFERENCES banks (bankid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance1 REAL DEFAULT (0) NOT NULL, bank2 INT REFERENCES banks (bankid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance2 REAL DEFAULT (0) NOT NULL, note TEXT)");
+			db.execSQL("CREATE TABLE budgets (budgetid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
+			db.execSQL("CREATE TABLE funds (fundid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) UNIQUE NOT NULL, cash REAL DEFAULT 0 NOT NULL, bank1 INT REFERENCES budgets (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance1 REAL DEFAULT 0 NOT NULL, bank2 INT REFERENCES budgets (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance2 REAL DEFAULT 0 NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
-			db.execSQL("CREATE TABLE expends (id INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, note TEXT)");
+			db.execSQL("CREATE TABLE expends (expendid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL NOT NULL, quantity REAL NOT NULL, budgetid INT REFERENCES budgets (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
-			db.execSQL("INSERT INTO banks (name) VALUES ('TPBank')");
-			db.execSQL("INSERT INTO banks (name) VALUES ('Vietcombank')");
-			db.execSQL("INSERT INTO banks (name) VALUES ('Vietinbank')");
-			db.execSQL("INSERT INTO banks (name) VALUES ('BIDV')");
+			db.execSQL("INSERT INTO budgets (name) VALUES ('Cash')");
+			db.execSQL("INSERT INTO budgets (name) VALUES ('TPBank')");
+			db.execSQL("INSERT INTO budgets (name) VALUES ('Vietcombank')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Each')");
@@ -85,6 +84,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Bread-LG', 15000, 3, 1)");
 			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Ice', 2000, 4, 2)");
 			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Parking', 2000, 8, 5)");
+			db.execSQL("INSERT INTO products (name, price, unitid, ptypeid) VALUES ('Xăng', 27080, 12, 4)");
 			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Lotte', '58 Đ. 23/10, TP. Nha Trang')");
 			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Coop Mart', '02 Lê Hồng Phong, TP. Nha Trang')");
 			db.execSQL("INSERT INTO suppliers (type, name, address) VALUES ('ST', 'Go', 'Lô 4 Đ. 19/5, TP. Nha Trang')");
@@ -428,34 +428,50 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return catalog;
 	}
+
+	public double getTotalExpends() {
+		double totalExpends = 0;
+		List<Map<String, Object>> expends = sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends WHERE expends.date > (SELECT max(date) FROM funds)", null);
+		if (expends.size() > 0) {
+			Map<String, Object> expend = expends.get(0);
+			totalExpends = expend.get("total");
+		}
+		return totalExpends;
+	}
+
+	public double getTotalFunds() {
+		double cash = 0, balance1 = 0, balance2 = 0, totalFunds = 0;
+		List<Map<String, Object>> funds = sql("funds", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash, CAST(printf('%.0f', balance1) AS REAL) AS balance1, CAST(printf('%.0f', balance2) AS REAL) AS balance2 FROM funds", null);
+		if (funds.size() > 0) {
+			Map<String, Object> fund = funds.get(0);
+			cash = fund.get("cash");
+			balance1 = fund.get("balance1");
+			balance2 = fund.get("balance2");
+			totalFunds = cash + balance1 + balance2;
+		}
+		return totalFunds;
+	}
 	
 	public double getBalanceRemain() {
-		double budget = getTotalBudget(),
-			expend = getTotalExpend();
-		double remain = budget - expend;
+		double totalFunds = getTotalFunds(),
+			totalExpends = getTotalExpends();
+		double remain = totalFunds - totalExpends;
 		return remain;
 	}
-
-	public double getTotalExpend() {
-		double expend = 0;
-		List<Map<String, Object>> totalExpends = sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS total FROM expends WHERE expends.date > (SELECT max(date) FROM budget)", null);
-		if (totalExpends.size() > 0) {
-			Map<String, Object> totalExpend = totalExpends.get(0);
-			expend = totalExpend.get("total");
+	
+	public double getCashRemain() {
+		double cash = 0, cashExpends = 0, cashRemain = 0;
+		List<Map<String, Object>> funds = sql("funds", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash FROM funds", null);
+		if (funds.size() > 0) {
+			Map<String, Object> fund = funds.get(0);
+			cash = fund.get("cash");
 		}
-		return expend;
-	}
-
-	public double getTotalBudget() {
-		double cash = 0, balance1 = 0, balance2 = 0, budget = 0;
-		List<Map<String, Object>> totalBudgets = sql("budget", "SELECT max(date) AS date, CAST(printf('%.0f', cash) AS REAL) AS cash, CAST(printf('%.0f', balance1) AS REAL) AS balance1, CAST(printf('%.0f', balance2) AS REAL) AS balance2 FROM budget", null);
-		if (totalBudgets.size() > 0) {
-			Map<String, Object> totalBudget = totalBudgets.get(0);
-			cash = totalBudget.get("cash");
-			balance1 = totalBudget.get("balance1");
-			balance2 = totalBudget.get("balance2");
-			budget = cash + balance1 + balance2;
+		List<Map<String, Object>> expends = sql("expends", "SELECT CAST(printf('%.0f', sum(price * quantity)) AS REAL) AS cash_expends FROM expends WHERE expends.date > (SELECT max(date) FROM funds) AND expends.budgetid=1", null);
+		if (expends.size() > 0) {
+			Map<String, Object> expend = expends.get(0);
+			cashExpends = expend.get("cash_expends");
 		}
-		return budget;
+		cashRemain = cash - cashExpends;
+		return cashRemain;
 	}
 }

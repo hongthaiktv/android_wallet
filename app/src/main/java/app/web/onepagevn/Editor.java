@@ -396,7 +396,7 @@ public class Editor extends Activity
 						long result = db.insert(tblName, data);
 						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
-						if ("budget".equals(tblName)) finish();
+						if ("funds".equals(tblName)) finish();
 						else reset();
 					}
 				}
