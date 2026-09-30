@@ -661,13 +661,15 @@ public class Editor extends Activity
 	}
 	
 	private void createTotalRow() {
-		LinearLayout mainLayout = (LinearLayout) editorTopLayout.getParent();
-		LinearLayout.LayoutParams totalRowParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		RelativeLayout mainLayout = (RelativeLayout) editorTopLayout.getParent();
+		RelativeLayout.LayoutParams totalRowParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		totalRowParams.setMargins(20, 0, 20, 0);
+		totalRowParams.addRule(RelativeLayout.BELOW, R.id.editorTopLayout);
 		LinearLayout totalRow = new LinearLayout(this);
 		totalRow.setLayoutParams(totalRowParams);
 		totalRow.setOrientation(LinearLayout.HORIZONTAL);
 		totalRow.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+		totalRow.setId(R.id.layoutRowTotal);
 
 		LinearLayout.LayoutParams tvTotalParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		tvTotalParams.setMargins(0, 0, 20, 0);

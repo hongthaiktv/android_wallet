@@ -22,6 +22,7 @@
 	<item type="id" name="view19" />
 	<item type="id" name="view20" />
 
+	<item type="id" name="layoutRowTotal" />
     <item type="id" name="viewTotal" />
 </resources>
 
