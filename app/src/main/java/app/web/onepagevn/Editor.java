@@ -393,7 +393,9 @@ public class Editor extends Activity
 						}
 					}
 					if (data.size() > 0) {
-						long result = db.insert(tblName, data);
+						long result = -1;
+						if ("budgets".equals(tblName)) result = db.insert("budgets_protected", data);
+						else result = db.insert(tblName, data);
 						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
 						if ("funds".equals(tblName)) finish();
