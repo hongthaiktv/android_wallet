@@ -11,6 +11,19 @@
 		android:layout_height="wrap_content"
 		android:layout_weight="1">
 		
+		<ImageButton 
+			android:id="@+id/editorIbBudget"
+			android:layout_width="80dp"
+			android:layout_height="40dp"
+			android:layout_marginTop="7dp"
+			android:layout_marginRight="5dp"
+			android:padding="5dp"
+			android:background="?android:attr/selectableItemBackground"
+			android:src="@drawable/logo_cash"
+			android:scaleType="fitCenter"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"/>
+		
 		<GridLayout
 			android:id="@+id/editorTopLayout"
 			android:layout_width="match_parent"
