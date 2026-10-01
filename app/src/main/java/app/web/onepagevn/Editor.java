@@ -3,6 +3,7 @@ import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.os.*;
+import android.text.*;
 import android.util.*;
 import android.view.*;
 import android.view.View.*;
@@ -16,7 +17,6 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import android.text.*;
 
 public class Editor extends Activity
 {

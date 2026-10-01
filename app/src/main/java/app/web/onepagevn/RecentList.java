@@ -158,14 +158,12 @@ public class RecentList<E> extends ArrayList<E>
 	@Override
 	public Stream<E> stream()
 	{
-		// TODO: Implement this method
 		return null;
 	}
 
 	@Override
 	public Stream<E> parallelStream()
 	{
-		// TODO: Implement this method
 		return null;
 	}
 }

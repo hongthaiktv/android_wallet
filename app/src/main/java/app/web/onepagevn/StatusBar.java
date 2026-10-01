@@ -42,13 +42,20 @@ public class StatusBar
 	}
 	
 	public StatusBar init() {
+		if (context == null) {
+			Toast.makeText(app, "Can't create StatusBar for \"" + compName + "\"", Toast.LENGTH_LONG).show();
+			return this;
+		}
 		LinearLayout rootLayout = (LinearLayout) ((ViewGroup) ((Activity) context).findViewById(android.R.id.content)).getChildAt(0);
-		init(rootLayout);
-		return this;
+		return init(rootLayout);
 	}
 
 	public StatusBar init(LinearLayout parent)
 	{
+		if (context == null) {
+			Toast.makeText(app, "Can't create StatusBar for \"" + compName + "\"", Toast.LENGTH_LONG).show();
+			return this;
+		}
 		LayoutInflater sttInflater = LayoutInflater.from(context);
 		LinearLayout sttLayout = (LinearLayout) sttInflater.inflate(R.layout.status_bar, null);
 		LinearLayout.LayoutParams layout = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
