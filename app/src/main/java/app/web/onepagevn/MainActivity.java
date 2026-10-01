@@ -80,7 +80,7 @@ public class MainActivity extends Activity
 								case "budgets":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_store, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									tblData.setSQL("SELECT * FROM budgets ORDER BY name COLLATE NOCASE");
+									tblData.setSQL("SELECT budgetid, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "funds":
