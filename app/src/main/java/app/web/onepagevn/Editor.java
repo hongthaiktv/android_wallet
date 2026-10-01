@@ -27,6 +27,7 @@ public class Editor extends Activity
 	private SQLiteDB db;
 	private String tblName = "expends";
 	private String[] colNames, balances;
+	private Map<String, String[]> labels = new HashMap<>();
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
@@ -73,21 +74,29 @@ public class Editor extends Activity
 		}
 		
 		colNames = db.getColumnNames(tblName);
+		switch (tblName) {
+			case "expends":
+				labels.put("expends", new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"});
+				break;
+		}
+		
 		if ("expends".equals(tblName)) {
 			List<String> rows = new ArrayList<String>(Arrays.asList(colNames));
 			rows.remove(colNames.length - 1);
 			colNames = rows.toArray(new String[0]);
 		}
+		
 		dataTypes = db.getDataTypes(tblName);
 		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
 			tvParams.setMargins(20, 0, 20, 0);
-			TextView tvName = new TextView(this);
-			tvName.setLayoutParams(tvParams);
-			tvName.setText(colNames[i].toUpperCase());
-			layoutTop.addView(tvName);
+			TextView tvLabel = new TextView(this);
+			tvLabel.setLayoutParams(tvParams);
+			if ("expends".equals(tblName)) tvLabel.setText(labels.get("expends")[i].toUpperCase());
+			else tvLabel.setText(colNames[i].toUpperCase());
+			layoutTop.addView(tvLabel);
 			
 			if (foreignColumns.size() > 0) {
 				boolean isCatalog = false;
@@ -112,6 +121,38 @@ public class Editor extends Activity
 						setViewID(catalog, i);
 						layoutTop.addView(catalog);
 						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
+						if ("expends".equals(tblName) && "productid".equals(colNames[i].toLowerCase())) {
+							indexViews.put("indexProduct", i);
+							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+									@Override
+									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+									{
+										String selected = ((TextView) v).getText().toString();
+										Integer indexPrice = indexViews.get("indexPrice");
+										if (indexPrice == null) return;
+										EditText inputPrice = (EditText) getViewByIndex(indexPrice);
+										List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
+										for (Map<String, Object> product : products) {
+											String pName = (String) product.get("name");
+											if (selected.equals(pName)) {
+												double price = product.get("price");
+												String formatedPrice = String.format(Locale.US, "%,.0f", price);
+												inputPrice.setText(formatedPrice);
+												inputPrice.requestFocus();
+												inputPrice.setSelection(formatedPrice.length());
+												break;
+											}
+										}
+									}
+
+									@Override
+									public void onNothingSelected(AdapterView<?> adapter)
+									{
+
+									}
+								});
+						}
 						isCatalog = true;
 						break;
 					}
@@ -189,70 +230,94 @@ public class Editor extends Activity
 			input.setSingleLine();
 			setViewID(input, i);
 			layoutTop.addView(input);
-		}
-		
-		if ("expends".equals(tblName)) {
-			createTotalRow();
-			int numRow = layoutTop.getRowCount();
-			for (int i = 1; i <= numRow; i++) {
-				View view = getViewByIndex(i);
-				String viewName = view.getClass().getSimpleName();
-				switch (viewName) {
-					case "Spinner":
-					{
-						String label = ((TextView) layoutTop.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
-						switch (label) {
-							case "productid":
-								indexViews.put("indexProduct", i);
-								Spinner catalog = (Spinner) view;
-								catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+			
+			switch (tblName) {
+				case "budgets":
+					switch (colNames[i].toLowerCase()) {
+						case "balance":
+							{
+								input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 										@Override
-										public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+										public void onFocusChange(View v, boolean focus)
 										{
-											String selected = ((TextView) v).getText().toString();
-											EditText inputPrice = (EditText) getViewByIndex(indexViews.get("indexPrice"));
-											List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
-											for (Map<String, Object> product : products) {
-												String pName = (String) product.get("name");
-												if (selected.equals(pName)) {
-													double priceValue = product.get("price");
-													inputPrice.setText(String.format("%,.0f", priceValue));
-													break;
+											if (!focus) {
+												EditText input = (EditText) v;
+												String sNumber = input.getText().toString();
+												try
+												{
+													double number = numConverter.parse(sNumber).doubleValue();
+													input.setText(String.format(Locale.US, "%,.0f", number));
 												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
 											}
-										}
-
-										@Override
-										public void onNothingSelected(AdapterView<?> adapter)
-										{
-
 										}
 									});
 								break;
-						}
-						break;
+							}
 					}
-						
-					case "EditText":
-					{
-						String label = ((TextView) layoutTop.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
-						switch (label) {
-							case "price":
+					break;
+				
+				case "expends":
+					if (i == colNames.length - 1) {
+						LinearLayout rowTotal = createRowTotal();
+						EditText inputTotal = (EditText) rowTotal.getChildAt(1);
+						inputTotal.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+								@Override
+								public void onFocusChange(View v, boolean focus)
+								{
+									if (!focus) {
+										EditText input = (EditText) v;
+										String sNumber = input.getText().toString();
+										try
+										{
+											double number = numConverter.parse(sNumber).doubleValue();
+											input.setText(String.format(Locale.US, "%,.0f", number));
+										}
+										catch (ParseException e)
+										{stt.error(e.getMessage());}
+									}
+								}
+							});
+					}
+					
+					switch (colNames[i].toLowerCase()) {
+						case "price":
+							{
 								indexViews.put("indexPrice", i);
-								EditText inputPrice = (EditText) view;
-								inputPrice.addTextChangedListener(new TextWatcher() {
+								input.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+										@Override
+										public void onFocusChange(View v, boolean focus)
+										{
+											if (!focus) {
+												EditText input = (EditText) v;
+												String sNumber = input.getText().toString();
+												try
+												{
+													double number = numConverter.parse(sNumber).doubleValue();
+													input.setText(String.format(Locale.US, "%,.0f", number));
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+											}
+										}
+									});
+									
+								input.addTextChangedListener(new TextWatcher() {
 
 										@Override
 										public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
 										{
-											
+
 										}
 
 										@Override
 										public void onTextChanged(CharSequence p1, int p2, int p3, int p4)
 										{
-											
+
 										}
 
 										@Override
@@ -275,30 +340,13 @@ public class Editor extends Activity
 											{stt.error(e.getMessage());}
 										}
 									});
-									
-								inputPrice.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View v, boolean focus)
-										{
-											if (!focus) {
-												EditText input = (EditText) v;
-												String sPrice = input.getText().toString();
-												try
-												{
-													double price = numConverter.parse(sPrice).doubleValue();
-													input.setText(String.format(Locale.US, "%,.0f", price));
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
-											}
-										}
-									});
 								break;
-							case "quantity":
+							}
+							
+						case "quantity":
+							{
 								indexViews.put("indexQuantity", i);
-								EditText inputQuantity = (EditText) view;
-								inputQuantity.addTextChangedListener(new TextWatcher() {
+								input.addTextChangedListener(new TextWatcher() {
 
 										@Override
 										public void beforeTextChanged(CharSequence p1, int p2, int p3, int p4)
@@ -333,14 +381,66 @@ public class Editor extends Activity
 										}
 									});
 								break;
-						}
-						break;
+							}
 					}
-				}
+					break;
+					
+				case "funds":
+					switch (colNames[i].toLowerCase()) {
+						case "cash": case "balance1": case "balance2":
+							{
+								input.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+										@Override
+										public void onFocusChange(View v, boolean focus)
+										{
+											if (!focus) {
+												EditText input = (EditText) v;
+												String sNumber = input.getText().toString();
+												try
+												{
+													double number = numConverter.parse(sNumber).doubleValue();
+													input.setText(String.format(Locale.US, "%,.0f", number));
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+											}
+										}
+									});
+								break;
+							}
+					}
+					break;
+					
+				case "products":
+					switch (colNames[i].toLowerCase()) {
+						case "price":
+							{
+								input.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+										@Override
+										public void onFocusChange(View v, boolean focus)
+										{
+											if (!focus) {
+												EditText input = (EditText) v;
+												String sNumber = input.getText().toString();
+												try
+												{
+													double number = numConverter.parse(sNumber).doubleValue();
+													input.setText(String.format(Locale.US, "%,.0f", number));
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+											}
+										}
+									});
+								break;
+							}
+					}
+					break;
 			}
 		}
-		
-		reset();
+		// End of create views
 		
 		btnClear.setOnClickListener(new OnClickListener() {
 
@@ -443,7 +543,7 @@ public class Editor extends Activity
 						else result = db.insert(tblName, data);
 						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
-						if ("funds".equals(tblName)) finish();
+						if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
 						else reset();
 					}
 				}
@@ -478,6 +578,8 @@ public class Editor extends Activity
 					}
 				}
 			});
+		
+		reset();
 	}
 
 	private void dateTimePicker(int resource)
@@ -543,8 +645,8 @@ public class Editor extends Activity
 						for (Map<String, Object> product : products) {
 							String pName = (String) product.get("name");
 							if (selected.equals(pName)) {
-								double priceValue = product.get("price");
-								input.setText(String.format("%,.0f", priceValue));
+								double price = product.get("price");
+								input.setText(String.format("%,.0f", price));
 								break;
 							}
 						}
@@ -553,6 +655,7 @@ public class Editor extends Activity
 					else input.setText("");
 					if (!isFocus) {
 						input.requestFocus();
+						input.setSelection(input.getText().toString().length());
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 						if (imm != null) {
 							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
@@ -722,16 +825,16 @@ public class Editor extends Activity
 		return view;
 	}
 	
-	private void createTotalRow() {
+	private LinearLayout createRowTotal() {
 		RelativeLayout mainLayout = (RelativeLayout) layoutTop.getParent();
 		RelativeLayout.LayoutParams totalRowParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		totalRowParams.setMargins(20, 0, 20, 0);
 		totalRowParams.addRule(RelativeLayout.BELOW, R.id.editorLayoutTop);
-		LinearLayout totalRow = new LinearLayout(this);
-		totalRow.setLayoutParams(totalRowParams);
-		totalRow.setOrientation(LinearLayout.HORIZONTAL);
-		totalRow.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
-		totalRow.setId(R.id.layoutRowTotal);
+		LinearLayout rowTotal = new LinearLayout(this);
+		rowTotal.setLayoutParams(totalRowParams);
+		rowTotal.setOrientation(LinearLayout.HORIZONTAL);
+		rowTotal.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+		rowTotal.setId(R.id.layoutRowTotal);
 
 		LinearLayout.LayoutParams tvTotalParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		tvTotalParams.setMargins(0, 0, 20, 0);
@@ -739,7 +842,7 @@ public class Editor extends Activity
 		tvTotal.setLayoutParams(tvTotalParams);
 		tvTotal.setTypeface(tvTotal.getTypeface(), Typeface.BOLD);
 		tvTotal.setText("TOTAL :");
-		totalRow.addView(tvTotal);
+		rowTotal.addView(tvTotal);
 
 		LinearLayout.LayoutParams iptTotalParams = new LinearLayout.LayoutParams(310, LayoutParams.WRAP_CONTENT);
 		final EditText iptTotal = new EditText(this);
@@ -751,7 +854,7 @@ public class Editor extends Activity
 		iptTotal.setFocusable(false);
 		iptTotal.setId(R.id.viewTotal);
 		iptTotal.setText("0");
-		totalRow.addView(iptTotal);
+		rowTotal.addView(iptTotal);
 
 		iptTotal.setOnClickListener(new OnClickListener() {
 
@@ -821,7 +924,8 @@ public class Editor extends Activity
 				}
 			});
 
-		mainLayout.addView(totalRow, 1);
+		mainLayout.addView(rowTotal, 1);
+		return rowTotal;
 	}
 
 	@Override
