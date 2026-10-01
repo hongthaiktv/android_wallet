@@ -97,7 +97,7 @@ public class AppAssetManager extends ArrayList<String>
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String line = "";
 			while ((line = reader.readLine()) != null) {
-				builder.append(line);
+				builder.append(line + "\n");
 			}
 		}
 		catch (Exception e)

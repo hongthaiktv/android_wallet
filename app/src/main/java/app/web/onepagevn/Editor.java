@@ -34,6 +34,7 @@ public class Editor extends Activity
 	private SimpleDateFormat df, tf, tff, ff, flocal;
 	private NumberFormat numConverter;
 	private Map<String, Integer> indexViews = new HashMap<>();
+	private AppAssetManager dirImage;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -55,6 +56,7 @@ public class Editor extends Activity
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		numConverter = NumberFormat.getInstance(Locale.US);
+		dirImage = new AppAssetManager(this, "images/");
 		
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
