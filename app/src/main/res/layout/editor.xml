@@ -25,7 +25,7 @@
 			android:layout_alignParentTop="true"/>
 		
 		<GridLayout
-			android:id="@+id/editorTopLayout"
+			android:id="@+id/editorLayoutTop"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="13dp"
@@ -34,11 +34,13 @@
 		</GridLayout>
 
 		<LinearLayout
+			android:id="@+id/editorLayoutButtons"
 			android:orientation="horizontal"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
-			android:layout_below="@id/layoutRowTotal">
+			android:layout_marginTop="40dp"
+			android:layout_below="@id/editorLayoutTop">
 
 			<Button
 				android:id="@+id/editorBtnClear"

@@ -20,21 +20,23 @@ import android.view.ViewGroup.LayoutParams;
 
 public class Editor extends Activity
 {
-	private GridLayout editorTopLayout;
+	private GridLayout layoutTop;
+	private LinearLayout layoutButtons;
 	private Button btnClear, btnAdd, btnCancel;
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends";
-	private String[] colNames;
+	private String[] colNames, balances;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
-	private int pickedRow = -1;
+	private int pickedRow = -1, currentBudget = 0;
 	private long[][] pickedRows = new long[20][2];
 	private SimpleDateFormat df, tf, tff, ff, flocal;
 	private NumberFormat numConverter;
 	private Map<String, Integer> indexViews = new HashMap<>();
 	private AppAssetManager dirImage;
+	private ImageButton ibBudget;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -42,7 +44,8 @@ public class Editor extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.editor);
 		
-		editorTopLayout = findViewById(R.id.editorTopLayout);
+		layoutTop = findViewById(R.id.editorLayoutTop);
+		layoutButtons = findViewById(R.id.editorLayoutButtons);
 		btnClear = findViewById(R.id.editorBtnClear);
 		btnAdd = findViewById(R.id.editorBtnAdd);
 		btnCancel = findViewById(R.id.editorBtnCancel);
@@ -57,18 +60,29 @@ public class Editor extends Activity
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		numConverter = NumberFormat.getInstance(Locale.US);
 		dirImage = new AppAssetManager(this, "images/");
+		ibBudget = findViewById(R.id.editorIbBudget);
+		
+		if (!"expends".equals(tblName)) {
+			ibBudget.setVisibility(ImageButton.INVISIBLE);
+			RelativeLayout.LayoutParams layoutButtonsParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			layoutButtonsParams.addRule(RelativeLayout.BELOW, R.id.editorLayoutTop);
+			layoutButtonsParams.setMargins(0, 60, 0, 0);
+			layoutButtons.setLayoutParams(layoutButtonsParams);
+			layoutButtons.setOrientation(LinearLayout.HORIZONTAL);
+			layoutButtons.setGravity(Gravity.CENTER);
+		}
 		
 		colNames = db.getColumnNames(tblName);
 		dataTypes = db.getDataTypes(tblName);
 		foreignColumns = db.getForeignColumns(tblName);
-		editorTopLayout.setRowCount(colNames.length - 1);
+		layoutTop.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
 			tvParams.setMargins(20, 0, 20, 0);
 			TextView tvName = new TextView(this);
 			tvName.setLayoutParams(tvParams);
 			tvName.setText(colNames[i].toUpperCase());
-			editorTopLayout.addView(tvName);
+			layoutTop.addView(tvName);
 			
 			if (foreignColumns.size() > 0) {
 				boolean isCatalog = false;
@@ -91,7 +105,7 @@ public class Editor extends Activity
 						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 						catalog.setAdapter(adapter);
 						setViewID(catalog, i);
-						editorTopLayout.addView(catalog);
+						layoutTop.addView(catalog);
 						isCatalog = true;
 						break;
 					}
@@ -156,7 +170,7 @@ public class Editor extends Activity
 					layoutPicker.addView(btnDatePicker);
 					layoutPicker.addView(btnTimePicker);
 					layoutPicker.setBaselineAlignedChildIndex(0);
-					editorTopLayout.addView(layoutPicker);
+					layoutTop.addView(layoutPicker);
 					continue;
 			}
 			
@@ -168,19 +182,19 @@ public class Editor extends Activity
 			input.setLayoutParams(iptParams);
 			input.setSingleLine();
 			setViewID(input, i);
-			editorTopLayout.addView(input);
+			layoutTop.addView(input);
 		}
 		
 		if ("expends".equals(tblName)) {
 			createTotalRow();
-			int numRow = editorTopLayout.getRowCount();
+			int numRow = layoutTop.getRowCount();
 			for (int i = 1; i <= numRow; i++) {
 				View view = getViewByIndex(i);
 				String viewName = view.getClass().getSimpleName();
 				switch (viewName) {
 					case "Spinner":
 					{
-						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
+						String label = ((TextView) layoutTop.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
 						switch (label) {
 							case "productid":
 								indexViews.put("indexProduct", i);
@@ -216,7 +230,7 @@ public class Editor extends Activity
 						
 					case "EditText":
 					{
-						String label = ((TextView) editorTopLayout.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
+						String label = ((TextView) layoutTop.getChildAt(i * 2 - 2)).getText().toString().toLowerCase();
 						switch (label) {
 							case "price":
 								indexViews.put("indexPrice", i);
@@ -317,7 +331,7 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View button)
 				{
-					int numRow = editorTopLayout.getRowCount();
+					int numRow = layoutTop.getRowCount();
 					ContentValues data = new ContentValues();
 					for (int i = 1; i <= numRow; i++) {
 						View view = getViewByIndex(i);
@@ -418,6 +432,27 @@ public class Editor extends Activity
 					finish();
 				}
 			});
+			
+		ibBudget.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View view)
+				{
+					ImageButton ibBudget = (ImageButton) view;
+					if (currentBudget == 0) {
+						dirImage.setImageFile("logo_tpbank.jpg", ibBudget);
+						currentBudget = 1;
+					}
+					else if (currentBudget == 1) {
+						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						currentBudget = 2;
+					}
+					else {
+						ibBudget.setImageResource(R.drawable.logo_cash);
+						currentBudget = 0;
+					}
+				}
+			});
 	}
 
 	private void dateTimePicker(int resource)
@@ -464,7 +499,7 @@ public class Editor extends Activity
 	}
 	
 	private void reset() {
-		int numRow = editorTopLayout.getRowCount();
+		int numRow = layoutTop.getRowCount();
 		boolean isFocus = false;
 		for (int i = 1; i <= numRow; i++) {
 			View view = getViewByIndex(i);
@@ -663,10 +698,10 @@ public class Editor extends Activity
 	}
 	
 	private void createTotalRow() {
-		RelativeLayout mainLayout = (RelativeLayout) editorTopLayout.getParent();
+		RelativeLayout mainLayout = (RelativeLayout) layoutTop.getParent();
 		RelativeLayout.LayoutParams totalRowParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		totalRowParams.setMargins(20, 0, 20, 0);
-		totalRowParams.addRule(RelativeLayout.BELOW, R.id.editorTopLayout);
+		totalRowParams.addRule(RelativeLayout.BELOW, R.id.editorLayoutTop);
 		LinearLayout totalRow = new LinearLayout(this);
 		totalRow.setLayoutParams(totalRowParams);
 		totalRow.setOrientation(LinearLayout.HORIZONTAL);
