@@ -73,6 +73,11 @@ public class Editor extends Activity
 		}
 		
 		colNames = db.getColumnNames(tblName);
+		if ("expends".equals(tblName)) {
+			List<String> rows = new ArrayList<String>(Arrays.asList(colNames));
+			rows.remove(colNames.length - 1);
+			colNames = rows.toArray(new String[0]);
+		}
 		dataTypes = db.getDataTypes(tblName);
 		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
@@ -267,6 +272,25 @@ public class Editor extends Activity
 											}
 											catch (ParseException e)
 											{stt.error(e.getMessage());}
+										}
+									});
+									
+								inputPrice.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+										@Override
+										public void onFocusChange(View v, boolean focus)
+										{
+											if (!focus) {
+												EditText input = (EditText) v;
+												String sPrice = input.getText().toString();
+												try
+												{
+													double price = numConverter.parse(sPrice).doubleValue();
+													input.setText(String.format(Locale.US, "%,.0f", price));
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+											}
 										}
 									});
 								break;
