@@ -111,6 +111,7 @@ public class Editor extends Activity
 						catalog.setAdapter(adapter);
 						setViewID(catalog, i);
 						layoutTop.addView(catalog);
+						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
 						isCatalog = true;
 						break;
 					}
