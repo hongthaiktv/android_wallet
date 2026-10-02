@@ -1,12 +1,13 @@
 package app.web.onepagevn;
+import android.app.*;
 import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
+import android.view.*;
 import android.widget.*;
 import java.io.*;
 import java.util.*;
 import java.util.stream.*;
-import android.app.*;
 
 public class AppAssetManager extends ArrayList<String>
 {
@@ -42,11 +43,14 @@ public class AppAssetManager extends ArrayList<String>
 		this.image = image;
 		assetManager = context.getAssets();
 		stt = new StatusBar("AppAssetManager");
+		list();
 	}
 	
-	public void setPath(String path)
+	public AppAssetManager setPath(String path)
 	{
 		if (path != null) this.path = path;
+		list();
+		return this;
 	}
 	
 	public boolean setImageFile(String fileName) {
@@ -61,10 +65,11 @@ public class AppAssetManager extends ArrayList<String>
 			if (!"".equals(path) && path != null) imageDir = path;
 			InputStream is = assetManager.open(imageDir + fileName);
 			Bitmap bitmap = BitmapFactory.decodeStream(is);
-			ImageView image = ((Activity) context).findViewById(imageViewID);
-			image.setImageBitmap(bitmap);
 			is.close();
-			isOk = true;
+			View image = ((Activity) context).findViewById(imageViewID);
+			isOk = image instanceof ImageView;
+			if (image != null && isOk) ((ImageView) image).setImageBitmap(bitmap);
+			else stt.error("imageViewID not an ImageView.");
 		}
 		catch (IOException e)
 		{stt.error(e.getMessage());}
@@ -79,9 +84,13 @@ public class AppAssetManager extends ArrayList<String>
 			if (!"".equals(path) && path != null) imageDir = path;
 			InputStream is = assetManager.open(imageDir + fileName);
 			Bitmap bitmap = BitmapFactory.decodeStream(is);
-			if (image != null) image.setImageBitmap(bitmap);
-			else if (this.image != null) this.image.setImageBitmap(bitmap);
 			is.close();
+			if (image == null) image = this.image;
+			if (image != null) image.setImageBitmap(bitmap);
+			else {
+				stt.error("No ImageView to set.");
+				return isOk;
+			}
 			isOk = true;
 		}
 		catch (IOException e)
@@ -105,14 +114,15 @@ public class AppAssetManager extends ArrayList<String>
 		return builder.toString();
 	}
 	
-	public String[] ls() {
-		return ls(path);
+	public String[] list() {
+		return list(path);
 	}
 	
-	public String[] ls(String path) {
+	public String[] list(String path) {
 		clear();
+		String[] files = null;
 		try {
-			String[] files = assetManager.list(path);
+			files = assetManager.list(path);
 			if (files != null) {
 				for (String file : files) {
 					add(file);
@@ -121,7 +131,7 @@ public class AppAssetManager extends ArrayList<String>
 		} catch (Exception e) {
 			stt.error(e.getMessage());
 		}
-		return toArray(new String[0]);
+		return files;
 	}
 	
 	@Override
