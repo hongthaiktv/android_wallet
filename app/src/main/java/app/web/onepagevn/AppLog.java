@@ -34,6 +34,15 @@ public class AppLog extends Activity
 				}
 			});
 		
+		tblLog.setRowOnLongClickListener(new SQLiteDBLayout.RowOnLongClickListener() {
+
+				@Override
+				public boolean onLongClick(View row, int index, int id)
+				{
+					row.setBackgroundColor(Color.YELLOW);
+					return true;
+				}
+			});
 		int logSize = app.getMaxLogs();
 		tblLog.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		mainLayout.addView(tblLog, 0);

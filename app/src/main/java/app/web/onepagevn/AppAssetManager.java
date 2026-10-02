@@ -68,7 +68,7 @@ public class AppAssetManager extends ArrayList<String>
 			is.close();
 			View image = ((Activity) context).findViewById(imageViewID);
 			isOk = image instanceof ImageView;
-			if (image != null && isOk) ((ImageView) image).setImageBitmap(bitmap);
+			if (isOk) ((ImageView) image).setImageBitmap(bitmap);
 			else stt.error("imageViewID not an ImageView.");
 		}
 		catch (IOException e)

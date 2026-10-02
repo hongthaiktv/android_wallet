@@ -17,7 +17,8 @@ public class SQLiteDBLayout extends LinearLayout
 	private String sql = "";
 	private ViewGroup container;
 	private TableLayout table, tBody;
-	private RowOnClickListener listener;
+	private RowOnClickListener onClickListener;
+	private RowOnLongClickListener onLongClickListener;
 	private int index = -1;
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
@@ -68,11 +69,11 @@ public class SQLiteDBLayout extends LinearLayout
 		if (autoLoad) show();
 	}
 	
-	private void init(Context context, String tblName, ViewGroup container, RowOnClickListener listener) {
+	private void init(Context context, String tblName, ViewGroup container, RowOnClickListener onClickListener) {
 		this.context = context;
 		this.tblName = tblName;
 		this.container = container;
-		this.listener = listener;
+		this.onClickListener = onClickListener;
 		LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
 		setLayoutParams(layout);
 		if (hideID) hideColumns.add(1);
@@ -151,7 +152,12 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout setRowOnClickListener(RowOnClickListener listener) {
-		this.listener = listener;
+		this.onClickListener = listener;
+		return this;
+	}
+	
+	public SQLiteDBLayout setRowOnLongClickListener(RowOnLongClickListener listener) {
+		this.onLongClickListener = listener;
 		return this;
 	}
 	
@@ -175,7 +181,7 @@ public class SQLiteDBLayout extends LinearLayout
 	public void show() {
 		removeAllViews();
 		if (tblName == null && "".equals(tblName)) return;
-		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql("aggregate", sql, null);
+		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		
 		table = new TableLayout(context);
@@ -211,13 +217,22 @@ public class SQLiteDBLayout extends LinearLayout
 			final Object[] colValues = rowData.values().toArray();
 			TableRow row = new TableRow(context);
 			final int index = rowIndex;
-			if (listener != null) row.setOnClickListener(new OnClickListener() {
+			if (onClickListener != null) row.setOnClickListener(new OnClickListener() {
 
 						@Override
 						public void onClick(View view)
 						{
-							int id = Integer.valueOf((String) colValues[0]);
-							listener.onClick(view, index, id);
+							int id = colValues[0];
+							onClickListener.onClick(view, index, id);
+						}
+					});
+			if (onLongClickListener != null) row.setOnLongClickListener(new OnLongClickListener() {
+
+						@Override
+						public boolean onLongClick(View view)
+						{
+							int id = colValues[0];
+							return onLongClickListener.onLongClick(view, index, id);
 						}
 					});
 			if (rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
@@ -294,5 +309,9 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public static interface RowOnClickListener {
 		public void onClick(View row, int index, int id);
+	}
+	
+	public static interface RowOnLongClickListener {
+		public boolean onLongClick(View row, int index, int id);
 	}
 }
