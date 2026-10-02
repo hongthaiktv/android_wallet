@@ -19,9 +19,11 @@ public class SQLiteDBLayout extends LinearLayout
 	private TableLayout table, tBody;
 	private RowOnClickListener onClickListener;
 	private RowOnLongClickListener onLongClickListener;
+	private int[] rowIDs;
 	private int index = -1;
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
+	private List<Map<String, Object>> tblData;
 	
 	public SQLiteDBLayout(Context context, String tblName) {
 		super(context);
@@ -85,7 +87,7 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
-	public String getTable() {
+	public String getTableName() {
 		return tblName;
 	}
 	
@@ -178,12 +180,23 @@ public class SQLiteDBLayout extends LinearLayout
 		return hideColumns.size();
 	}
 	
+	public int[] getRowIDs()
+	{
+		return rowIDs;
+	}
+	
+	public List<Map<String, Object>> getTableData()
+	{
+		return tblData;
+	}
+	
 	public void show() {
 		removeAllViews();
 		if (tblName == null && "".equals(tblName)) return;
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		
+		tblData = data;
 		table = new TableLayout(context);
 		TableLayout.LayoutParams tblLayout = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		table.setLayoutParams(tblLayout);
@@ -213,8 +226,10 @@ public class SQLiteDBLayout extends LinearLayout
 		tBody = new TableLayout(context);
 		tBody.setLayoutParams(tblLayout);
 		int rowIndex = 0;
+		rowIDs = new int[data.size()];
 		for (Map<String, Object> rowData : data) {
 			final Object[] colValues = rowData.values().toArray();
+			rowIDs[rowIndex] = colValues[0];
 			TableRow row = new TableRow(context);
 			final int index = rowIndex;
 			if (onClickListener != null) row.setOnClickListener(new OnClickListener() {

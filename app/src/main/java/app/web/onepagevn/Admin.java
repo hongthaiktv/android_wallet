@@ -33,7 +33,7 @@ public class Admin extends Activity
 		btnUp = findViewById(R.id.admBtnUp);
 		btnDown = findViewById(R.id.admBtnDown);
 		tblData = findViewById(R.id.admTableData);
-		tblName = tblData.getTable();
+		tblName = tblData.getTableName();
 		if ("".equals(tblName) || tblName == null) tblName = "logs";
 		app = AppSetting.getAppContext();
 		stt = new StatusBar(this).init();

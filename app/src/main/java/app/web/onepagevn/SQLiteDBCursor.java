@@ -176,18 +176,23 @@ public class SQLiteDBCursor extends SQLiteCursor
 		Map<String, Object> row = new LinkedHashMap<>();
 		for (int i = 0; i < columnTypes.length; i++) {
 			switch (columnTypes[i]) {
-				case INTEGER: case INT: case BOOLEAN:
+				case INTEGER: case INT:
 					row.put(getColumnName(i), getInt(i));
 					break;
-				case NUMERIC: case NUM: case LONG: case DATETIME:
-					if (columnTypes[i] == DataType.DATETIME) row.put(getColumnName(i), new Date(getLong(i) * 1000));
-					else row.put(getColumnName(i), getLong(i));
+				case NUMERIC: case NUM: case LONG:
+					row.put(getColumnName(i), getLong(i));
 					break;
 				case REAL: case FLOAT: case DOUBLE:
 					row.put(getColumnName(i), getDouble(i));
 					break;
 				case TEXT:
 					row.put(getColumnName(i), getString(i));
+					break;
+				case BOOLEAN:
+					row.put(getColumnName(i), getInt(i) == 1 ? true : false);
+					break;
+				case DATETIME:
+					row.put(getColumnName(i), new Date(getLong(i) * 1000L));
 					break;
 				case JSON:
 					String jsonText = getString(i);

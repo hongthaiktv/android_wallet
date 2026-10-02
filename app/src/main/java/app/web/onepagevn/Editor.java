@@ -38,6 +38,7 @@ public class Editor extends Activity
 	private Map<String, Integer> indexViews = new HashMap<>();
 	private AppAssetManager dirImage;
 	private ImageButton ibBudget;
+	private Intent intent;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -52,7 +53,9 @@ public class Editor extends Activity
 		btnCancel = findViewById(R.id.editorBtnCancel);
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
-		tblName = !"balance".equals(getIntent().getStringExtra("tblName")) ? getIntent().getStringExtra("tblName") : "expends";
+		intent = getIntent();
+		tblName = !"balance".equals(intent.getStringExtra("tblName")) ? intent.getStringExtra("tblName") : "expends";
+		if ("budgets".equals(tblName)) tblName = "budgets_protected";
 		setTitle(tblName.toUpperCase());
 		df = new SimpleDateFormat("dd-MM-yyyy");
 		tf = new SimpleDateFormat("HH:mm");
@@ -442,110 +445,129 @@ public class Editor extends Activity
 		}
 		// End of create views
 		
+		String intAction = intent.getAction();
+		if (!Intent.ACTION_EDIT.equals(intAction)) {
+			// Insert mode
+			btnAdd.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View button)
+					{
+						int numRow = layoutTop.getRowCount();
+						ContentValues data = new ContentValues();
+						for (int i = 1; i <= numRow; i++) {
+							View view = getViewByIndex(i);
+							if (view == null) continue;
+							DataType type = dataTypes[i];
+							String name = view.getClass().getSimpleName();
+							switch (name) {
+								case "EditText":
+									{
+										EditText input = (EditText) view;
+										String value = input.getText().toString();
+										if ("".equals(value)) continue;
+										switch (type) {
+											case INTEGER: case INT:
+												try
+												{
+													int intValue = numConverter.parse(value).intValue();
+													data.put(colNames[i], intValue);
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+												break;
+
+											case NUMERIC: case NUM: case LONG:
+												try
+												{
+													long longValue = numConverter.parse(value).longValue();
+													data.put(colNames[i], longValue);
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+												break;
+
+											case REAL: case FLOAT: case DOUBLE:
+												try
+												{
+													double doubleValue = numConverter.parse(value).doubleValue();
+													data.put(colNames[i], doubleValue);
+												}
+												catch (ParseException e)
+												{stt.error(e.getMessage());}
+												break;
+
+											default:
+												data.put(colNames[i], value);
+										}
+										break;
+									}
+
+								case "Spinner":
+									{
+										if (foreignColumns.size() < 1) continue;
+										Spinner catalog = (Spinner) view;
+										String selected = (String) catalog.getSelectedItem();
+										if ("".equals(selected)) continue;
+										int id = -1;
+										for (Map<String, Object> fColumn : foreignColumns) {
+											String srcColumn = (String) fColumn.get("srcColumn");
+											if (srcColumn.equals(colNames[i])) {
+												int[] ids = (int[]) fColumn.get("ids");
+												String[] names = (String[]) fColumn.get("names");
+												for (int index = 0; index < names.length; index++) {
+													String item = names[index];
+													if (item.equals(selected)) id = ids[index];
+												}
+											}
+										}
+										if (id != -1) data.put(colNames[i], id);
+										break;
+									}
+								case "LinearLayout":
+									{
+										switch (type) {
+											case DATETIME:
+												data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+										}
+										break;
+									}
+							}
+						}
+						if (data.size() > 0) {
+							long result = -1;
+							if ("budgets".equals(tblName)) result = db.insert("budgets_protected", data);
+							else result = db.insert(tblName, data);
+							if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
+							else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
+							if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
+							else reset();
+						}
+					}
+				});
+		}
+		else {
+			// Update mode
+			final int rowID = intent.getIntExtra("rowID", -1);
+			if (rowID >= 0) loadRowData(rowID);
+			
+			btnAdd.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v)
+					{
+						loadRowData(rowID);
+					}
+				});
+		}
+		
+		// Check for Intent Action before assign listener
 		btnClear.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view)
 				{
 					reset();
-				}
-			});
-			
-		btnAdd.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View button)
-				{
-					int numRow = layoutTop.getRowCount();
-					ContentValues data = new ContentValues();
-					for (int i = 1; i <= numRow; i++) {
-						View view = getViewByIndex(i);
-						if (view == null) continue;
-						DataType type = dataTypes[i];
-						String name = view.getClass().getSimpleName();
-						switch (name) {
-							case "EditText":
-								{
-									EditText input = (EditText) view;
-									String value = input.getText().toString();
-									if ("".equals(value)) continue;
-									switch (type) {
-										case INTEGER: case INT:
-											try
-											{
-												int intValue = numConverter.parse(value).intValue();
-												data.put(colNames[i], intValue);
-											}
-											catch (ParseException e)
-											{stt.error(e.getMessage());}
-											break;
-											
-										case NUMERIC: case NUM: case LONG:
-											try
-											{
-												long longValue = numConverter.parse(value).longValue();
-												data.put(colNames[i], longValue);
-											}
-											catch (ParseException e)
-											{stt.error(e.getMessage());}
-											break;
-											
-										case REAL: case FLOAT: case DOUBLE:
-											try
-											{
-												double doubleValue = numConverter.parse(value).doubleValue();
-												data.put(colNames[i], doubleValue);
-											}
-											catch (ParseException e)
-											{stt.error(e.getMessage());}
-											break;
-											
-										default:
-											data.put(colNames[i], value);
-									}
-									break;
-								}
-								
-							case "Spinner":
-								{
-									if (foreignColumns.size() < 1) continue;
-									Spinner catalog = (Spinner) view;
-									String selected = (String) catalog.getSelectedItem();
-									if ("".equals(selected)) continue;
-									int id = -1;
-									for (Map<String, Object> fColumn : foreignColumns) {
-										String srcColumn = (String) fColumn.get("srcColumn");
-										if (srcColumn.equals(colNames[i])) {
-											int[] ids = (int[]) fColumn.get("ids");
-											String[] names = (String[]) fColumn.get("names");
-											for (int index = 0; index < names.length; index++) {
-												String item = names[index];
-												if (item.equals(selected)) id = ids[index];
-											}
-										}
-									}
-									if (id != -1) data.put(colNames[i], id);
-									break;
-								}
-							case "LinearLayout":
-								{
-									switch (type) {
-										case DATETIME:
-											data.put(colNames[i], getDateTime(i).getTime() / 1000L);
-									}
-									break;
-								}
-						}
-					}
-					if (data.size() > 0) {
-						long result = -1;
-						if ("budgets".equals(tblName)) result = db.insert("budgets_protected", data);
-						else result = db.insert(tblName, data);
-						if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
-						else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
-						if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
-						else reset();
-					}
 				}
 			});
 			
@@ -926,6 +948,59 @@ public class Editor extends Activity
 
 		mainLayout.addView(rowTotal, 1);
 		return rowTotal;
+	}
+	
+	private String[] objectToStrings(Object[] objects) {
+		String[] result = new String[objects.length];
+		for (int i = 0; i < objects.length; i++) {
+			Object object = objects[i];
+			if (object == null) continue;
+			switch (dataTypes[i]) {
+				case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
+					result[i] = String.format(Locale.US, "%,d", object);
+					break;
+				case REAL: case FLOAT: case DOUBLE:
+					result[i] = String.format(Locale.US, "%,.0f", object);
+					break;
+				case TEXT:
+					result[i] = (String) object;
+					break;
+				case BOOLEAN:
+					result[i] = (Boolean) object ? "1" : "0";
+					break;
+				case DATETIME:
+					result[i] = flocal.format((Date) object);
+					break;
+				case JSON:
+					result[i] = (String) object;
+					break;
+				case NULL:
+					continue;
+				case BLOB: default:
+					if (object instanceof String) result[i] = (String) object;
+					else if (object instanceof Integer || object instanceof Long) result[i] = String.format(Locale.US, "%,d", object);
+					else if (object instanceof Float || object instanceof Double) result[i] = String.format(Locale.US, "%,.0f", object);
+			}
+		}
+		return result;
+	}
+	
+	private void loadRowData(int rowID) {
+		List<Map<String, Object>> rowDatas = db.sql(tblName, "SELECT * FROM " + tblName + " WHERE rowid=?", new String[] {String.valueOf(rowID)});
+		Object[] colValues = rowDatas.get(0).values().toArray(new Object[0]);
+		String[] values = objectToStrings(colValues);
+		int numRows = layoutTop.getRowCount();
+		for (int i = 1; i <= numRows; i++) {
+			View view = getViewByIndex(i);
+			String vName = view.getClass().getSimpleName();
+			switch (vName) {
+				case "EditText":
+					EditText input = (EditText) view;
+					String value = values[i];
+					if (value != null) input.setText(value);
+					break;
+			}
+		}
 	}
 
 	@Override
