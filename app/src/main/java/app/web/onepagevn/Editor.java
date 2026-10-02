@@ -235,26 +235,25 @@ public class Editor extends Activity
 			layoutTop.addView(input);
 			
 			switch (tblName) {
-				case "budgets":
+				case "budgets_protected":
 					switch (colNames[i].toLowerCase()) {
 						case "balance":
 							{
+								input.setInputType(InputType.TYPE_CLASS_NUMBER);
 								input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 										@Override
 										public void onFocusChange(View v, boolean focus)
 										{
-											if (!focus) {
-												EditText input = (EditText) v;
-												String sNumber = input.getText().toString();
-												try
-												{
-													double number = numConverter.parse(sNumber).doubleValue();
-													input.setText(String.format(Locale.US, "%,.0f", number));
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
+											EditText input = (EditText) v;
+											String sNumber = input.getText().toString();
+											if ("".equals(sNumber)) return;
+											try {
+												double number = numConverter.parse(sNumber).doubleValue();
+												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+												else input.setText(String.format(Locale.US, "%,.0f", number));
 											}
+											catch (ParseException e) {stt.error(e.getMessage());}
 										}
 									});
 								break;
@@ -263,49 +262,26 @@ public class Editor extends Activity
 					break;
 				
 				case "expends":
-					if (i == colNames.length - 1) {
-						LinearLayout rowTotal = createRowTotal();
-						EditText inputTotal = (EditText) rowTotal.getChildAt(1);
-						inputTotal.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-								@Override
-								public void onFocusChange(View v, boolean focus)
-								{
-									if (!focus) {
-										EditText input = (EditText) v;
-										String sNumber = input.getText().toString();
-										try
-										{
-											double number = numConverter.parse(sNumber).doubleValue();
-											input.setText(String.format(Locale.US, "%,.0f", number));
-										}
-										catch (ParseException e)
-										{stt.error(e.getMessage());}
-									}
-								}
-							});
-					}
-					
+					if (i == colNames.length - 1) createRowTotal();
 					switch (colNames[i].toLowerCase()) {
 						case "price":
 							{
 								indexViews.put("indexPrice", i);
+								input.setInputType(InputType.TYPE_CLASS_NUMBER);
 								input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 										@Override
 										public void onFocusChange(View v, boolean focus)
 										{
-											if (!focus) {
-												EditText input = (EditText) v;
-												String sNumber = input.getText().toString();
-												try
-												{
-													double number = numConverter.parse(sNumber).doubleValue();
-													input.setText(String.format(Locale.US, "%,.0f", number));
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
+											EditText input = (EditText) v;
+											String sNumber = input.getText().toString();
+											if ("".equals(sNumber)) return;
+											try {
+												double number = numConverter.parse(sNumber).doubleValue();
+												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+												else input.setText(String.format(Locale.US, "%,.0f", number));
 											}
+											catch (ParseException e) {stt.error(e.getMessage());}
 										}
 									});
 									
@@ -337,7 +313,7 @@ public class Editor extends Activity
 													double price = numConverter.parse(sPrice).doubleValue();
 													double quantity = numConverter.parse(sQuantity).doubleValue();
 													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
-												} else iptTotal.setText("NaN");
+												} else iptTotal.setText("");
 											}
 											catch (ParseException e)
 											{stt.error(e.getMessage());}
@@ -349,6 +325,7 @@ public class Editor extends Activity
 						case "quantity":
 							{
 								indexViews.put("indexQuantity", i);
+								input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 								input.addTextChangedListener(new TextWatcher() {
 
 										@Override
@@ -377,7 +354,7 @@ public class Editor extends Activity
 													double price = numConverter.parse(sPrice).doubleValue();
 													double quantity = numConverter.parse(sQuantity).doubleValue();
 													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
-												} else iptTotal.setText("NaN");
+												} else iptTotal.setText("");
 											}
 											catch (ParseException e)
 											{stt.error(e.getMessage());}
@@ -392,22 +369,21 @@ public class Editor extends Activity
 					switch (colNames[i].toLowerCase()) {
 						case "cash": case "balance1": case "balance2":
 							{
+								input.setInputType(InputType.TYPE_CLASS_NUMBER);
 								input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 										@Override
 										public void onFocusChange(View v, boolean focus)
 										{
-											if (!focus) {
-												EditText input = (EditText) v;
-												String sNumber = input.getText().toString();
-												try
-												{
-													double number = numConverter.parse(sNumber).doubleValue();
-													input.setText(String.format(Locale.US, "%,.0f", number));
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
+											EditText input = (EditText) v;
+											String sNumber = input.getText().toString();
+											if ("".equals(sNumber)) return;
+											try {
+												double number = numConverter.parse(sNumber).doubleValue();
+												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+												else input.setText(String.format(Locale.US, "%,.0f", number));
 											}
+											catch (ParseException e) {stt.error(e.getMessage());}
 										}
 									});
 								break;
@@ -419,22 +395,21 @@ public class Editor extends Activity
 					switch (colNames[i].toLowerCase()) {
 						case "price":
 							{
+								input.setInputType(InputType.TYPE_CLASS_NUMBER);
 								input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 										@Override
 										public void onFocusChange(View v, boolean focus)
 										{
-											if (!focus) {
-												EditText input = (EditText) v;
-												String sNumber = input.getText().toString();
-												try
-												{
-													double number = numConverter.parse(sNumber).doubleValue();
-													input.setText(String.format(Locale.US, "%,.0f", number));
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
+											EditText input = (EditText) v;
+											String sNumber = input.getText().toString();
+											if ("".equals(sNumber)) return;
+											try {
+												double number = numConverter.parse(sNumber).doubleValue();
+												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+												else input.setText(String.format(Locale.US, "%,.0f", number));
 											}
+											catch (ParseException e) {stt.error(e.getMessage());}
 										}
 									});
 								break;
@@ -445,6 +420,46 @@ public class Editor extends Activity
 		}
 		// End of create views
 		
+		btnClear.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View view)
+				{
+					reset();
+				}
+			});
+
+		btnCancel.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View view)
+				{
+					finish();
+				}
+			});
+
+		ibBudget.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View view)
+				{
+					ImageButton ibBudget = (ImageButton) view;
+					if (currentBudget == 0) {
+						dirImage.setImageFile("logo_tpbank.jpg", ibBudget);
+						currentBudget = 1;
+					}
+					else if (currentBudget == 1) {
+						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						currentBudget = 2;
+					}
+					else {
+						ibBudget.setImageResource(R.drawable.logo_cash);
+						currentBudget = 0;
+					}
+				}
+			});
+		
+		// Check for Insert mode or Update mode
 		String intAction = intent.getAction();
 		if (!Intent.ACTION_EDIT.equals(intAction)) {
 			// Insert mode
@@ -545,63 +560,23 @@ public class Editor extends Activity
 						}
 					}
 				});
-		}
-		else {
-			// Update mode
-			final int rowID = intent.getIntExtra("rowID", -1);
-			if (rowID >= 0) loadRowData(rowID);
-			
-			btnAdd.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v)
-					{
-						loadRowData(rowID);
-					}
-				});
+			reset();
+			return;
 		}
 		
-		// Check for Intent Action before assign listener
-		btnClear.setOnClickListener(new OnClickListener() {
+		// Update mode
+		btnAdd.setText("Update");
+		int rowID = intent.getIntExtra("rowID", -1);
+		if (rowID >= 0) loadRowData(rowID);
+
+		btnAdd.setOnClickListener(new OnClickListener() {
 
 				@Override
-				public void onClick(View view)
+				public void onClick(View v)
 				{
-					reset();
-				}
-			});
-			
-		btnCancel.setOnClickListener(new OnClickListener() {
 
-				@Override
-				public void onClick(View view)
-				{
-					finish();
 				}
 			});
-			
-		ibBudget.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View view)
-				{
-					ImageButton ibBudget = (ImageButton) view;
-					if (currentBudget == 0) {
-						dirImage.setImageFile("logo_tpbank.jpg", ibBudget);
-						currentBudget = 1;
-					}
-					else if (currentBudget == 1) {
-						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
-						currentBudget = 2;
-					}
-					else {
-						ibBudget.setImageResource(R.drawable.logo_cash);
-						currentBudget = 0;
-					}
-				}
-			});
-		
-		reset();
 	}
 
 	private void dateTimePicker(int resource)
@@ -876,6 +851,7 @@ public class Editor extends Activity
 		iptTotal.setFocusable(false);
 		iptTotal.setId(R.id.viewTotal);
 		iptTotal.setText("0");
+		iptTotal.setInputType(InputType.TYPE_CLASS_NUMBER);
 		rowTotal.addView(iptTotal);
 
 		iptTotal.setOnClickListener(new OnClickListener() {
@@ -902,12 +878,22 @@ public class Editor extends Activity
 				@Override
 				public void onFocusChange(View v, boolean focus)
 				{
-					if (!focus) v.setBackground(null);
-					else {
+					EditText input = (EditText) v;
+					if (focus) {
 						TypedValue dfEdtBackground = new TypedValue();
 						getTheme().resolveAttribute(android.R.attr.editTextBackground, dfEdtBackground, true);
-						v.setBackgroundResource(dfEdtBackground.resourceId);
+						input.setBackgroundResource(dfEdtBackground.resourceId);
 					}
+					else input.setBackground(null);
+					
+					String sNumber = input.getText().toString();
+					if ("".equals(sNumber)) return;
+					try {
+						double number = numConverter.parse(sNumber).doubleValue();
+						if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+						else input.setText(String.format(Locale.US, "%,.0f", number));
+					}
+					catch (ParseException e) {stt.error(e.getMessage());}
 				}
 			});
 			
@@ -939,7 +925,7 @@ public class Editor extends Activity
 							double total = numConverter.parse(sTotal).doubleValue();
 							double price = numConverter.parse(sPrice).doubleValue();
 							iptQuantity.setText(String.format(Locale.US, "%,.7f", total / price));
-						} else iptQuantity.setText("NaN");
+						} else iptQuantity.setText("");
 					}
 					catch (ParseException e)
 					{stt.error(e.getMessage());}
@@ -990,6 +976,7 @@ public class Editor extends Activity
 		Object[] colValues = rowDatas.get(0).values().toArray(new Object[0]);
 		String[] values = objectToStrings(colValues);
 		int numRows = layoutTop.getRowCount();
+		boolean isFocus = false;
 		for (int i = 1; i <= numRows; i++) {
 			View view = getViewByIndex(i);
 			String vName = view.getClass().getSimpleName();
@@ -998,6 +985,15 @@ public class Editor extends Activity
 					EditText input = (EditText) view;
 					String value = values[i];
 					if (value != null) input.setText(value);
+					if (!isFocus) {
+						input.requestFocus();
+						input.setSelection(input.getText().toString().length());
+						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+						if (imm != null) {
+							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+						}
+						isFocus = true;
+					}
 					break;
 			}
 		}
