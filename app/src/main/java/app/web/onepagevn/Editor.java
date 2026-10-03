@@ -34,7 +34,7 @@ public class Editor extends Activity
 	private Date pickedDate, pickedTime;
 	private int pickedRow = -1, currentBudget = 0;
 	private long[][] pickedRows = new long[20][2];
-	private SimpleDateFormat df, tf, tff, ff, flocal;
+	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
 	private NumberFormat numConverter;
 	private Map<String, Integer> indexViews = new HashMap<>();
 	private AppAssetManager dirImage;
@@ -58,7 +58,8 @@ public class Editor extends Activity
 		tblName = !"balance".equals(intent.getStringExtra("tblName")) ? intent.getStringExtra("tblName") : "expends";
 		if ("budgets".equals(tblName)) tblName = "budgets_protected";
 		setTitle(tblName.toUpperCase());
-		df = new SimpleDateFormat("dd-MM-yyyy");
+		df = new SimpleDateFormat("dd-MM");
+		dff = new SimpleDateFormat("dd-MM-yyyy");
 		tf = new SimpleDateFormat("HH:mm");
 		tff = new SimpleDateFormat("HH:mm:ss");
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -201,7 +202,7 @@ public class Editor extends Activity
 					btnDatePicker.setPadding(0, 0, 0, 0);
 					btnDatePicker.setTextSize(17f);
 					btnDatePicker.setBackgroundResource(backGround.resourceId);
-					btnDatePicker.setText(df.format(now));
+					btnDatePicker.setText(dff.format(now));
 					pickedRows[row][0] = now.getTime();
 					btnDatePicker.setOnClickListener(new OnClickListener() {
 						
@@ -213,7 +214,7 @@ public class Editor extends Activity
 							}
 						});
 					
-					LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(150, 80);
+					LinearLayout.LayoutParams timeParams = new LinearLayout.LayoutParams(220, 80);
 					Button btnTimePicker = new Button(this);
 					btnTimePicker.setLayoutParams(timeParams);
 					btnTimePicker.setPadding(0, 0, 0, 0);
@@ -617,7 +618,7 @@ public class Editor extends Activity
 					Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
 					Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
 					if (pickedDate != null) {
-						btnDatePicker.setText(df.format(pickedDate));
+						btnDatePicker.setText(dff.format(pickedDate));
 						pickedRows[pickedRow][0] = pickedDate.getTime();
 					}
 					if (pickedTime != null) {
@@ -632,7 +633,7 @@ public class Editor extends Activity
 	}
 	
 	private Date getDateTime(int row) {
-		String date = df.format(new Date(pickedRows[row][0]));
+		String date = dff.format(new Date(pickedRows[row][0]));
 		String time = tff.format(new Date(pickedRows[row][1]));
 		Date datetime = null;
 		try
@@ -689,7 +690,7 @@ public class Editor extends Activity
 							Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
 							Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
 							Date now = new Date();
-							btnDatePicker.setText(df.format(now));
+							btnDatePicker.setText(dff.format(now));
 							btnTimePicker.setText(tf.format(now));
 							pickedRows[i][0] = now.getTime();
 							pickedRows[i][1] = now.getTime();
@@ -1005,6 +1006,13 @@ public class Editor extends Activity
 			switch (dataTypes[i]) {
 				case DATETIME:
 				{
+					if (view instanceof LinearLayout) {
+						LinearLayout layoutPicker = (LinearLayout) view;
+						Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
+						Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
+						btnDatePicker.setText(dff.format((Date) colValues[i]));
+						btnTimePicker.setText(tff.format((Date) colValues[i]));
+					}
 					break;
 				}
 				case INTEGER: case INT:
