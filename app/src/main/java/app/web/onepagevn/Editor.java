@@ -986,15 +986,42 @@ public class Editor extends Activity
 	}
 	
 	private void loadRowData(int rowID) {
-		List<Map<String, Object>> rowDatas = db.sql(tblName, "SELECT * FROM " + tblName + " WHERE rowid=?", new String[] {String.valueOf(rowID)});
+		List<Map<String, Object>> rowDatas = db.sql(tblName, "SELECT * FROM " + tblName + " WHERE rowid=? LIMIT 1", new String[] {String.valueOf(rowID)});
 		Object[] colValues = rowDatas.get(0).values().toArray(new Object[0]);
 		int numRows = layoutTop.getRowCount();
 		boolean isFocus = false;
 		for (int i = 1; i <= numRows; i++) {
 			View view = getViewByIndex(i);
-			String vName = view.getClass().getSimpleName();
-			switch (vName) {
-				case "EditText":
+			switch (dataTypes[i]) {
+				case DATETIME:
+				{
+					break;
+				}
+				case INTEGER: case INT:
+				{
+					if (view instanceof Spinner) {
+						Spinner catalog = (Spinner) view;
+						for (Map<String, Object> foreignColumn : foreignColumns) {
+							String fColName = (String) foreignColumn.get("srcColumn");
+							if (fColName.equals(colNames[i])) {
+								int itemID = colValues[i];
+								int[] ids = (int[]) foreignColumn.get("ids");
+								for (int indexID = 0; indexID < ids.length; indexID++) {
+									if (itemID == ids[indexID]) {
+										int index = indexID;
+										if ("funds".equals(tblName)) --index;
+										catalog.setSelection(index);
+										break;
+									}
+								}
+								break;
+							}
+						}
+						break;
+					}
+				}
+				default:
+				{
 					EditText input = (EditText) view;
 					String value = objectToString(colValues[i], dataTypes[i]);
 					if (value != null) input.setText(value);
@@ -1007,7 +1034,7 @@ public class Editor extends Activity
 						}
 						isFocus = true;
 					}
-					break;
+				}
 			}
 		}
 	}
