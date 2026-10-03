@@ -13,11 +13,11 @@ import android.widget.*;
 import android.widget.AdapterView.*;
 import java.text.*;
 import java.util.*;
+import org.json.*;
 
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import org.json.*;
 
 public class Editor extends Activity
 {
@@ -27,7 +27,7 @@ public class Editor extends Activity
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends";
-	private String[] colNames, labels, balances;
+	private String[] colNames, labels;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
@@ -528,7 +528,7 @@ public class Editor extends Activity
 										for (Map<String, Object> fColumn : foreignColumns) {
 											String srcColumn = (String) fColumn.get("srcColumn");
 											if (srcColumn.equals(colNames[i])) {
-												int[] ids = (int[]) fColumn.get("ids");
+												Integer[] ids = (Integer[]) fColumn.get("ids");
 												String[] names = (String[]) fColumn.get("names");
 												for (int index = 0; index < names.length; index++) {
 													String item = names[index];
@@ -1005,12 +1005,21 @@ public class Editor extends Activity
 							String fColName = (String) foreignColumn.get("srcColumn");
 							if (fColName.equals(colNames[i])) {
 								int itemID = colValues[i];
-								int[] ids = (int[]) foreignColumn.get("ids");
+								Integer[] ids = (Integer[]) foreignColumn.get("ids");
+								if ("funds".equals(tblName)) {
+									String[] names = (String[]) foreignColumn.get("names");
+									for (int indexName = 0; indexName < names.length; indexName++) {
+										if ("Cash".equals(names[indexName])) {
+											List<Integer> idsNoCash = new ArrayList<Integer>(Arrays.asList(ids));
+											idsNoCash.remove(indexName);
+											ids = idsNoCash.toArray(new Integer[0]);
+											stt.log(ids.length + "");
+										}
+									}
+								}
 								for (int indexID = 0; indexID < ids.length; indexID++) {
 									if (itemID == ids[indexID]) {
-										int index = indexID;
-										if ("funds".equals(tblName)) --index;
-										catalog.setSelection(index);
+										catalog.setSelection(indexID);
 										break;
 									}
 								}

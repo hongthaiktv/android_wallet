@@ -121,14 +121,12 @@ public class SQLiteDBCursor extends SQLiteCursor
 	public List<Map<String, Object>> getForeignColumns() {
 		List<Map<String, Object>> columns = new ArrayList<Map<String, Object>>();
 		try {
-			int i = 0;
 			while (moveToNext()) {
 				Map<String, Object> column = new LinkedHashMap<String, Object>();
 				column.put("dstColumn", getString(4));
 				column.put("dstTable", getString(2));
 				column.put("srcColumn", getString(3));
 				columns.add(column);
-				++i;
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
@@ -139,7 +137,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 	
 	public List<Object> getCatalog() {
 		List<Object> catalog = new ArrayList<Object>();
-		int[] ids = new int[getCount()];
+		Integer[] ids = new Integer[getCount()];
 		String[] names = new String[getCount()];
 		try {
 			int i = 0;
@@ -157,8 +155,8 @@ public class SQLiteDBCursor extends SQLiteCursor
 		return catalog;
 	}
 	
-	public int[] getCatalogID() {
-		int[] ids = new int[getCount()];
+	public Integer[] getCatalogID() {
+		Integer[] ids = new Integer[getCount()];
 		try {
 			int i = 0;
 			while (moveToNext()) {

@@ -415,7 +415,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			String dstTable = (String) column.get("dstTable");
 			SQLiteDBCursor dstCursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT rowid, name FROM " + dstTable + " ORDER BY name COLLATE NOCASE", null, table);
 			List<Object> catalog = dstCursor.getCatalog();
-			int[] ids = (int[]) catalog.get(0);
+			Integer[] ids = (Integer[]) catalog.get(0);
 			String[] names = (String[]) catalog.get(1);
 			column.put("ids", ids);
 			column.put("names", names);
