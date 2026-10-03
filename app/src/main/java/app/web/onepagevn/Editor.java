@@ -17,6 +17,7 @@ import java.util.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import org.json.*;
 
 public class Editor extends Activity
 {
@@ -26,8 +27,7 @@ public class Editor extends Activity
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends";
-	private String[] colNames, balances;
-	private Map<String, String[]> labels = new HashMap<>();
+	private String[] colNames, labels, balances;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
@@ -79,7 +79,7 @@ public class Editor extends Activity
 		colNames = db.getColumnNames(tblName);
 		switch (tblName) {
 			case "expends":
-				labels.put("expends", new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"});
+				labels = new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"};
 				break;
 		}
 		
@@ -97,7 +97,7 @@ public class Editor extends Activity
 			tvParams.setMargins(20, 0, 20, 0);
 			TextView tvLabel = new TextView(this);
 			tvLabel.setLayoutParams(tvParams);
-			if ("expends".equals(tblName)) tvLabel.setText(labels.get("expends")[i].toUpperCase());
+			if (labels != null) tvLabel.setText(labels[i].toUpperCase());
 			else tvLabel.setText(colNames[i].toUpperCase());
 			layoutTop.addView(tvLabel);
 			
@@ -420,15 +420,6 @@ public class Editor extends Activity
 		}
 		// End of create views
 		
-		btnClear.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View view)
-				{
-					reset();
-				}
-			});
-
 		btnCancel.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -463,6 +454,15 @@ public class Editor extends Activity
 		String intAction = intent.getAction();
 		if (!Intent.ACTION_EDIT.equals(intAction)) {
 			// Insert mode
+			btnClear.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View view)
+					{
+						reset();
+					}
+				});
+			
 			btnAdd.setOnClickListener(new OnClickListener() {
 
 					@Override
@@ -565,10 +565,20 @@ public class Editor extends Activity
 		}
 		
 		// Update mode
-		btnAdd.setText("Update");
 		int rowID = intent.getIntExtra("rowID", -1);
 		if (rowID >= 0) loadRowData(rowID);
+		
+		btnClear.setText("Delete");
+		btnClear.setOnClickListener(new OnClickListener() {
 
+				@Override
+				public void onClick(View view)
+				{
+					
+				}
+			});
+		
+		btnAdd.setText("Update");
 		btnAdd.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -936,37 +946,41 @@ public class Editor extends Activity
 		return rowTotal;
 	}
 	
-	private String[] objectToStrings(Object[] objects) {
-		String[] result = new String[objects.length];
-		for (int i = 0; i < objects.length; i++) {
-			Object object = objects[i];
-			if (object == null) continue;
-			switch (dataTypes[i]) {
-				case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
-					result[i] = String.format(Locale.US, "%,d", object);
-					break;
-				case REAL: case FLOAT: case DOUBLE:
-					result[i] = String.format(Locale.US, "%,.0f", object);
-					break;
-				case TEXT:
-					result[i] = (String) object;
-					break;
-				case BOOLEAN:
-					result[i] = (Boolean) object ? "1" : "0";
-					break;
-				case DATETIME:
-					result[i] = flocal.format((Date) object);
-					break;
-				case JSON:
-					result[i] = (String) object;
-					break;
-				case NULL:
-					continue;
-				case BLOB: default:
-					if (object instanceof String) result[i] = (String) object;
-					else if (object instanceof Integer || object instanceof Long) result[i] = String.format(Locale.US, "%,d", object);
-					else if (object instanceof Float || object instanceof Double) result[i] = String.format(Locale.US, "%,.0f", object);
-			}
+	private String objectToString(Object object, DataType type) {
+		if (object == null) return null;
+		String result = null;
+		switch (type) {
+			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
+				result = String.format(Locale.US, "%,d", (Long) object);
+				break;
+			case REAL: case FLOAT: case DOUBLE:
+				result = String.format(Locale.US, "%,.0f", (Double) object);
+				break;
+			case TEXT:
+				result = (String) object;
+				break;
+			case BOOLEAN:
+				result = (Boolean) object ? "1" : "0";
+				break;
+			case DATETIME:
+				result = flocal.format((Date) object);
+				break;
+			case JSON:
+				try
+				{
+					if (object instanceof JSONObject) result = ((JSONObject) object).toString(4);
+					else result = ((JSONArray) object).toString(4);
+				}
+				catch (JSONException e)
+				{stt.error(e.getMessage());}
+				break;
+			case NULL:
+				result = null;
+				break;
+			case BLOB: default:
+				if (object instanceof String) result = (String) object;
+				else if (object instanceof Integer || object instanceof Long) result = String.format(Locale.US, "%,d", (Long) object);
+				else if (object instanceof Float || object instanceof Double) result = String.format(Locale.US, "%,.0f", (Double) object);
 		}
 		return result;
 	}
@@ -974,7 +988,6 @@ public class Editor extends Activity
 	private void loadRowData(int rowID) {
 		List<Map<String, Object>> rowDatas = db.sql(tblName, "SELECT * FROM " + tblName + " WHERE rowid=?", new String[] {String.valueOf(rowID)});
 		Object[] colValues = rowDatas.get(0).values().toArray(new Object[0]);
-		String[] values = objectToStrings(colValues);
 		int numRows = layoutTop.getRowCount();
 		boolean isFocus = false;
 		for (int i = 1; i <= numRows; i++) {
@@ -983,7 +996,7 @@ public class Editor extends Activity
 			switch (vName) {
 				case "EditText":
 					EditText input = (EditText) view;
-					String value = values[i];
+					String value = objectToString(colValues[i], dataTypes[i]);
 					if (value != null) input.setText(value);
 					if (!isFocus) {
 						input.requestFocus();

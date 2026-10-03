@@ -7,6 +7,7 @@ import android.view.*;
 import android.view.View.*;
 import android.widget.*;
 import java.util.*;
+import android.graphics.*;
 
 public class MainActivity extends Activity 
 {
@@ -45,6 +46,7 @@ public class MainActivity extends Activity
 				@Override
 				public void onClick(View row, int index, int id)
 				{
+					row.setBackgroundColor(Color.GRAY);
 					Intent intEditor = new Intent(MainActivity.this, Editor.class);
 					Map<String, Object> rowData = layoutTable.getTableData().get(index);
 					String[] rowColumnNames = rowData.keySet().toArray(new String[0]);
