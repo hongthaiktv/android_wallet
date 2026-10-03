@@ -21,19 +21,42 @@ public class DateTimePickerAdapter extends ArrayAdapter<String>
 	
 	public DateTimePickerAdapter(Context context, int resource) {
 		super(context, resource, new String[1]);
+		init(context, resource, null);
+	}
+	
+	public DateTimePickerAdapter(Context context, int resource, Date datetime) {
+		super(context, resource, new String[1]);
+		init(context, resource, datetime);
+	}
+	
+	private void init(Context context, int resource, Date datetime) {
 		this.context = context;
 		this.resource = resource;
+		this.pickedDate = datetime;
+		this.pickedTime = datetime;
 		stt = new StatusBar("DateTimePickerAdapter");
 	}
-
-	public Date getPickedTime()
+	
+	public DateTimePickerAdapter setPickedDate(Date date)
 	{
-		return pickedTime;
+		pickedDate = date;
+		return this;
+	}
+	
+	public DateTimePickerAdapter setPickedTime(Date time)
+	{
+		pickedTime = time;
+		return this;
 	}
 
 	public Date getPickedDate()
 	{
 		return pickedDate;
+	}
+	
+	public Date getPickedTime()
+	{
+		return pickedTime;
 	}
 
 	@Override
@@ -46,6 +69,7 @@ public class DateTimePickerAdapter extends ArrayAdapter<String>
 		switch (name) {
 			case "DatePicker":
 				dPicker = (DatePicker) picker;
+				if (pickedDate != null) dPicker.updateDate(pickedDate.getYear(), pickedDate.getMonth(), pickedDate.getDate());
 				dPicker.setOnDateChangedListener(new OnDateChangedListener() {
 
 					@Override
@@ -65,6 +89,10 @@ public class DateTimePickerAdapter extends ArrayAdapter<String>
 				break;
 			case "TimePicker":
 				tPicker = (TimePicker) picker;
+				if (pickedTime != null) {
+					tPicker.setHour(pickedTime.getHours());
+					tPicker.setMinute(pickedTime.getMinutes());
+				}
 				tPicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
 					
 						@Override

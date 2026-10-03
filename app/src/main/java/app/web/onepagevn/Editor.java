@@ -220,7 +220,7 @@ public class Editor extends Activity
 					btnTimePicker.setPadding(0, 0, 0, 0);
 					btnTimePicker.setTextSize(17f);
 					btnTimePicker.setBackgroundResource(backGround.resourceId);
-					btnTimePicker.setText(tf.format(now));
+					btnTimePicker.setText(tff.format(now));
 					pickedRows[row][1] = now.getTime();
 					btnTimePicker.setOnClickListener(new OnClickListener() {
 
@@ -601,11 +601,16 @@ public class Editor extends Activity
 				}
 			});
 	}
-
+	
 	private void dateTimePicker(int resource)
 	{
+		dateTimePicker(resource, null);
+	}
+
+	private void dateTimePicker(int resource, Date datetime)
+	{
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		final DateTimePickerAdapter adapter = new DateTimePickerAdapter(this, resource);
+		final DateTimePickerAdapter adapter = new DateTimePickerAdapter(this, resource, datetime);
 		builder.setAdapter(adapter, null);
 		builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
 
@@ -622,7 +627,7 @@ public class Editor extends Activity
 						pickedRows[pickedRow][0] = pickedDate.getTime();
 					}
 					if (pickedTime != null) {
-						btnTimePicker.setText(tf.format(pickedTime));
+						btnTimePicker.setText(tff.format(pickedTime));
 						pickedRows[pickedRow][1] = pickedTime.getTime();
 					}
 				}
@@ -691,7 +696,7 @@ public class Editor extends Activity
 							Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
 							Date now = new Date();
 							btnDatePicker.setText(dff.format(now));
-							btnTimePicker.setText(tf.format(now));
+							btnTimePicker.setText(tff.format(now));
 							pickedRows[i][0] = now.getTime();
 							pickedRows[i][1] = now.getTime();
 							break;
@@ -1010,8 +1015,31 @@ public class Editor extends Activity
 						LinearLayout layoutPicker = (LinearLayout) view;
 						Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
 						Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
-						btnDatePicker.setText(dff.format((Date) colValues[i]));
-						btnTimePicker.setText(tff.format((Date) colValues[i]));
+						final Date datetime = (Date) colValues[i];
+						final int row = i;
+						btnDatePicker.setText(dff.format(datetime));
+						btnDatePicker.setOnClickListener(new OnClickListener() {
+
+								@Override
+								public void onClick(View v)
+								{
+									dateTimePicker(R.layout.date_picker, datetime);
+									pickedRow = row;
+								}
+							});
+						
+						btnTimePicker.setText(tff.format(datetime));
+						btnTimePicker.setOnClickListener(new OnClickListener() {
+
+								@Override
+								public void onClick(View v)
+								{
+									dateTimePicker(R.layout.time_picker, datetime);
+									pickedRow = row;
+								}
+							});
+						pickedRows[i][0] = datetime.getTime();
+						pickedRows[i][1] = datetime.getTime();
 					}
 					break;
 				}
