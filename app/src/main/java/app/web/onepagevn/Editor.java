@@ -998,8 +998,6 @@ public class Editor extends Activity
 	}
 	
 	private void loadRowData(int rowID) {
-		List<Map<String, Object>> rowDatas = db.sql(tblName, "SELECT * FROM " + tblName + " WHERE rowid=? LIMIT 1", new String[] {String.valueOf(rowID)});
-		Object[] colValues = rowDatas.get(0).values().toArray(new Object[0]);
 		int numRows = layoutTop.getRowCount();
 		boolean isFocus = false;
 		for (int i = 1; i <= numRows; i++) {
@@ -1025,6 +1023,7 @@ public class Editor extends Activity
 											List<Integer> idsNoCash = new ArrayList<Integer>(Arrays.asList(ids));
 											idsNoCash.remove(indexName);
 											ids = idsNoCash.toArray(new Integer[0]);
+											break;
 										}
 									}
 								}
