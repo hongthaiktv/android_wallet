@@ -389,6 +389,14 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return names;
 	}
 	
+	public Map<String, Object> getRowData(String table, int rowID) {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT * FROM " + table + " WHERE rowid=? LIMIT 1", new String[] {String.valueOf(rowID)}, table);
+		Map<String, Object> rowData = cursor.getList().get(0);
+		cursor.close();
+		return rowData;
+	}
+	
 	public String[] getColumnTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);

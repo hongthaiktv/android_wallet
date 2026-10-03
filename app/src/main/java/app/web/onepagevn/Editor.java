@@ -28,6 +28,7 @@ public class Editor extends Activity
 	private SQLiteDB db;
 	private String tblName = "expends";
 	private String[] colNames, labels;
+	private Object[] colValues;
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
@@ -76,17 +77,30 @@ public class Editor extends Activity
 			layoutButtons.setGravity(Gravity.CENTER);
 		}
 		
-		colNames = db.getColumnNames(tblName);
-		switch (tblName) {
-			case "expends":
-				labels = new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"};
-				break;
+		String intAction = intent.getAction();
+		int rowID = intent.getIntExtra("rowID", -1);
+		if (!Intent.ACTION_EDIT.equals(intAction)) colNames = db.getColumnNames(tblName);
+		else {
+			if (rowID >= 0) {
+				Map<String, Object> rowData = db.getRowData(tblName, rowID);
+				colNames = rowData.keySet().toArray(new String[0]);
+				colValues = rowData.values().toArray();
+			} else {
+				stt.error("Missing Intent rowID.");
+				finish();
+				return;
+			}
 		}
 		
-		if ("expends".equals(tblName)) {
-			List<String> rows = new ArrayList<String>(Arrays.asList(colNames));
-			rows.remove(colNames.length - 1);
-			colNames = rows.toArray(new String[0]);
+		switch (tblName) {
+			case "expends":
+			{
+				labels = new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"};
+				List<String> rows = new ArrayList<String>(Arrays.asList(colNames));
+				rows.remove(colNames.length - 1);
+				colNames = rows.toArray(new String[0]);
+				break;
+			}
 		}
 		
 		dataTypes = db.getDataTypes(tblName);
@@ -451,7 +465,6 @@ public class Editor extends Activity
 			});
 		
 		// Check for Insert mode or Update mode
-		String intAction = intent.getAction();
 		if (!Intent.ACTION_EDIT.equals(intAction)) {
 			// Insert mode
 			btnClear.setOnClickListener(new OnClickListener() {
@@ -565,8 +578,7 @@ public class Editor extends Activity
 		}
 		
 		// Update mode
-		int rowID = intent.getIntExtra("rowID", -1);
-		if (rowID >= 0) loadRowData(rowID);
+		loadRowData(rowID);
 		
 		btnClear.setText("Delete");
 		btnClear.setOnClickListener(new OnClickListener() {
@@ -1013,7 +1025,6 @@ public class Editor extends Activity
 											List<Integer> idsNoCash = new ArrayList<Integer>(Arrays.asList(ids));
 											idsNoCash.remove(indexName);
 											ids = idsNoCash.toArray(new Integer[0]);
-											stt.log(ids.length + "");
 										}
 									}
 								}
