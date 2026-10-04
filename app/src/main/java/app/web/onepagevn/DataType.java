@@ -14,6 +14,9 @@ public enum DataType
 	DOUBLE,
 	TEXT,
 	BLOB,
+	COLTYPE,
 	JSON,
-	NULL
+	NULL,
+	RADIO,
+	CHECKBOX
 }

@@ -42,7 +42,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		try {
 			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
-			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, name TEXT UNIQUE NOT NULL, value BLOB NOT NULL, datatype TEXT NOT NULL)");
+			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, name TEXT UNIQUE NOT NULL, value BLOB NOT NULL, datatype COLTYPE NOT NULL)");
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, datecreate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, command TEXT UNIQUE NOT NULL, times INT NOT NULL)");
 			db.execSQL("CREATE TABLE budgets_protected (budgetid INTEGER PRIMARY KEY, logo TEXT, name TEXT UNIQUE NOT NULL, balance REAL DEFAULT 0 NOT NULL, note TEXT, protected BOOLEAN DEFAULT 0 NOT NULL)");
 			db.execSQL("CREATE VIEW budgets AS SELECT budgetid, logo, name, balance, note FROM budgets_protected");

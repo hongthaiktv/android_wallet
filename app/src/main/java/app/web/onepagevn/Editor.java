@@ -34,6 +34,8 @@ public class Editor extends Activity
 	private Date pickedDate, pickedTime;
 	private int pickedRow = -1, currentBudget = 0;
 	private long[][] pickedRows = new long[20][2];
+	private Integer[][][] catalogRowIDs = new Integer[20][2][];
+	private String[][][] catalogRowNames = new String[20][2][];
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
 	private NumberFormat numConverter;
 	private Map<String, Integer> indexViews = new HashMap<>();
@@ -109,6 +111,7 @@ public class Editor extends Activity
 		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
+			final int row = i;
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
 			tvParams.setMargins(20, 0, 20, 0);
 			TextView tvLabel = new TextView(this);
@@ -122,12 +125,16 @@ public class Editor extends Activity
 				for (Map<String, Object> fColumn : foreignColumns) {
 					String srcColumn = (String) fColumn.get("srcColumn");
 					if (srcColumn.equals(colNames[i])) {
+						Integer[] ids = (Integer[]) fColumn.get("ids");
+						catalogRowIDs[i][0] = ids;
 						String[] items = (String[]) fColumn.get("names");
 						if ("funds".equals(tblName)) {
 							List<String> itemsNoCash = new ArrayList<String>(Arrays.asList(items));
 							itemsNoCash.remove("Cash");
 							items = itemsNoCash.toArray(new String[0]);
 						}
+						catalogRowNames[i][0] = items;
+						
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
 						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
@@ -154,6 +161,10 @@ public class Editor extends Activity
 												return;
 											}
 										}
+										
+										catalogRowIDs[row][1] = new Integer[] {index, catalogRowIDs[row][0][index]};
+										catalogRowNames[row][1] = new String[] {String.valueOf(index), catalogRowNames[row][0][index]};
+										
 										String selected = ((TextView) v).getText().toString();
 										Integer indexPrice = indexViews.get("indexPrice");
 										if (indexPrice == null) return;
@@ -179,6 +190,30 @@ public class Editor extends Activity
 									}
 								});
 						}
+						else {
+							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+									boolean enable = false;
+									@Override
+									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+									{
+										// fix for Spinner auto active listener on startup
+										if ("edit".equals(mode)) {
+											if (!enable) {
+												enable = true;
+												return;
+											}
+										}
+										catalogRowIDs[row][1] = new Integer[] {index, catalogRowIDs[row][0][index]};
+										catalogRowNames[row][1] = new String[] {String.valueOf(index), catalogRowNames[row][0][index]};
+									}
+
+									@Override
+									public void onNothingSelected(AdapterView<?> adapter)
+									{
+
+									}
+								});
+						}
 						isCatalog = true;
 						break;
 					}
@@ -191,7 +226,6 @@ public class Editor extends Activity
 					TypedValue backGround = new TypedValue();
 					getTheme().resolveAttribute(android.R.attr.selectableItemBackground, backGround, true);
 					Date now = new Date();
-					final int row = i;
 					
 					GridLayout.LayoutParams lPickerParams = new GridLayout.LayoutParams();
 					lPickerParams.width = 0;
@@ -490,96 +524,76 @@ public class Editor extends Activity
 					@Override
 					public void onClick(View button)
 					{
-						int numRow = layoutTop.getRowCount();
 						ContentValues data = new ContentValues();
-						for (int i = 1; i <= numRow; i++) {
+						int numRows = layoutTop.getRowCount();
+						for (int i = 1; i <= numRows; i++) {
 							View view = getViewByIndex(i);
 							if (view == null) continue;
-							DataType type = dataTypes[i];
-							String name = view.getClass().getSimpleName();
-							switch (name) {
-								case "EditText":
-									{
-										EditText input = (EditText) view;
-										String value = input.getText().toString();
-										if ("".equals(value)) continue;
-										switch (type) {
-											case INTEGER: case INT:
-												try
-												{
-													int intValue = numConverter.parse(value).intValue();
-													data.put(colNames[i], intValue);
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
-												break;
-
-											case NUMERIC: case NUM: case LONG:
-												try
-												{
-													long longValue = numConverter.parse(value).longValue();
-													data.put(colNames[i], longValue);
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
-												break;
-
-											case REAL: case FLOAT: case DOUBLE:
-												try
-												{
-													double doubleValue = numConverter.parse(value).doubleValue();
-													data.put(colNames[i], doubleValue);
-												}
-												catch (ParseException e)
-												{stt.error(e.getMessage());}
-												break;
-
-											default:
-												data.put(colNames[i], value);
-										}
+							switch (dataTypes[i]) {
+								case DATETIME:
+									data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+									break;
+										
+								case INTEGER: case INT:
+									if (view instanceof Spinner) {
+										int selectedID = catalogRowIDs[i][1][1];
+										data.put(colNames[i], selectedID);
 										break;
 									}
-
-								case "Spinner":
-									{
-										if (foreignColumns.size() < 1) continue;
-										Spinner catalog = (Spinner) view;
-										String selected = (String) catalog.getSelectedItem();
-										if ("".equals(selected)) continue;
-										int id = -1;
-										for (Map<String, Object> fColumn : foreignColumns) {
-											String srcColumn = (String) fColumn.get("srcColumn");
-											if (srcColumn.equals(colNames[i])) {
-												Integer[] ids = (Integer[]) fColumn.get("ids");
-												String[] names = (String[]) fColumn.get("names");
-												for (int index = 0; index < names.length; index++) {
-													String item = names[index];
-													if (item.equals(selected)) id = ids[index];
-												}
+								default:
+									EditText input = (EditText) view;
+									String inputText = input.getText().toString();
+									switch (dataTypes[i]) {
+										case INTEGER: case INT:
+											data.put(colNames[i], Integer.valueOf(inputText));
+											break;
+										case NUMERIC: case NUM: case LONG:
+											data.put(colNames[i], Long.valueOf(inputText));
+											break;
+										case REAL: case FLOAT: case DOUBLE:
+											data.put(colNames[i], Double.valueOf(inputText));
+											break;
+										case BOOLEAN:
+											data.put(colNames[i], Boolean.valueOf(inputText));
+											break;
+										case NULL:
+											continue;
+										case COLTYPE:
+											String colBlobName = colNames[i - 1];
+											String colBlobValue = data.getAsString(colBlobName);
+											DataType blobType = DataType.valueOf(inputText);
+											switch (blobType) {
+												case INTEGER: case INT:
+													data.put(colBlobName, Integer.valueOf(colBlobValue));
+													break;
+												case NUMERIC: case NUM: case LONG:
+													data.put(colBlobName, Long.valueOf(colBlobValue));
+													break;
+												case REAL: case FLOAT: case DOUBLE:
+													data.put(colBlobName, Double.valueOf(colBlobValue));
+													break;
+												case BOOLEAN:
+													data.put(colBlobName, Boolean.valueOf(colBlobValue));
+													break;
+												default:
+													data.put(colBlobName, colBlobValue);
 											}
-										}
-										if (id != -1) data.put(colNames[i], id);
-										break;
-									}
-								case "LinearLayout":
-									{
-										switch (type) {
-											case DATETIME:
-												data.put(colNames[i], getDateTime(i).getTime() / 1000L);
-										}
-										break;
+											data.put(colNames[i], inputText);
+											break;
+										default:
+											data.put(colNames[i], inputText);
 									}
 							}
 						}
+						/*
 						if (data.size() > 0) {
-							long result = -1;
-							if ("budgets".equals(tblName)) result = db.insert("budgets_protected", data);
-							else result = db.insert(tblName, data);
+							long result = db.insert(tblName, data);
 							if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 							else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
 							if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
 							else reset();
-						}
+						}*/
+						//stt.log(data.size() + "");
 					}
 				});
 			reset();
@@ -1016,6 +1030,7 @@ public class Editor extends Activity
 		boolean isFocus = false;
 		for (int i = 1; i <= numRows; i++) {
 			View view = getViewByIndex(i);
+			if (view == null) continue;
 			switch (dataTypes[i]) {
 				case DATETIME:
 				{
@@ -1054,6 +1069,7 @@ public class Editor extends Activity
 				case INTEGER: case INT:
 				{
 					if (view instanceof Spinner) {
+						// set selected data to new array catalogRow
 						Spinner catalog = (Spinner) view;
 						for (Map<String, Object> foreignColumn : foreignColumns) {
 							String fColName = (String) foreignColumn.get("srcColumn");
