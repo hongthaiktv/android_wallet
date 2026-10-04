@@ -543,15 +543,19 @@ public class Editor extends Activity
 								default:
 									EditText input = (EditText) view;
 									String inputText = input.getText().toString();
+									if ("".equals(inputText)) continue;
 									switch (dataTypes[i]) {
 										case INTEGER: case INT:
-											data.put(colNames[i], Integer.valueOf(inputText));
+											Number numInteger = stringToNumber(inputText);
+											if (numInteger != null) data.put(colNames[i], numInteger.intValue());
 											break;
 										case NUMERIC: case NUM: case LONG:
-											data.put(colNames[i], Long.valueOf(inputText));
+											Number numLong = stringToNumber(inputText);
+											if (numLong != null) data.put(colNames[i], numLong.longValue());
 											break;
 										case REAL: case FLOAT: case DOUBLE:
-											data.put(colNames[i], Double.valueOf(inputText));
+											Number numDouble = stringToNumber(inputText);
+											if (numDouble != null) data.put(colNames[i], numDouble.doubleValue());
 											break;
 										case BOOLEAN:
 											data.put(colNames[i], Boolean.valueOf(inputText));
@@ -561,22 +565,24 @@ public class Editor extends Activity
 										case COLTYPE:
 											String colBlobName = colNames[i - 1];
 											String colBlobValue = data.getAsString(colBlobName);
+											if (colBlobValue == null || "".equals(inputText)) continue;
 											DataType blobType = DataType.valueOf(inputText);
 											switch (blobType) {
 												case INTEGER: case INT:
-													data.put(colBlobName, Integer.valueOf(colBlobValue));
+													Number nInteger = stringToNumber(colBlobValue);
+													if (nInteger != null) data.put(colBlobName, nInteger.intValue());
 													break;
 												case NUMERIC: case NUM: case LONG:
-													data.put(colBlobName, Long.valueOf(colBlobValue));
+													Number nLong = stringToNumber(colBlobValue);
+													if (nLong != null) data.put(colBlobName, nLong.longValue());
 													break;
 												case REAL: case FLOAT: case DOUBLE:
-													data.put(colBlobName, Double.valueOf(colBlobValue));
+													Number nDouble = stringToNumber(colBlobValue);
+													if (nDouble != null) data.put(colBlobName, nDouble.doubleValue());
 													break;
 												case BOOLEAN:
 													data.put(colBlobName, Boolean.valueOf(colBlobValue));
 													break;
-												default:
-													data.put(colBlobName, colBlobValue);
 											}
 											data.put(colNames[i], inputText);
 											break;
@@ -585,15 +591,14 @@ public class Editor extends Activity
 									}
 							}
 						}
-						/*
+						
 						if (data.size() > 0) {
 							long result = db.insert(tblName, data);
 							if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 							else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
 							if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
 							else reset();
-						}*/
-						//stt.log(data.size() + "");
+						}
 					}
 				});
 			reset();
@@ -1116,6 +1121,19 @@ public class Editor extends Activity
 				}
 			}
 		}
+	}
+	
+	private Number stringToNumber(String stringNumber) {
+		Number number = null;
+		if (stringNumber != null && !"".equals(stringNumber)) {
+			try
+			{
+				number = numConverter.parse(stringNumber);
+			}
+			catch (ParseException e)
+			{stt.error(e.getMessage());}
+		}
+		return number;
 	}
 
 	@Override
