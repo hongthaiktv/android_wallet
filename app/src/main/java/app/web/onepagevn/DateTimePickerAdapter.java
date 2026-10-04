@@ -69,7 +69,16 @@ public class DateTimePickerAdapter extends ArrayAdapter<String>
 		switch (name) {
 			case "DatePicker":
 				dPicker = (DatePicker) picker;
-				if (pickedDate != null) dPicker.updateDate(pickedDate.getYear(), pickedDate.getMonth(), pickedDate.getDate());
+				if (pickedDate != null) {
+					// fix for Date object error methods get...
+					SimpleDateFormat formater = new SimpleDateFormat("yyyy");
+					int year = Integer.valueOf(formater.format(pickedDate));
+					formater.applyPattern("M");
+					int month = Integer.valueOf(formater.format(pickedDate));
+					formater.applyPattern("d");
+					int day = Integer.valueOf(formater.format(pickedDate));
+					dPicker.updateDate(year, --month, day);
+				}
 				dPicker.setOnDateChangedListener(new OnDateChangedListener() {
 
 					@Override

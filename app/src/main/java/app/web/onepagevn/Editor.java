@@ -147,6 +147,7 @@ public class Editor extends Activity
 									@Override
 									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
 									{
+										// fix for Spinner auto active listener on startup
 										if ("edit".equals(mode)) {
 											if (!enable) {
 												enable = true;
