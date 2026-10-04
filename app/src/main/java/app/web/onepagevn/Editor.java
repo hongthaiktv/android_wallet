@@ -26,7 +26,7 @@ public class Editor extends Activity
 	private Button btnClear, btnAdd, btnCancel;
 	private StatusBar stt;
 	private SQLiteDB db;
-	private String tblName = "expends";
+	private String tblName = "expends", mode = "insert";
 	private String[] colNames, labels;
 	private Object[] colValues;
 	private DataType[] dataTypes;
@@ -83,6 +83,7 @@ public class Editor extends Activity
 		if (!Intent.ACTION_EDIT.equals(intAction)) colNames = db.getColumnNames(tblName);
 		else {
 			if (rowID >= 0) {
+				mode = "edit";
 				Map<String, Object> rowData = db.getRowData(tblName, rowID);
 				colNames = rowData.keySet().toArray(new String[0]);
 				colValues = rowData.values().toArray();
@@ -142,10 +143,16 @@ public class Editor extends Activity
 						if ("expends".equals(tblName) && "productid".equals(colNames[i].toLowerCase())) {
 							indexViews.put("indexProduct", i);
 							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
-
+									boolean enable = false;
 									@Override
 									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
 									{
+										if ("edit".equals(mode)) {
+											if (!enable) {
+												enable = true;
+												return;
+											}
+										}
 										String selected = ((TextView) v).getText().toString();
 										Integer indexPrice = indexViews.get("indexPrice");
 										if (indexPrice == null) return;
@@ -578,7 +585,7 @@ public class Editor extends Activity
 			return;
 		}
 		
-		// Update mode
+		// Edit mode
 		loadRowData(rowID);
 		
 		btnClear.setText("Delete");
