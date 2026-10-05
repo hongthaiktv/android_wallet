@@ -33,7 +33,7 @@ public class Editor extends Activity
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
 	private int pickedRow = -1, currentBudget = 0;
-	private long[][] pickedRows = new long[20][2];
+	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
@@ -252,8 +252,8 @@ public class Editor extends Activity
 							@Override
 							public void onClick(View v)
 							{
-								dateTimePicker(R.layout.date_picker);
 								pickedRow = row;
+								dateTimePicker(R.layout.date_picker);
 							}
 						});
 					
@@ -270,8 +270,8 @@ public class Editor extends Activity
 							@Override
 							public void onClick(View v)
 							{
-								dateTimePicker(R.layout.time_picker);
 								pickedRow = row;
+								dateTimePicker(R.layout.time_picker);
 							}
 						});
 					
@@ -567,6 +567,22 @@ public class Editor extends Activity
 
 	private void dateTimePicker(int resource, Date datetime)
 	{
+		if (datetime == null) {
+			Long lDate = pickedRows[pickedRow][0];
+			Long lTime = pickedRows[pickedRow][1];
+			if (lDate == null ) lDate = System.currentTimeMillis();
+			if (lTime == null ) lTime = System.currentTimeMillis();
+			Date pickedDate = new Date(lDate);
+			Date pickedTime = new Date(lTime);
+			String date = dff.format(pickedDate);
+			String time = tff.format(pickedTime);
+			try
+			{
+				datetime = flocal.parse(date + " " + time);
+			}
+			catch (ParseException e)
+			{stt.error(e.getMessage());}
+		}
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		final DateTimePickerAdapter adapter = new DateTimePickerAdapter(this, resource, datetime);
 		builder.setAdapter(adapter, null);
