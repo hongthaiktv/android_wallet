@@ -165,23 +165,17 @@ public class Editor extends Activity
 										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
 										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
 										
-										String selected = ((TextView) v).getText().toString();
 										Integer indexPrice = indexViews.get("indexPrice");
 										if (indexPrice == null) return;
 										EditText inputPrice = (EditText) getViewByIndex(indexPrice);
-										// check for array catalogRow instead
-										List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
-										for (Map<String, Object> product : products) {
-											String pName = (String) product.get("name");
-											if (selected.equals(pName)) {
-												double price = product.get("price");
-												String formatedPrice = String.format(Locale.US, "%,.0f", price);
-												inputPrice.setText(formatedPrice);
-												inputPrice.requestFocus();
-												inputPrice.setSelection(formatedPrice.length());
-												break;
-											}
-										}
+										int itemID = catalogRowIDs[row][1][0];
+										
+										List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
+										double price = products.get(0).get("price");
+										String formatedPrice = String.format(Locale.US, "%,.0f", price);
+										inputPrice.setText(formatedPrice);
+										inputPrice.requestFocus();
+										inputPrice.setSelection(formatedPrice.length());
 									}
 
 									@Override
