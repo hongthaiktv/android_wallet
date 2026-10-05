@@ -162,8 +162,8 @@ public class Editor extends Activity
 											}
 										}
 										
-										catalogRowIDs[row][1] = new Integer[] {index, catalogRowIDs[row][0][index]};
-										catalogRowNames[row][1] = new String[] {String.valueOf(index), catalogRowNames[row][0][index]};
+										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
+										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
 										
 										String selected = ((TextView) v).getText().toString();
 										Integer indexPrice = indexViews.get("indexPrice");
@@ -204,8 +204,8 @@ public class Editor extends Activity
 												return;
 											}
 										}
-										catalogRowIDs[row][1] = new Integer[] {index, catalogRowIDs[row][0][index]};
-										catalogRowNames[row][1] = new String[] {String.valueOf(index), catalogRowNames[row][0][index]};
+										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
+										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
 									}
 
 									@Override
@@ -467,7 +467,7 @@ public class Editor extends Activity
 										
 								case INTEGER: case INT:
 									if (view instanceof Spinner) {
-										int selectedID = catalogRowIDs[i][1][1];
+										int selectedID = catalogRowIDs[i][1][0];
 										data.put(colNames[i], selectedID);
 										break;
 									}
@@ -1002,30 +1002,13 @@ public class Editor extends Activity
 				case INTEGER: case INT:
 				{
 					if (view instanceof Spinner) {
-						// set selected data to new array catalogRow
 						Spinner catalog = (Spinner) view;
-						for (Map<String, Object> foreignColumn : foreignColumns) {
-							String fColName = (String) foreignColumn.get("srcColumn");
-							if (fColName.equals(colNames[i])) {
-								int itemID = colValues[i];
-								Integer[] ids = (Integer[]) foreignColumn.get("ids");
-								if ("funds".equals(tblName)) {
-									String[] names = (String[]) foreignColumn.get("names");
-									for (int indexName = 0; indexName < names.length; indexName++) {
-										if ("Cash".equals(names[indexName])) {
-											List<Integer> idsNoCash = new ArrayList<Integer>(Arrays.asList(ids));
-											idsNoCash.remove(indexName);
-											ids = idsNoCash.toArray(new Integer[0]);
-											break;
-										}
-									}
-								}
-								for (int indexID = 0; indexID < ids.length; indexID++) {
-									if (itemID == ids[indexID]) {
-										catalog.setSelection(indexID);
-										break;
-									}
-								}
+						int id = colValues[i];
+						Integer[] itemIDs = catalogRowIDs[i][0];
+						for (int itemIndex = 0; itemIndex < itemIDs.length; itemIndex++) {
+							if (id == itemIDs[itemIndex]) {
+								catalog.setSelection(itemIndex);
+								catalogRowIDs[i][1] = new Integer[] {id, itemIndex};
 								break;
 							}
 						}
