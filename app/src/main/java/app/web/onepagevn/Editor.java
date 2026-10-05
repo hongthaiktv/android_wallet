@@ -991,31 +991,11 @@ public class Editor extends Activity
 						LinearLayout layoutPicker = (LinearLayout) view;
 						Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
 						Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
-						final Date datetime = (Date) colValues[i];
-						final int row = i;
-						btnDatePicker.setText(dff.format(datetime));
-						btnDatePicker.setOnClickListener(new OnClickListener() {
-
-								@Override
-								public void onClick(View v)
-								{
-									dateTimePicker(R.layout.date_picker, datetime);
-									pickedRow = row;
-								}
-							});
-						
-						btnTimePicker.setText(tff.format(datetime));
-						btnTimePicker.setOnClickListener(new OnClickListener() {
-
-								@Override
-								public void onClick(View v)
-								{
-									dateTimePicker(R.layout.time_picker, datetime);
-									pickedRow = row;
-								}
-							});
+						Date datetime = (Date) colValues[i];
 						pickedRows[i][0] = datetime.getTime();
 						pickedRows[i][1] = datetime.getTime();
+						btnDatePicker.setText(dff.format(datetime));
+						btnTimePicker.setText(tff.format(datetime));
 					}
 					break;
 				}
