@@ -169,6 +169,7 @@ public class Editor extends Activity
 										Integer indexPrice = indexViews.get("indexPrice");
 										if (indexPrice == null) return;
 										EditText inputPrice = (EditText) getViewByIndex(indexPrice);
+										// check for array catalogRow instead
 										List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
 										for (Map<String, Object> product : products) {
 											String pName = (String) product.get("name");
@@ -295,26 +296,8 @@ public class Editor extends Activity
 				case "budgets_protected":
 					switch (colNames[i].toLowerCase()) {
 						case "balance":
-							{
-								input.setInputType(InputType.TYPE_CLASS_NUMBER);
-								input.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View v, boolean focus)
-										{
-											EditText input = (EditText) v;
-											String sNumber = input.getText().toString();
-											if ("".equals(sNumber)) return;
-											try {
-												double number = numConverter.parse(sNumber).doubleValue();
-												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
-												else input.setText(String.format(Locale.US, "%,.0f", number));
-											}
-											catch (ParseException e) {stt.error(e.getMessage());}
-										}
-									});
-								break;
-							}
+							setInputNumberListener(input, false);
+							break;
 					}
 					break;
 				
@@ -324,23 +307,7 @@ public class Editor extends Activity
 						case "price":
 							{
 								indexViews.put("indexPrice", i);
-								input.setInputType(InputType.TYPE_CLASS_NUMBER);
-								input.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View v, boolean focus)
-										{
-											EditText input = (EditText) v;
-											String sNumber = input.getText().toString();
-											if ("".equals(sNumber)) return;
-											try {
-												double number = numConverter.parse(sNumber).doubleValue();
-												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
-												else input.setText(String.format(Locale.US, "%,.0f", number));
-											}
-											catch (ParseException e) {stt.error(e.getMessage());}
-										}
-									});
+								setInputNumberListener(input, false);
 									
 								input.addTextChangedListener(new TextWatcher() {
 
@@ -425,52 +392,16 @@ public class Editor extends Activity
 				case "funds":
 					switch (colNames[i].toLowerCase()) {
 						case "cash": case "balance1": case "balance2":
-							{
-								input.setInputType(InputType.TYPE_CLASS_NUMBER);
-								input.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View v, boolean focus)
-										{
-											EditText input = (EditText) v;
-											String sNumber = input.getText().toString();
-											if ("".equals(sNumber)) return;
-											try {
-												double number = numConverter.parse(sNumber).doubleValue();
-												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
-												else input.setText(String.format(Locale.US, "%,.0f", number));
-											}
-											catch (ParseException e) {stt.error(e.getMessage());}
-										}
-									});
-								break;
-							}
+							setInputNumberListener(input, false);
+							break;
 					}
 					break;
 					
 				case "products":
 					switch (colNames[i].toLowerCase()) {
 						case "price":
-							{
-								input.setInputType(InputType.TYPE_CLASS_NUMBER);
-								input.setOnFocusChangeListener(new OnFocusChangeListener() {
-
-										@Override
-										public void onFocusChange(View v, boolean focus)
-										{
-											EditText input = (EditText) v;
-											String sNumber = input.getText().toString();
-											if ("".equals(sNumber)) return;
-											try {
-												double number = numConverter.parse(sNumber).doubleValue();
-												if (focus) input.setText(String.format(Locale.US, "%.0f", number));
-												else input.setText(String.format(Locale.US, "%,.0f", number));
-											}
-											catch (ParseException e) {stt.error(e.getMessage());}
-										}
-									});
-								break;
-							}
+							setInputNumberListener(input, false);
+							break;
 					}
 					break;
 			}
@@ -690,6 +621,7 @@ public class Editor extends Activity
 					Integer indexProduct = indexViews.get("indexProduct");
 					Integer indexPrice = indexViews.get("indexPrice");
 					Integer indexQuantity = indexViews.get("indexQuantity");
+					// check for catalogRow array instead
 					if ("expends".equals(tblName) && i == indexPrice) {
 						Spinner catalog = (Spinner) getViewByIndex(indexProduct);
 						String selected = (String) catalog.getSelectedItem();
@@ -1134,6 +1066,27 @@ public class Editor extends Activity
 			{stt.error(e.getMessage());}
 		}
 		return number;
+	}
+	
+	private void setInputNumberListener(View view, boolean decimal) {
+		EditText input = (EditText) view;
+		if (decimal) input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+		else input.setInputType(InputType.TYPE_CLASS_NUMBER);
+		input.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+				@Override
+				public void onFocusChange(View v, boolean focus)
+				{
+					EditText input = (EditText) v;
+					String sNumber = input.getText().toString();
+					if ("".equals(sNumber)) return;
+					try {
+						double number = numConverter.parse(sNumber).doubleValue();
+						input.setText(String.format(Locale.US, "%,.0f", number));
+					}
+					catch (ParseException e) {stt.error(e.getMessage());}
+				}
+			});
 	}
 
 	@Override
