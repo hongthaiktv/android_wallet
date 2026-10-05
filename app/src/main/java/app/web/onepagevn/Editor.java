@@ -234,6 +234,7 @@ public class Editor extends Activity
 					layoutPicker.setPadding(0, 0, 0, 0);
 					layoutPicker.setOrientation(LinearLayout.HORIZONTAL);
 					layoutPicker.setBaselineAligned(true);
+					layoutPicker.setBackgroundColor(Color.LTGRAY);
 					setViewID(layoutPicker, i);
 					
 					LinearLayout.LayoutParams dateParams = new LinearLayout.LayoutParams(300, 80);
@@ -421,7 +422,7 @@ public class Editor extends Activity
 				{
 					ImageButton ibBudget = (ImageButton) view;
 					if (currentBudget == 0) {
-						dirImage.setImageFile("logo_tpbank.jpg", ibBudget);
+						dirImage.setImageFile("logo_tpbank.png", ibBudget);
 						currentBudget = 1;
 					}
 					else if (currentBudget == 1) {
