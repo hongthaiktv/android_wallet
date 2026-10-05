@@ -126,13 +126,16 @@ public class Editor extends Activity
 					String srcColumn = (String) fColumn.get("srcColumn");
 					if (srcColumn.equals(colNames[i])) {
 						Integer[] ids = (Integer[]) fColumn.get("ids");
-						catalogRowIDs[i][0] = ids;
 						String[] items = (String[]) fColumn.get("names");
 						if ("funds".equals(tblName)) {
+							List<Integer> idsNoCash = new ArrayList<Integer>(Arrays.asList(ids));
 							List<String> itemsNoCash = new ArrayList<String>(Arrays.asList(items));
+							idsNoCash.remove(itemsNoCash.indexOf("Cash"));
 							itemsNoCash.remove("Cash");
+							ids = idsNoCash.toArray(new Integer[0]);
 							items = itemsNoCash.toArray(new String[0]);
 						}
+						catalogRowIDs[i][0] = ids;
 						catalogRowNames[i][0] = items;
 						
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
@@ -465,6 +468,7 @@ public class Editor extends Activity
 										data.put(colNames[i], selectedID);
 										break;
 									}
+									
 								default:
 									EditText input = (EditText) view;
 									String inputText = input.getText().toString();
@@ -624,29 +628,51 @@ public class Editor extends Activity
 		for (int i = 1; i <= numRow; i++) {
 			View view = getViewByIndex(i);
 			if (view == null) continue;
-			String name = view.getClass().getSimpleName();
-			switch (name) {
-				case "EditText":
-					EditText input = (EditText) view;
-					Integer indexProduct = indexViews.get("indexProduct");
-					Integer indexPrice = indexViews.get("indexPrice");
-					Integer indexQuantity = indexViews.get("indexQuantity");
-					// check for catalogRow array instead
-					if ("expends".equals(tblName) && i == indexPrice) {
-						Spinner catalog = (Spinner) getViewByIndex(indexProduct);
-						String selected = (String) catalog.getSelectedItem();
-						List<Map<String, Object>> products = db.sql("products", "SELECT name, price FROM products ORDER BY name COLLATE NOCASE", null);
-						for (Map<String, Object> product : products) {
-							String pName = (String) product.get("name");
-							if (selected.equals(pName)) {
-								double price = product.get("price");
-								input.setText(String.format("%,.0f", price));
-								break;
-							}
-						}
+			
+			switch (dataTypes[i]) {
+				case DATETIME:
+				{
+					LinearLayout layoutPicker = (LinearLayout) view;
+					Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
+					Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
+					Date now = new Date();
+					btnDatePicker.setText(dff.format(now));
+					btnTimePicker.setText(tff.format(now));
+					pickedRows[i][0] = now.getTime();
+					pickedRows[i][1] = now.getTime();
+					break;
+				}
+
+				case INTEGER: case INT:
+					if (view instanceof Spinner) {
+						Spinner catalog = (Spinner) view;
+						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
+						else catalog.setSelection(0);
+						break;
 					}
-					else if ("expends".equals(tblName) && i == indexQuantity) input.setText("1");
-					else input.setText("");
+					
+				default:
+					EditText input = (EditText) view;
+					switch (tblName) {
+						case "expends":
+						{
+							Integer indexProduct = indexViews.get("indexProduct");
+							Integer indexPrice = indexViews.get("indexPrice");
+							Integer indexQuantity = indexViews.get("indexQuantity");
+							if (i == indexPrice) {
+								int itemID = catalogRowIDs[indexProduct][0][0];
+								List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
+								double price = products.get(0).get("price");
+								String formatedPrice = String.format(Locale.US, "%,.0f", price);
+								input.setText(formatedPrice);
+							}
+							else if (i == indexQuantity) input.setText("1");
+							else input.setText("");
+							break;
+						}
+						default:
+							input.setText("");
+					}
 					if (!isFocus) {
 						input.requestFocus();
 						input.setSelection(input.getText().toString().length());
@@ -656,21 +682,6 @@ public class Editor extends Activity
 						}
 						isFocus = true;
 					}
-					break;
-				case "LinearLayout":
-					switch (dataTypes[i]) {
-						case DATETIME:
-							LinearLayout layoutPicker = (LinearLayout) view;
-							Button btnDatePicker = (Button) layoutPicker.getChildAt(0);
-							Button btnTimePicker = (Button) layoutPicker.getChildAt(1);
-							Date now = new Date();
-							btnDatePicker.setText(dff.format(now));
-							btnTimePicker.setText(tff.format(now));
-							pickedRows[i][0] = now.getTime();
-							pickedRows[i][1] = now.getTime();
-							break;
-					}
-					break;
 			}
 		}
 		EditText iptTotal = findViewById(R.id.viewTotal);
