@@ -32,7 +32,7 @@ public class Editor extends Activity
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
-	private int pickedRow = -1, currentBudget = 1;
+	private int rowID = -1, pickedRow = -1, currentBudget = 1;
 	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
@@ -81,7 +81,7 @@ public class Editor extends Activity
 		}
 		
 		String intAction = intent.getAction();
-		int rowID = intent.getIntExtra("rowID", -1);
+		rowID = intent.getIntExtra("rowID", -1);
 		if (!Intent.ACTION_EDIT.equals(intAction)) colNames = db.getColumnNames(tblName);
 		else {
 			if (rowID >= 0) {
@@ -529,8 +529,8 @@ public class Editor extends Activity
 								break;
 							}
 							long result = db.insert(tblName, data);
-							if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
-							else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
+							if (result != -1) stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
+							else stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 							if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
 							else reset();
 						}
@@ -549,7 +549,12 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View view)
 				{
-					
+					int result = db.delete(tblName, rowID);
+					if (result != -1) {
+						stt.success("Deleted a record from \"" + tblName.toUpperCase() + "\".");
+						finish();
+					}
+					else stt.error("Deleting record from \"" + tblName.toUpperCase() + "\" failed.");
 				}
 			});
 		
@@ -559,7 +564,11 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View v)
 				{
-
+					ContentValues data = new ContentValues();
+					data.put("price", 50000d );
+					int result = db.update(tblName, rowID, data);
+					if (result != -1) stt.success("Updated a record from \"" + tblName.toUpperCase() + "\".");
+					else stt.error("Updating record from \"" + tblName.toUpperCase() + "\" failed.");
 				}
 			});
 	}
