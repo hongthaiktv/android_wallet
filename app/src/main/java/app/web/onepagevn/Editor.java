@@ -54,6 +54,7 @@ public class Editor extends Activity
 		btnClear = findViewById(R.id.editorBtnClear);
 		btnAdd = findViewById(R.id.editorBtnAdd);
 		btnCancel = findViewById(R.id.editorBtnCancel);
+		ibBudget = findViewById(R.id.editorIbBudget);
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
 		intent = getIntent();
@@ -66,9 +67,9 @@ public class Editor extends Activity
 		tff = new SimpleDateFormat("HH:mm:ss");
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-		numConverter = NumberFormat.getInstance(Locale.US);
 		dirImage = new AppAssetManager(this, "images/");
-		ibBudget = findViewById(R.id.editorIbBudget);
+		numConverter = NumberFormat.getInstance(Locale.US);
+		numConverter.setMaximumFractionDigits(7);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
@@ -896,7 +897,7 @@ public class Editor extends Activity
 						if (!"".equals(sTotal) && !"".equals(sPrice)) {
 							double total = numConverter.parse(sTotal).doubleValue();
 							double price = numConverter.parse(sPrice).doubleValue();
-							iptQuantity.setText(String.format(Locale.US, "%,.7f", total / price));
+							iptQuantity.setText(numConverter.format(total / price));
 						} else iptQuantity.setText("");
 					}
 					catch (ParseException e)
@@ -948,7 +949,7 @@ public class Editor extends Activity
 				default:
 				{
 					EditText input = (EditText) view;
-					String value = db.objectToString(colValues[i], dataTypes[i]);
+					String value = objectToString(colValues[i], dataTypes[i]);
 					if (!isFocus) {
 						input.requestFocus();
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -1084,6 +1085,60 @@ public class Editor extends Activity
 			}
 		}
 		return data;
+	}
+	
+	public String objectToString(Object object, DataType type) {
+		if (object == null) return null;
+		String result = null;
+		switch (type) {
+			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
+			case REAL: case FLOAT: case DOUBLE:
+				result = numConverter.format(object);
+				break;
+			case TEXT:
+				result = (String) object;
+				break;
+			case BOOLEAN:
+				result = (Boolean) object ? "1" : "0";
+				break;
+			case DATETIME:
+				result = flocal.format((Date) object);
+				break;
+			case JSON:
+				try
+				{
+					if (object instanceof JSONObject) result = ((JSONObject) object).toString(4);
+					else result = ((JSONArray) object).toString(4);
+				}
+				catch (JSONException e)
+				{stt.error(e.getMessage());}
+				break;
+			case NULL:
+				result = null;
+				break;
+			case BLOB: default:
+				if (object instanceof String) result = (String) object;
+				else if (object instanceof Integer || object instanceof Long || object instanceof Float || object instanceof Double) result = numConverter.format(object);
+				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
+				else if (object instanceof Date) result = flocal.format((Date) object);
+				else if (object instanceof JSONObject) {
+					try
+					{
+						result = ((JSONObject) object).toString(4);
+					}
+					catch (JSONException e)
+					{stt.error(e.getMessage());}
+				}
+				else if (object instanceof JSONArray) {
+					try
+					{
+						result = ((JSONArray) object).toString(4);
+					}
+					catch (JSONException e)
+					{stt.error(e.getMessage());}
+				}
+		}
+		return result;
 	}
 
 	@Override
