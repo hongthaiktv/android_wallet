@@ -908,63 +908,6 @@ public class Editor extends Activity
 		return rowTotal;
 	}
 	
-	private String objectToString(Object object, DataType type) {
-		if (object == null) return null;
-		String result = null;
-		switch (type) {
-			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
-				result = String.format(Locale.US, "%,d", (Long) object);
-				break;
-			case REAL: case FLOAT: case DOUBLE:
-				result = String.format(Locale.US, "%,.0f", (Double) object);
-				break;
-			case TEXT:
-				result = (String) object;
-				break;
-			case BOOLEAN:
-				result = (Boolean) object ? "1" : "0";
-				break;
-			case DATETIME:
-				result = flocal.format((Date) object);
-				break;
-			case JSON:
-				try
-				{
-					if (object instanceof JSONObject) result = ((JSONObject) object).toString(4);
-					else result = ((JSONArray) object).toString(4);
-				}
-				catch (JSONException e)
-				{stt.error(e.getMessage());}
-				break;
-			case NULL:
-				result = null;
-				break;
-			case BLOB: default:
-				if (object instanceof String) result = (String) object;
-				else if (object instanceof Integer || object instanceof Long) result = String.format(Locale.US, "%,d", (Long) object);
-				else if (object instanceof Float || object instanceof Double) result = String.format(Locale.US, "%,.0f", (Double) object);
-				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
-				else if (object instanceof Date) result = flocal.format((Date) object);
-				else if (object instanceof JSONObject) {
-					try
-					{
-						result = ((JSONObject) object).toString(4);
-					}
-					catch (JSONException e)
-					{stt.log(e.getMessage());}
-				}
-				else if (object instanceof JSONArray) {
-					try
-					{
-						result = ((JSONArray) object).toString(4);
-					}
-					catch (JSONException e)
-					{stt.log(e.getMessage());}
-				}
-		}
-		return result;
-	}
-	
 	private void loadRowData(int rowID) {
 		int numRows = layoutTop.getRowCount();
 		boolean isFocus = false;
@@ -1005,7 +948,7 @@ public class Editor extends Activity
 				default:
 				{
 					EditText input = (EditText) view;
-					String value = objectToString(colValues[i], dataTypes[i]);
+					String value = db.objectToString(colValues[i], dataTypes[i]);
 					if (!isFocus) {
 						input.requestFocus();
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);

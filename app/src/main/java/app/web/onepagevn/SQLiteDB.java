@@ -5,6 +5,7 @@ import android.widget.*;
 import java.util.*;
 import android.content.*;
 import org.json.*;
+import java.text.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
@@ -44,20 +45,22 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE logs (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, type TEXT NOT NULL, component TEXT NOT NULL, message TEXT)");
 			db.execSQL("CREATE TABLE setting (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, name TEXT UNIQUE NOT NULL, value BLOB NOT NULL, datatype COLTYPE NOT NULL)");
 			db.execSQL("CREATE TABLE cmdhistory (id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, datecreate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, command TEXT UNIQUE NOT NULL, times INT NOT NULL)");
-			db.execSQL("CREATE TABLE budgets_protected (budgetid INTEGER PRIMARY KEY, logo TEXT, name TEXT UNIQUE NOT NULL, balance REAL DEFAULT 0 NOT NULL, note TEXT, protected BOOLEAN DEFAULT 0 NOT NULL)");
-			db.execSQL("CREATE VIEW budgets AS SELECT budgetid, logo, name, balance, note FROM budgets_protected");
+			db.execSQL("CREATE TABLE todos (todoid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, job TEXT, priority INT DEFAULT 3 NOT NULL, complete BOOLEAN DEFAULT 0 NOT NULL)");
+			db.execSQL("CREATE TABLE budgets_protected (budgetid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, logo TEXT, name TEXT UNIQUE NOT NULL, balance REAL DEFAULT 0 NOT NULL, note TEXT, protected BOOLEAN DEFAULT 0 NOT NULL)");
+			db.execSQL("CREATE VIEW budgets AS SELECT budgetid, date, logo, name, balance, note FROM budgets_protected");
 			db.execSQL("CREATE TRIGGER prevent_delete_budgets BEFORE DELETE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
-			db.execSQL("CREATE TRIGGER prevent_update_budgets BEFORE UPDATE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
+			db.execSQL("CREATE TRIGGER prevent_update_budgets BEFORE UPDATE ON budgets_protected FOR EACH ROW WHEN OLD.budgetid != NEW.budgetid AND OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
 			db.execSQL("CREATE TABLE funds (fundid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) UNIQUE NOT NULL, cash REAL DEFAULT 0 NOT NULL, bank1 INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance1 REAL DEFAULT 0 NOT NULL, bank2 INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance2 REAL DEFAULT 0 NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
 			db.execSQL("CREATE TABLE units (unitid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL DEFAULT 0 NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE expends (expendid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL DEFAULT 0 NOT NULL, quantity REAL DEFAULT 1 NOT NULL, note TEXT, budgetid INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL)");
+			db.execSQL("CREATE TABLE supplier_products (sproductid INTEGER PRIMARY KEY, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL DEFAULT 0 NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, startdate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, enddate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('Cash', 1)");
-			db.execSQL("INSERT INTO budgets_protected (name) VALUES ('TPBank')");
-			db.execSQL("INSERT INTO budgets_protected (name) VALUES ('Vietcombank')");
+			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('TPBank', 1)");
+			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('Vietcombank', 1)");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Each')");
@@ -517,5 +520,63 @@ public class SQLiteDB extends SQLiteOpenHelper
 		}
 		cashRemain = cash - cashExpends;
 		return cashRemain;
+	}
+	
+	public String objectToString(Object object, DataType type) {
+		if (object == null) return null;
+		SimpleDateFormat flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		String result = null;
+		switch (type) {
+			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
+				result = String.format(Locale.US, "%,d", object);
+				break;
+			case REAL: case FLOAT: case DOUBLE:
+				result = String.format(Locale.US, "%,.0f", object);
+				break;
+			case TEXT:
+				result = (String) object;
+				break;
+			case BOOLEAN:
+				result = (Boolean) object ? "1" : "0";
+				break;
+			case DATETIME:
+				result = flocal.format((Date) object);
+				break;
+			case JSON:
+				try
+				{
+					if (object instanceof JSONObject) result = ((JSONObject) object).toString(4);
+					else result = ((JSONArray) object).toString(4);
+				}
+				catch (JSONException e)
+				{insertLog(e.getMessage(), LogType.ERROR, compName);}
+				break;
+			case NULL:
+				result = null;
+				break;
+			case BLOB: default:
+				if (object instanceof String) result = (String) object;
+				else if (object instanceof Integer || object instanceof Long) result = String.format(Locale.US, "%,d", (Long) object);
+				else if (object instanceof Float || object instanceof Double) result = String.format(Locale.US, "%,.0f", (Double) object);
+				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
+				else if (object instanceof Date) result = flocal.format((Date) object);
+				else if (object instanceof JSONObject) {
+					try
+					{
+						result = ((JSONObject) object).toString(4);
+					}
+					catch (JSONException e)
+					{insertLog(e.getMessage(), LogType.ERROR, compName);}
+				}
+				else if (object instanceof JSONArray) {
+					try
+					{
+						result = ((JSONArray) object).toString(4);
+					}
+					catch (JSONException e)
+					{insertLog(e.getMessage(), LogType.ERROR, compName);}
+				}
+		}
+		return result;
 	}
 }

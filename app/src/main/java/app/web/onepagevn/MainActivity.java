@@ -48,15 +48,9 @@ public class MainActivity extends Activity
 				{
 					row.setBackgroundColor(Color.GRAY);
 					Intent intEditor = new Intent(MainActivity.this, Editor.class);
-					Map<String, Object> rowData = layoutTable.getTableData().get(index);
-					String[] rowColumnNames = rowData.keySet().toArray(new String[0]);
-					Object[] objectValues = rowData.values().toArray(new Object[0]);
-					String[] rowColumnValues = objectToStrings(objectValues);
 					intEditor.putExtra("tblName", tblName);
 					intEditor.putExtra("rowIndex", index);
 					intEditor.putExtra("rowID", id);
-					intEditor.putExtra("rowColumnNames", rowColumnNames);
-					intEditor.putExtra("rowColumnValues", rowColumnValues);
 					intEditor.setAction(Intent.ACTION_EDIT);
 					startActivity(intEditor);
 				}
@@ -102,7 +96,7 @@ public class MainActivity extends Activity
 								case "budgets":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_store, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									layoutTable.setSQL("SELECT budgetid, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
+									layoutTable.setSQL("SELECT budgetid, date, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "funds":
@@ -175,14 +169,6 @@ public class MainActivity extends Activity
 			}
 		});
     }
-	
-	private String[] objectToStrings(Object[] objects) {
-		String[] result = new String[objects.length];
-		for (int i = 0; i < objects.length; i++) {
-			result[i] = objects[i] != null ? String.valueOf(objects[i]) : null;
-		}
-		return result;
-	}
 
 	@Override
 	protected void onResume()
