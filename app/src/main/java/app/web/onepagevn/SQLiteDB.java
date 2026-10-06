@@ -525,13 +525,13 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public String objectToString(Object object, DataType type) {
 		if (object == null) return null;
 		SimpleDateFormat flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		NumberFormat numConverter = NumberFormat.getInstance(Locale.US);
+		numConverter.setMaximumFractionDigits(7);
 		String result = null;
 		switch (type) {
 			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
-				result = String.format(Locale.US, "%,d", object);
-				break;
 			case REAL: case FLOAT: case DOUBLE:
-				result = String.format(Locale.US, "%,.0f", object);
+				result = numConverter.format(object);
 				break;
 			case TEXT:
 				result = (String) object;
@@ -556,8 +556,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 				break;
 			case BLOB: default:
 				if (object instanceof String) result = (String) object;
-				else if (object instanceof Integer || object instanceof Long) result = String.format(Locale.US, "%,d", (Long) object);
-				else if (object instanceof Float || object instanceof Double) result = String.format(Locale.US, "%,.0f", (Double) object);
+				else if (object instanceof Integer || object instanceof Long || object instanceof Float || object instanceof Double) result = numConverter.format(object);
 				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
 				else if (object instanceof Date) result = flocal.format((Date) object);
 				else if (object instanceof JSONObject) {
