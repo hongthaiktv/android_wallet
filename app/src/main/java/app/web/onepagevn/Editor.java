@@ -176,8 +176,8 @@ public class Editor extends Activity
 										List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
 										double price = products.get(0).get("price");
 										String formatedPrice = String.format(Locale.US, "%,.0f", price);
-										inputPrice.setText(formatedPrice);
 										inputPrice.requestFocus();
+										inputPrice.setText(formatedPrice);
 										inputPrice.setSelection(formatedPrice.length());
 									}
 
@@ -1067,7 +1067,8 @@ public class Editor extends Activity
 					if ("".equals(sNumber)) return;
 					try {
 						double number = numConverter.parse(sNumber).doubleValue();
-						input.setText(String.format(Locale.US, "%,.0f", number));
+						if (focus) input.setText(String.format(Locale.US, "%.0f", number));
+						else input.setText(String.format(Locale.US, "%,.0f", number));
 					}
 					catch (ParseException e) {stt.error(e.getMessage());}
 				}
