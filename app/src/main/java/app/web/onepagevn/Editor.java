@@ -461,12 +461,13 @@ public class Editor extends Activity
 								break;
 							}
 							long result = db.insert(tblName, data);
+							String tblMsgName = "budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase();
 							if (result != -1) {
-								stt.success("Added new record to \"" + ("budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase()) + "\".");
+								stt.success("Added new record to \"" + tblMsgName + "\".");
 								if ("funds".equals(tblName) || "budgets_protected".equals(tblName)) finish();
 								else reset();
 							}
-							else stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
+							else stt.error("Adding new record to \"" + tblMsgName + "\" failed.");
 						}
 					}
 				});
@@ -484,11 +485,12 @@ public class Editor extends Activity
 				public void onClick(View view)
 				{
 					int result = db.delete(tblName, rowID);
+					String tblMsgName = "budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase();
 					if (result != -1) {
-						stt.success("Deleted a record from \"" + tblName.toUpperCase() + "\".");
+						stt.success("Deleted a record from \"" + tblMsgName + "\".");
 						finish();
 					}
-					else stt.error("Deleting record from \"" + tblName.toUpperCase() + "\" failed.");
+					else stt.error("Deleting record from \"" + tblMsgName + "\" failed.");
 				}
 			});
 		
@@ -506,11 +508,12 @@ public class Editor extends Activity
 								break;
 						}
 						int result = db.update(tblName, rowID, data);
+						String tblMsgName = "budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase();
 						if (result != -1) {
-							stt.success("Updated a record from \"" + tblName.toUpperCase() + "\".");
+							stt.success("Updated a record from \"" + tblMsgName + "\".");
 							finish();
 						}
-						else stt.error("Updating record from \"" + tblName.toUpperCase() + "\" failed.");
+						else stt.error("Updating record from \"" + tblMsgName + "\" failed.");
 					}
 				}
 			});
