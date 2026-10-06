@@ -1018,6 +1018,22 @@ public class Editor extends Activity
 				}
 			}
 		}
+		switch (tblName) {
+			case "expends":
+				int budget = colValues[numRows + 1];
+				switch (budget) {
+					case 1:
+						ibBudget.setImageResource(R.drawable.logo_cash);
+						break;
+					case 2:
+						dirImage.setImageFile("logo_tpbank.png", ibBudget);
+						break;
+					case 3:
+						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						break;
+				}
+				break;
+		}
 	}
 	
 	private Number stringToNumber(String stringNumber) {
