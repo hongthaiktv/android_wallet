@@ -665,7 +665,12 @@ public class Editor extends Activity
 								List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
 								double price = products.get(0).get("price");
 								String formatedPrice = String.format(Locale.US, "%,.0f", price);
+								input.requestFocus();
+								InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+								if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+								isFocus = true;
 								input.setText(formatedPrice);
+								input.setSelection(formatedPrice.length());
 							}
 							else if (i == indexQuantity) input.setText("1");
 							else input.setText("");
@@ -678,9 +683,7 @@ public class Editor extends Activity
 						input.requestFocus();
 						input.setSelection(input.getText().toString().length());
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-						if (imm != null) {
-							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-						}
+						if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
 						isFocus = true;
 					}
 			}
