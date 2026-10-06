@@ -32,7 +32,7 @@ public class Editor extends Activity
 	private DataType[] dataTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
-	private int pickedRow = -1, currentBudget = 0;
+	private int pickedRow = -1, currentBudget = 1;
 	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
@@ -421,17 +421,17 @@ public class Editor extends Activity
 				public void onClick(View view)
 				{
 					ImageButton ibBudget = (ImageButton) view;
-					if (currentBudget == 0) {
+					if (currentBudget == 1) {
 						dirImage.setImageFile("logo_tpbank.png", ibBudget);
-						currentBudget = 1;
-					}
-					else if (currentBudget == 1) {
-						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
 						currentBudget = 2;
+					}
+					else if (currentBudget == 2) {
+						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						currentBudget = 3;
 					}
 					else {
 						ibBudget.setImageResource(R.drawable.logo_cash);
-						currentBudget = 0;
+						currentBudget = 1;
 					}
 				}
 			});
@@ -523,6 +523,11 @@ public class Editor extends Activity
 						}
 						
 						if (data.size() > 0) {
+							switch (tblName) {
+								case "expends":
+									data.put("budgetid", currentBudget);
+								break;
+							}
 							long result = db.insert(tblName, data);
 							if (result == -1) stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
 							else stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
@@ -983,6 +988,24 @@ public class Editor extends Activity
 				if (object instanceof String) result = (String) object;
 				else if (object instanceof Integer || object instanceof Long) result = String.format(Locale.US, "%,d", (Long) object);
 				else if (object instanceof Float || object instanceof Double) result = String.format(Locale.US, "%,.0f", (Double) object);
+				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
+				else if (object instanceof Date) result = flocal.format((Date) object);
+				else if (object instanceof JSONObject) {
+					try
+					{
+						result = ((JSONObject) object).toString(4);
+					}
+					catch (JSONException e)
+					{stt.log(e.getMessage());}
+				}
+				else if (object instanceof JSONArray) {
+					try
+					{
+						result = ((JSONArray) object).toString(4);
+					}
+					catch (JSONException e)
+					{stt.log(e.getMessage());}
+				}
 		}
 		return result;
 	}
@@ -1028,16 +1051,15 @@ public class Editor extends Activity
 				{
 					EditText input = (EditText) view;
 					String value = objectToString(colValues[i], dataTypes[i]);
-					if (value != null) input.setText(value);
 					if (!isFocus) {
 						input.requestFocus();
-						input.setSelection(input.getText().toString().length());
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-						if (imm != null) {
-							imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-						}
+						if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
 						isFocus = true;
+						if (value != null) input.setText(value);
+						input.setSelection(input.getText().toString().length());
 					}
+					else if (value != null) input.setText(value);
 				}
 			}
 		}
