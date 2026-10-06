@@ -135,9 +135,42 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
-	public long insert(String table, ContentValues values) {
+	public long insert(String table, ContentValues data) {
 		SQLiteDatabase db = getWritableDatabase();
-		long result = db.insert(table, null, values);
+		long result = -1;
+		try {
+			result = db.insert(table, null, data);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		db.close();
+		return result;
+	}
+	
+	public int update(String table, int rowID, ContentValues data) {
+		SQLiteDatabase db = getWritableDatabase();
+		int result = -1;
+		String where = "rowid = ?";
+		String[] args = {String.valueOf(rowID)};
+		try {
+			result = db.update(table, data, where, args);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		db.close();
+		return result;
+	}
+
+	public int delete(String table, int rowID) {
+		SQLiteDatabase db = getWritableDatabase();
+		int result = -1;
+		String where = "rowid = ?";
+		String[] args = {String.valueOf(rowID)};
+		try {
+			result = db.delete(table, where, args);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
 		db.close();
 		return result;
 	}
@@ -484,33 +517,5 @@ public class SQLiteDB extends SQLiteOpenHelper
 		}
 		cashRemain = cash - cashExpends;
 		return cashRemain;
-	}
-	
-	public int update(String table, int rowID, ContentValues data) {
-		SQLiteDatabase db = getWritableDatabase();
-		int result = -1;
-		String where = "rowid = ?";
-		String[] args = {String.valueOf(rowID)};
-		try {
-			result = db.update(table, data, where, args);
-		} catch (Exception e) {
-			insertLog(e.getMessage(), LogType.ERROR, compName);
-		}
-		db.close();
-		return result;
-	}
-	
-	public int delete(String table, int rowID) {
-		SQLiteDatabase db = getWritableDatabase();
-		int result = -1;
-		String where = "rowid = ?";
-		String[] args = {String.valueOf(rowID)};
-		try {
-			result = db.delete(table, where, args);
-		} catch (Exception e) {
-			insertLog(e.getMessage(), LogType.ERROR, compName);
-		}
-		db.close();
-		return result;
 	}
 }

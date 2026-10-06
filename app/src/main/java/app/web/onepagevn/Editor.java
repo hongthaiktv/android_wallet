@@ -453,75 +453,7 @@ public class Editor extends Activity
 					@Override
 					public void onClick(View button)
 					{
-						ContentValues data = new ContentValues();
-						int numRows = layoutTop.getRowCount();
-						for (int i = 1; i <= numRows; i++) {
-							View view = getViewByIndex(i);
-							if (view == null) continue;
-							switch (dataTypes[i]) {
-								case DATETIME:
-									data.put(colNames[i], getDateTime(i).getTime() / 1000L);
-									break;
-										
-								case INTEGER: case INT:
-									if (view instanceof Spinner) {
-										int selectedID = catalogRowIDs[i][1][0];
-										data.put(colNames[i], selectedID);
-										break;
-									}
-									
-								default:
-									EditText input = (EditText) view;
-									String inputText = input.getText().toString();
-									if ("".equals(inputText)) continue;
-									switch (dataTypes[i]) {
-										case INTEGER: case INT:
-											Number numInteger = stringToNumber(inputText);
-											if (numInteger != null) data.put(colNames[i], numInteger.intValue());
-											break;
-										case NUMERIC: case NUM: case LONG:
-											Number numLong = stringToNumber(inputText);
-											if (numLong != null) data.put(colNames[i], numLong.longValue());
-											break;
-										case REAL: case FLOAT: case DOUBLE:
-											Number numDouble = stringToNumber(inputText);
-											if (numDouble != null) data.put(colNames[i], numDouble.doubleValue());
-											break;
-										case BOOLEAN:
-											data.put(colNames[i], Boolean.valueOf(inputText));
-											break;
-										case NULL:
-											continue;
-										case COLTYPE:
-											String colBlobName = colNames[i - 1];
-											String colBlobValue = data.getAsString(colBlobName);
-											if (colBlobValue == null || "".equals(inputText)) continue;
-											DataType blobType = DataType.valueOf(inputText);
-											switch (blobType) {
-												case INTEGER: case INT:
-													Number nInteger = stringToNumber(colBlobValue);
-													if (nInteger != null) data.put(colBlobName, nInteger.intValue());
-													break;
-												case NUMERIC: case NUM: case LONG:
-													Number nLong = stringToNumber(colBlobValue);
-													if (nLong != null) data.put(colBlobName, nLong.longValue());
-													break;
-												case REAL: case FLOAT: case DOUBLE:
-													Number nDouble = stringToNumber(colBlobValue);
-													if (nDouble != null) data.put(colBlobName, nDouble.doubleValue());
-													break;
-												case BOOLEAN:
-													data.put(colBlobName, Boolean.valueOf(colBlobValue));
-													break;
-											}
-											data.put(colNames[i], inputText);
-											break;
-										default:
-											data.put(colNames[i], inputText);
-									}
-							}
-						}
-						
+						ContentValues data = getFormData();
 						if (data.size() > 0) {
 							switch (tblName) {
 								case "expends":
@@ -529,10 +461,12 @@ public class Editor extends Activity
 								break;
 							}
 							long result = db.insert(tblName, data);
-							if (result != -1) stt.success("Added new record to \"" + tblName.toUpperCase() + "\".");
+							if (result != -1) {
+								stt.success("Added new record to \"" + ("budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase()) + "\".");
+								if ("funds".equals(tblName) || "budgets_protected".equals(tblName)) finish();
+								else reset();
+							}
 							else stt.error("Adding new record to \"" + tblName.toUpperCase() + "\" failed.");
-							if ("funds".equals(tblName) || "budgets".equals(tblName)) finish();
-							else reset();
 						}
 					}
 				});
@@ -564,11 +498,20 @@ public class Editor extends Activity
 				@Override
 				public void onClick(View v)
 				{
-					ContentValues data = new ContentValues();
-					data.put("price", 50000d );
-					int result = db.update(tblName, rowID, data);
-					if (result != -1) stt.success("Updated a record from \"" + tblName.toUpperCase() + "\".");
-					else stt.error("Updating record from \"" + tblName.toUpperCase() + "\" failed.");
+					ContentValues data = getFormData();
+					if (data.size() > 0) {
+						switch (tblName) {
+							case "expends":
+								data.put("budgetid", currentBudget);
+								break;
+						}
+						int result = db.update(tblName, rowID, data);
+						if (result != -1) {
+							stt.success("Updated a record from \"" + tblName.toUpperCase() + "\".");
+							finish();
+						}
+						else stt.error("Updating record from \"" + tblName.toUpperCase() + "\" failed.");
+					}
 				}
 			});
 	}
@@ -1107,6 +1050,78 @@ public class Editor extends Activity
 					catch (ParseException e) {stt.error(e.getMessage());}
 				}
 			});
+	}
+	
+	private ContentValues getFormData() {
+		ContentValues data = new ContentValues();
+		int numRows = layoutTop.getRowCount();
+		for (int i = 1; i <= numRows; i++) {
+			View view = getViewByIndex(i);
+			if (view == null) continue;
+			switch (dataTypes[i]) {
+				case DATETIME:
+					data.put(colNames[i], getDateTime(i).getTime() / 1000L);
+					break;
+
+				case INTEGER: case INT:
+					if (view instanceof Spinner) {
+						int selectedID = catalogRowIDs[i][1][0];
+						data.put(colNames[i], selectedID);
+						break;
+					}
+
+				default:
+					EditText input = (EditText) view;
+					String inputText = input.getText().toString();
+					if ("".equals(inputText)) continue;
+					switch (dataTypes[i]) {
+						case INTEGER: case INT:
+							Number numInteger = stringToNumber(inputText);
+							if (numInteger != null) data.put(colNames[i], numInteger.intValue());
+							break;
+						case NUMERIC: case NUM: case LONG:
+							Number numLong = stringToNumber(inputText);
+							if (numLong != null) data.put(colNames[i], numLong.longValue());
+							break;
+						case REAL: case FLOAT: case DOUBLE:
+							Number numDouble = stringToNumber(inputText);
+							if (numDouble != null) data.put(colNames[i], numDouble.doubleValue());
+							break;
+						case BOOLEAN:
+							data.put(colNames[i], Boolean.valueOf(inputText));
+							break;
+						case NULL:
+							continue;
+						case COLTYPE:
+							String colBlobName = colNames[i - 1];
+							String colBlobValue = data.getAsString(colBlobName);
+							if (colBlobValue == null || "".equals(inputText)) continue;
+							DataType blobType = DataType.valueOf(inputText);
+							switch (blobType) {
+								case INTEGER: case INT:
+									Number nInteger = stringToNumber(colBlobValue);
+									if (nInteger != null) data.put(colBlobName, nInteger.intValue());
+									break;
+								case NUMERIC: case NUM: case LONG:
+									Number nLong = stringToNumber(colBlobValue);
+									if (nLong != null) data.put(colBlobName, nLong.longValue());
+									break;
+								case REAL: case FLOAT: case DOUBLE:
+									Number nDouble = stringToNumber(colBlobValue);
+									if (nDouble != null) data.put(colBlobName, nDouble.doubleValue());
+									break;
+								case BOOLEAN:
+									data.put(colBlobName, Boolean.valueOf(colBlobValue));
+									break;
+							}
+							data.put(colNames[i], inputText);
+							break;
+						default:
+							data.put(colNames[i], inputText);
+					}
+			}
+		}
+		return data;
 	}
 
 	@Override
