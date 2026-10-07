@@ -8,6 +8,7 @@ import android.view.View.*;
 import android.widget.*;
 import java.util.*;
 import android.graphics.*;
+import java.text.*;
 
 public class MainActivity extends Activity 
 {
@@ -39,6 +40,53 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		layoutExpends = findViewById(R.id.mainTableData);
 		layoutTodos = findViewById(R.id.mainTableTodos);
+		
+		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
+
+				@Override
+				public View onCreate(View view, int colIndex, Object data)
+				{
+					if (colIndex == 1) {
+						int priority = Integer.valueOf(((TextView) view).getText().toString());
+						ImageView icon = new ImageView(MainActivity.this);
+						switch (priority) {
+							case 1:
+								icon.setImageResource(R.drawable.ico_bell);
+								icon.setColorFilter(Color.RED);
+								break;
+							case 2:
+								icon.setImageResource(R.drawable.ico_cog);
+								icon.setColorFilter(getResources().getColor(R.color.orange));
+								break;
+							case 3:
+								icon.setImageResource(R.drawable.ico_bug);
+								icon.setColorFilter(getResources().getColor(R.color.darkGreen));
+								break;
+							case 4:
+								icon.setImageResource(R.drawable.ico_box);
+								icon.setColorFilter(getResources().getColor(R.color.cyan));
+								break;
+							case 5:
+								icon.setImageResource(R.drawable.ico_clipboard_list);
+								icon.setColorFilter(getResources().getColor(R.color.purple));
+								break;
+						}
+						return icon;
+					}
+					if (colIndex != 2) return view;
+					TextView cell = (TextView) view;
+					SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+					try
+					{
+						Date date = df.parse(cell.getText().toString());
+						df.applyPattern("dd-MM HH:mm");
+						cell.setText(df.format(date));
+					}
+					catch (ParseException e)
+					{stt.error(e.getMessage());}
+					return cell;
+				}
+			});
 		
 		layoutTodos.setRowOnClickListener(new SQLiteDBLayout.RowOnClickListener() {
 
@@ -152,7 +200,9 @@ public class MainActivity extends Activity
 									btnTable.setText(tblName);
 									break;
 								case "todos":
-									btnTable.setText(tblName);
+									Intent intEditor = new Intent(MainActivity.this, Editor.class);
+									intEditor.putExtra("tblName", layoutTodos.getTableName());
+									startActivity(intEditor);
 									break;
 								default:
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
@@ -183,7 +233,7 @@ public class MainActivity extends Activity
 			public void onClick(View view)
 			{
 				Intent intEditor = new Intent(MainActivity.this, Editor.class);
-				intEditor.putExtra("tblName", tblName);
+				intEditor.putExtra("tblName", layoutExpends.getTableName());
 				startActivity(intEditor);
 			}
 		});

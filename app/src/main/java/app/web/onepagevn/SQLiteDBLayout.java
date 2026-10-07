@@ -20,6 +20,7 @@ public class SQLiteDBLayout extends LinearLayout
 	private TableLayout table, tBody;
 	private RowOnClickListener onClickListener;
 	private RowOnLongClickListener onLongClickListener;
+	private OnCreateView onCreateView;
 	private int[] rowIDs;
 	private int index = -1;
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
@@ -176,6 +177,11 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
+	public SQLiteDBLayout setOnCreateView(OnCreateView callback) {
+		this.onCreateView = callback;
+		return this;
+	}
+	
 	public TableLayout getTableLayout() {
 		return table;
 	}
@@ -221,18 +227,18 @@ public class SQLiteDBLayout extends LinearLayout
 			TableRow rowHeader = new TableRow(context);
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
-			rowHeader.addView(createColHeader(ordHeader, 1));
+			rowHeader.addView(createColHeader(ordHeader, 1, -1));
 			String[] colNames = data.get(0).keySet().toArray(new String[0]);
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				String colName = colNames[colIndex];
 				switch (colIndex) {
 					case 0:
-						rowHeader.addView(createColHeader(colName, 1));
+						rowHeader.addView(createColHeader(colName, 1, colIndex));
 						break;
 					default:
 						if (colIndex == lastCol && expandLastColumn) {
-							rowHeader.addView(createColHeader(colName, 4));
-						} else rowHeader.addView(createColHeader(colName, 2));
+							rowHeader.addView(createColHeader(colName, 4, colIndex));
+						} else rowHeader.addView(createColHeader(colName, 2, colIndex));
 				}
 			}
 			table.addView(rowHeader);
@@ -270,17 +276,17 @@ public class SQLiteDBLayout extends LinearLayout
 					});
 			if (rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
-			row.addView(createColumn(rowIndex, 1));
+			row.addView(createColumn(rowIndex, 1, -1));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				Object colData = colValues[colIndex];
 				switch (colIndex) {
 					case 0:
-						row.addView(createColumn(colData, 1));
+						row.addView(createColumn(colData, 1, colIndex));
 						break;
 					default:
 						if (colIndex == lastCol && expandLastColumn) {
-							row.addView(createColumn(colData, 4));
-						} else row.addView(createColumn(colData, 2));
+							row.addView(createColumn(colData, 4, colIndex));
+						} else row.addView(createColumn(colData, 2, colIndex));
 				}
 			}
 			tBody.addView(row);
@@ -301,7 +307,7 @@ public class SQLiteDBLayout extends LinearLayout
 		} else addView(table);
 	}
 	
-	private TextView createColumn(Object text, int size) {
+	private View createColumn(Object data, int size, int colIndex) {
 		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.1f);
 		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
 		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3);
@@ -327,20 +333,29 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
-		if (text != null && text instanceof Date) {
+		if (data != null && data instanceof Date) {
 			SimpleDateFormat fLocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			colText = fLocal.format(text);
+			colText = fLocal.format(data);
 		}
-		else if (text != null) colText = String.valueOf(text);
+		else if (data != null) colText = String.valueOf(data);
 		col.setText(colText);
+		if (onCreateView != null) {
+			View view = onCreateView.onCreate(col, colIndex, data);
+			if (view instanceof TextView) col = (TextView) view;
+			else return view;
+		}
 		return col;
 	}
 	
-	private TextView createColHeader(String text, int size) {
-		TextView header = createColumn(text.toUpperCase(), size);
-		header.setGravity(Gravity.CENTER);
-		header.setTextColor(Color.WHITE);
-		header.setTypeface(null, Typeface.BOLD);
+	private View createColHeader(String text, int size, int colIndex) {
+		View header = createColumn(text.toUpperCase(), size, colIndex);
+		if (header instanceof TextView) {
+			TextView tvHeader = (TextView) header;
+			tvHeader.setGravity(Gravity.CENTER);
+			tvHeader.setTextColor(Color.WHITE);
+			tvHeader.setTypeface(null, Typeface.BOLD);
+			return tvHeader;
+		}
 		return header;
 	}
 	
@@ -350,5 +365,9 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public static interface RowOnLongClickListener {
 		public boolean onLongClick(View row, int index, int id);
+	}
+	
+	public static interface OnCreateView {
+		public View onCreate(View view, int colIndex, Object data);
 	}
 }
