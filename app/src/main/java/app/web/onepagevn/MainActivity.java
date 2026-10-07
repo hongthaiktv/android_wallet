@@ -76,7 +76,7 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' ORDER BY name COLLATE NOCASE");
+				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' AND name!='priorities' ORDER BY name COLLATE NOCASE");
 				ArrayList<String> tables = new ArrayList<>();
 				for (Map<String, Object> table : listTable) {
 					tables.add((String) table.get("name"));

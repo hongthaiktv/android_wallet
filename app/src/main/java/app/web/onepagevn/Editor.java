@@ -151,6 +151,7 @@ public class Editor extends Activity
 						setViewID(catalog, i);
 						layoutTop.addView(catalog);
 						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
+						else if ("todos".equals(tblName) && "priorityid".equals(colNames[i].toLowerCase()))	catalog.setSelection(2);
 						if ("expends".equals(tblName) && "productid".equals(colNames[i].toLowerCase())) {
 							indexViews.put("indexProduct", i);
 							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
