@@ -471,7 +471,8 @@ public class SQLiteDB extends SQLiteOpenHelper
 		for (Map<String, Object> column : columns) {
 			column.put("srcTable", table);
 			String dstTable = (String) column.get("dstTable");
-			SQLiteDBCursor dstCursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT rowid, name FROM " + dstTable + " ORDER BY name COLLATE NOCASE", null, table);
+			String orderColumn = "todos".equals(table) ? "rowid" : "name";
+			SQLiteDBCursor dstCursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT rowid, name FROM " + dstTable + " ORDER BY " + orderColumn + " COLLATE NOCASE", null, table);
 			List<Object> catalog = dstCursor.getCatalog();
 			Integer[] ids = (Integer[]) catalog.get(0);
 			String[] names = (String[]) catalog.get(1);

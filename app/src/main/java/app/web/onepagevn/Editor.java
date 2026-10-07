@@ -150,8 +150,6 @@ public class Editor extends Activity
 						catalog.setAdapter(adapter);
 						setViewID(catalog, i);
 						layoutTop.addView(catalog);
-						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
-						else if ("todos".equals(tblName) && "priorityid".equals(colNames[i].toLowerCase()))	catalog.setSelection(2);
 						if ("expends".equals(tblName) && "productid".equals(colNames[i].toLowerCase())) {
 							indexViews.put("indexProduct", i);
 							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -610,6 +608,7 @@ public class Editor extends Activity
 					if (view instanceof Spinner) {
 						Spinner catalog = (Spinner) view;
 						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
+						else if ("todos".equals(tblName) && "priorityid".equals(colNames[i].toLowerCase())) catalog.setSelection(2);
 						else catalog.setSelection(0);
 						break;
 					}
