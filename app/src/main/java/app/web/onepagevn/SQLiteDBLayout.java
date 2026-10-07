@@ -6,12 +6,13 @@ import android.util.*;
 import android.view.*;
 import android.widget.*;
 import java.util.*;
+import java.text.*;
 
 public class SQLiteDBLayout extends LinearLayout
 {
 	private Context context;
 	private String tblName = "", ordHeader = "#";
-	private boolean hScroll = false, hideID = true, autoLoad = true;
+	private boolean hScroll = false, hideID = true, hideHeader = false, autoLoad = true, expandLastColumn = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private Map<String, Object> layoutAttrs = new HashMap<String, Object>();
 	private String sql = "";
@@ -54,7 +55,9 @@ public class SQLiteDBLayout extends LinearLayout
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_ordHeader)) ordHeader = attrsMain.getString(R.styleable.SQLiteDBLayout_ordHeader);
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
+		hideHeader = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideHeader, hideHeader);
 		autoLoad = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_autoLoad, autoLoad);
+		expandLastColumn = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_expandLastColumn, expandLastColumn);
 		layoutAttrs.put("limit", attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1));
 		layoutAttrs.put("sort", attrsMain.getString(R.styleable.SQLiteDBLayout_sort));
 		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
@@ -105,6 +108,16 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setOrdHeader(String colName) {
 		this.ordHeader = colName;
+		return this;
+	}
+	
+	public SQLiteDBLayout setHideHeader(boolean hide) {
+		hideHeader = hide;
+		return this;
+	}
+	
+	public SQLiteDBLayout setExpandLastColumn(boolean expand) {
+		expandLastColumn = expand;
 		return this;
 	}
 	
@@ -200,24 +213,29 @@ public class SQLiteDBLayout extends LinearLayout
 		table = new TableLayout(context);
 		TableLayout.LayoutParams tblLayout = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		table.setLayoutParams(tblLayout);
-		TableRow rowHeader = new TableRow(context);
-		rowHeader.setBackgroundColor(Color.GRAY);
-		rowHeader.setGravity(Gravity.CENTER);
-		rowHeader.addView(createColHeader(ordHeader, 1));
-		String[] colNames = data.get(0).keySet().toArray(new String[0]);
+		
 		int colNums = data.get(0).keySet().size();
 		int lastCol = colNums - 1;
-		for (int colIndex = 0; colIndex < colNums; colIndex++) {
-			String colName = colNames[colIndex];
-			switch (colIndex) {
-				case 0:
-					rowHeader.addView(createColHeader(colName, 1));
-					break;
-				default:
-					if (colIndex == lastCol) {
-						rowHeader.addView(createColHeader(colName, 4));
-					} else rowHeader.addView(createColHeader(colName, 2));
+		
+		if (!hideHeader) {
+			TableRow rowHeader = new TableRow(context);
+			rowHeader.setBackgroundColor(Color.GRAY);
+			rowHeader.setGravity(Gravity.CENTER);
+			rowHeader.addView(createColHeader(ordHeader, 1));
+			String[] colNames = data.get(0).keySet().toArray(new String[0]);
+			for (int colIndex = 0; colIndex < colNums; colIndex++) {
+				String colName = colNames[colIndex];
+				switch (colIndex) {
+					case 0:
+						rowHeader.addView(createColHeader(colName, 1));
+						break;
+					default:
+						if (colIndex == lastCol && expandLastColumn) {
+							rowHeader.addView(createColHeader(colName, 4));
+						} else rowHeader.addView(createColHeader(colName, 2));
+				}
 			}
+			table.addView(rowHeader);
 		}
 		
 		ScrollView scroll = new ScrollView(context);
@@ -260,7 +278,7 @@ public class SQLiteDBLayout extends LinearLayout
 						row.addView(createColumn(colData, 1));
 						break;
 					default:
-						if (colIndex == lastCol) {
+						if (colIndex == lastCol && expandLastColumn) {
 							row.addView(createColumn(colData, 4));
 						} else row.addView(createColumn(colData, 2));
 				}
@@ -273,7 +291,6 @@ public class SQLiteDBLayout extends LinearLayout
 			}
 		}
 		scroll.addView(tBody);
-		table.addView(rowHeader);
 		table.addView(scroll);
 		if (hScroll) {
 			HorizontalScrollView hScroll = new HorizontalScrollView(context);
@@ -309,7 +326,12 @@ public class SQLiteDBLayout extends LinearLayout
 			}
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
-		String colText = text == null ? "" : String.valueOf(text);
+		String colText = "";
+		if (text != null && text instanceof Date) {
+			SimpleDateFormat fLocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			colText = fLocal.format(text);
+		}
+		else if (text != null) colText = String.valueOf(text);
 		col.setText(colText);
 		return col;
 	}

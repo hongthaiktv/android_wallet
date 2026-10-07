@@ -464,7 +464,7 @@ public class Editor extends Activity
 							String tblMsgName = "budgets_protected".equals(tblName) ? "BUDGETS" : tblName.toUpperCase();
 							if (result != -1) {
 								stt.success("Added new record to \"" + tblMsgName + "\".");
-								if ("funds".equals(tblName) || "budgets_protected".equals(tblName)) finish();
+								if ("funds".equals(tblName) || "budgets_protected".equals(tblName) || "todos".equals(tblName)) finish();
 								else reset();
 							}
 							else stt.error("Adding new record to \"" + tblMsgName + "\" failed.");
