@@ -2,13 +2,15 @@ package app.web.onepagevn;
 
 import android.app.*;
 import android.content.*;
+import android.graphics.*;
 import android.os.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
+import android.widget.TableRow.*;
 import java.util.*;
-import android.graphics.*;
-import java.text.*;
+
+import android.view.View.OnClickListener;
 
 public class MainActivity extends Activity 
 {
@@ -46,13 +48,13 @@ public class MainActivity extends Activity
 				@Override
 				public View onCreate(View view, int rowIndex, int colIndex, Object data)
 				{
-					if (rowIndex == 0) return view;
+					if (rowIndex < 1) return view;
 					switch (colIndex) {
 						case 1:
 						{
-							int priority = data;
 							ImageView icon = new ImageView(MainActivity.this);
-							icon.setPadding(0, 0, 15, 0);
+							icon.setPadding(40, 15, 25, 15);
+							int priority = data;
 							switch (priority) {
 								case 1:
 									icon.setImageResource(R.drawable.ico_bell);
@@ -77,6 +79,19 @@ public class MainActivity extends Activity
 							}
 							return icon;
 						}
+						
+						case 2:
+							TextView tvJob = (TextView) view;
+							TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4);
+							tvJob.setLayoutParams(colLayoutLG);
+							tvJob.setGravity(Gravity.LEFT);
+							return tvJob;
+						
+						case 3:
+							TableRow.LayoutParams colHSLayout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+							view.setLayoutParams(colHSLayout);
+							view.setPadding(15, 15, 40, 15);
+							return view;
 						
 						default: return view;
 					}

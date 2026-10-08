@@ -64,6 +64,7 @@ public class SQLiteDBLayout extends LinearLayout
 		layoutAttrs.put("limit", attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1));
 		layoutAttrs.put("sort", attrsMain.getString(R.styleable.SQLiteDBLayout_sort));
 		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
+		if (hideOrder) hideColumns.add(0);
 		if (hideID) hideColumns.add(1);
 		int colIndex = attrsMain.getInt(R.styleable.SQLiteDBLayout_hideColumn, -1);
 		if (colIndex > 0) hideColumns.add(--colIndex);
@@ -74,6 +75,7 @@ public class SQLiteDBLayout extends LinearLayout
 			if (!attrsColumns.getBoolean(index, true)) hideColumns.add(index);
 		}
 		attrsColumns.recycle();
+		setOrientation(LinearLayout.VERTICAL);
 		if (autoLoad) show();
 	}
 	
@@ -84,6 +86,7 @@ public class SQLiteDBLayout extends LinearLayout
 		this.onClickListener = onClickListener;
 		LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
 		setLayoutParams(layout);
+		setOrientation(LinearLayout.VERTICAL);
 		if (hideID) hideColumns.add(1);
 		if (container != null) container.addView(this);
 	}
@@ -115,7 +118,9 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public SQLiteDBLayout setHideOrder(boolean hide) {
-		hideOrder = hide;
+		this.hideOrder = hide;
+		if (hide) hideColumn(1);
+		else unhideColumn(1);
 		return this;
 	}
 	
@@ -149,10 +154,21 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
+	private void hideColumn(int index, boolean hide) {
+		if (hide) {
+			table.setColumnCollapsed(index, true);
+			tBody.setColumnCollapsed(index, true);
+		} else {
+			table.setColumnCollapsed(index, false);
+			tBody.setColumnCollapsed(index, false);
+		}
+	}
+	
 	public SQLiteDBLayout hideColumn(int index) {
 		if (index > 0) {
 			--index;
 			if (index == 1) hideID = true;
+			else if (index == 0) hideOrder = true;
 			hideColumns.add(index);
 			hideColumn(index, true);
 		} else stt.error("hideColumn(?): Wrong column index.");
@@ -163,20 +179,11 @@ public class SQLiteDBLayout extends LinearLayout
 		if (index > 0) {
 			--index;
 			if (index == 1) hideID = false;
+			else if (index == 0) hideOrder = false;
 			hideColumns.remove(index);
 			hideColumn(index, false);
 		} else stt.error("unhideColumn(?): Wrong column index.");
 		return this;
-	}
-	
-	private void hideColumn(int index, boolean hide) {
-		if (hide) {
-			table.setColumnCollapsed(index, true);
-			tBody.setColumnCollapsed(index, true);
-		} else {
-			table.setColumnCollapsed(index, false);
-			tBody.setColumnCollapsed(index, false);
-		}
 	}
 	
 	public SQLiteDBLayout setRowOnClickListener(RowOnClickListener listener) {
@@ -236,18 +243,18 @@ public class SQLiteDBLayout extends LinearLayout
 		int lastCol = colNums - 1;
 		
 		if (title != null && !"".equals(title)) {
-			TableRow rowTitle = new TableRow(context);
-			rowTitle.setBackgroundColor(getResources().getColor(R.color.primary));
-			rowTitle.setGravity(Gravity.CENTER);
-			rowTitle.addView(createColHeader(title, 1, -1, -1));
-			table.addView(rowTitle);
+			TextView tvTitle = (TextView) createColHeader(title, 1, -1, -1);
+			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
+			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			tvTitle.setLayoutParams(tvTitleParams);
+			addView(tvTitle);
 		}
 		
 		if (!hideHeader) {
 			TableRow rowHeader = new TableRow(context);
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
-			if (!hideOrder) rowHeader.addView(createColHeader(ordHeader, 1, 0, -1));
+			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1));
 			String[] colNames = data.get(0).keySet().toArray(new String[0]);
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				String colName = colNames[colIndex];
@@ -295,7 +302,7 @@ public class SQLiteDBLayout extends LinearLayout
 					});
 			if (rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
-			if (!hideOrder) row.addView(createColumn(rowIndex, 1, rowIndex, -1));
+			row.addView(createColumn(rowIndex, 1, rowIndex, -1));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				Object colData = colValues[colIndex];
 				switch (colIndex) {
