@@ -75,12 +75,14 @@
 			android:layout_width="match_parent"
 			android:layout_height="118dp"
 			app:table="todos"
-			app:hScroll="true"
+			app:title="TODO"
+			app:hScroll="false"
 			app:hideID="true"
-			app:autoLoad="true"
 			app:hideHeader="true"
+			app:hideOrder="true"
 			app:expandLastColumn="false"
-			app:sql="SELECT todos.todoid, priorities.priorityid AS priority, todos.date, todos.job, todos.complete FROM todos INNER JOIN priorities USING (priorityid) ORDER BY todos.priorityid, todos.date DESC">
+			app:autoLoad="false"
+			app:sql="SELECT todos.todoid, priorities.priorityid AS priority, todos.job, todos.complete FROM todos INNER JOIN priorities USING (priorityid) ORDER BY todos.priorityid, todos.date DESC">
 		</app.web.onepagevn.SQLiteDBLayout>
 		
 		<app.web.onepagevn.SQLiteDBLayout
@@ -91,8 +93,8 @@
 			app:table="balance"
 			app:hScroll="false"
 			app:hideID="true"
-			app:autoLoad="false"
 			app:expandLastColumn="false"
+			app:autoLoad="false"
 			android:layout_below="@id/mainTableTodos">
 		</app.web.onepagevn.SQLiteDBLayout>
 
