@@ -122,12 +122,14 @@ public class MainActivity extends Activity
 		
 		btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 		db.getSetting();
+		
 		ibWallet.setOnClickListener(new OnClickListener() {
 
 				@Override
 				public void onClick(View view)
 				{
 					tblName = "balance";
+					layoutExpends.setTable(tblName);
 					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
 					layoutExpends.setSQL(sqlTblBalance).show();
@@ -155,7 +157,6 @@ public class MainActivity extends Activity
 						public void onClick(DialogInterface dialog, int index)
 						{
 							tblName = tableNames[index];
-							layoutExpends.setSQL(null);
 							switch (tblName) {
 								case "budgets":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_store, 0, R.drawable.ico_caret_down, 0);
@@ -207,6 +208,7 @@ public class MainActivity extends Activity
 								default:
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
+									layoutExpends.setSQL(null);
 									btnTable.setText(tblName);
 							}
 							if (!"todos".equals(tblName)) layoutExpends.setTable(tblName).show();
