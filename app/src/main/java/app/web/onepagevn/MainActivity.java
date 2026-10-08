@@ -57,16 +57,16 @@ public class MainActivity extends Activity
 							int priority = data;
 							switch (priority) {
 								case 1:
-									icon.setImageResource(R.drawable.ico_bell);
+									icon.setImageResource(R.drawable.ico_info_circle);
 									icon.setColorFilter(Color.RED);
 									break;
 								case 2:
-									icon.setImageResource(R.drawable.ico_cog);
+									icon.setImageResource(R.drawable.ico_bell);
 									icon.setColorFilter(getResources().getColor(R.color.orange));
 									break;
 								case 3:
-									icon.setImageResource(R.drawable.ico_bug);
-									icon.setColorFilter(getResources().getColor(R.color.darkGreen));
+									icon.setImageResource(R.drawable.ico_user_tie);
+									icon.setColorFilter(getResources().getColor(R.color.purple));
 									break;
 								case 4:
 									icon.setImageResource(R.drawable.ico_box);
@@ -74,7 +74,7 @@ public class MainActivity extends Activity
 									break;
 								case 5:
 									icon.setImageResource(R.drawable.ico_clipboard_list);
-									icon.setColorFilter(getResources().getColor(R.color.purple));
+									icon.setColorFilter(getResources().getColor(R.color.darkGreen));
 									break;
 							}
 							return icon;
@@ -82,7 +82,7 @@ public class MainActivity extends Activity
 						
 						case 2:
 							TextView tvJob = (TextView) view;
-							TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4);
+							TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 4);
 							tvJob.setLayoutParams(colLayoutLG);
 							tvJob.setGravity(Gravity.LEFT);
 							return tvJob;
@@ -97,8 +97,19 @@ public class MainActivity extends Activity
 					}
 				}
 			});
+			
+		layoutTodos.setOnTitleClickListener(new SQLiteDBLayout.OnTitleClickListener() {
+
+				@Override
+				public void onClick(View title, String text)
+				{
+					Intent intEditor = new Intent(MainActivity.this, Editor.class);
+					intEditor.putExtra("tblName", layoutTodos.getTableName());
+					startActivity(intEditor);
+				}
+			});
 		
-		layoutTodos.setRowOnClickListener(new SQLiteDBLayout.RowOnClickListener() {
+		layoutTodos.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 
 				@Override
 				public void onClick(View row, int index, int id)
@@ -115,7 +126,7 @@ public class MainActivity extends Activity
 		
 		final String sqlTblBalance = "SELECT expends.expendid, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
 		layoutExpends.setSQL(sqlTblBalance);
-		layoutExpends.setRowOnClickListener(new SQLiteDBLayout.RowOnClickListener() {
+		layoutExpends.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 
 				@Override
 				public void onClick(View row, int index, int id)
@@ -127,6 +138,18 @@ public class MainActivity extends Activity
 					intEditor.putExtra("rowID", id);
 					intEditor.setAction(Intent.ACTION_EDIT);
 					startActivity(intEditor);
+				}
+			});
+			
+		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
+
+				@Override
+				public View onCreate(View view, int rowIndex, int colIndex, Object data)
+				{
+					if (rowIndex != -1) return view;
+					TextView tvTitle = (TextView) view;
+					tvTitle.setText(tblName.toUpperCase());
+					return tvTitle;
 				}
 			});
 		
@@ -152,7 +175,7 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' AND name!='priorities' ORDER BY name COLLATE NOCASE");
+				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' AND name!='priorities' AND name!='todos' ORDER BY name COLLATE NOCASE");
 				ArrayList<String> tables = new ArrayList<>();
 				for (Map<String, Object> table : listTable) {
 					tables.add((String) table.get("name"));
@@ -209,11 +232,6 @@ public class MainActivity extends Activity
 									ivBGround.setImageResource(R.drawable.bg_measurement);
 									layoutExpends.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
-									break;
-								case "todos":
-									Intent intEditor = new Intent(MainActivity.this, Editor.class);
-									intEditor.putExtra("tblName", layoutTodos.getTableName());
-									startActivity(intEditor);
 									break;
 								default:
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);

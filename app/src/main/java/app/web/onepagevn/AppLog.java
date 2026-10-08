@@ -25,7 +25,7 @@ public class AppLog extends Activity
 		stt = new StatusBar(this).init();
 		app = AppSetting.getAppContext();
 		
-		tblLog = new SQLiteDBLayout(this, "logs", new SQLiteDBLayout.RowOnClickListener() {
+		tblLog = new SQLiteDBLayout(this, "logs", new SQLiteDBLayout.OnRowClickListener() {
 
 				@Override
 				public void onClick(View row, int index, int id)
@@ -34,7 +34,7 @@ public class AppLog extends Activity
 				}
 			});
 		
-		tblLog.setRowOnLongClickListener(new SQLiteDBLayout.RowOnLongClickListener() {
+		tblLog.setOnRowLongClickListener(new SQLiteDBLayout.OnRowLongClickListener() {
 
 				@Override
 				public boolean onLongClick(View row, int index, int id)

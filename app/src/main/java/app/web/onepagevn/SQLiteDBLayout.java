@@ -18,11 +18,12 @@ public class SQLiteDBLayout extends LinearLayout
 	private String sql = "";
 	private ViewGroup container;
 	private TableLayout table, tBody;
-	private RowOnClickListener onClickListener;
-	private RowOnLongClickListener onLongClickListener;
+	private OnTitleClickListener onTitleClickListener;
+	private OnRowClickListener onClickListener;
+	private OnRowLongClickListener onLongClickListener;
 	private OnCreateView onCreateView;
 	private int[] rowIDs;
-	private int index = -1;
+	private int index = -1, titleViewID = -1;
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
 	private List<Map<String, Object>> tblData;
@@ -32,7 +33,7 @@ public class SQLiteDBLayout extends LinearLayout
 		init(context, tblName, null, null);
 	}
 	
-	public SQLiteDBLayout(Context context, String tblName, RowOnClickListener onClick) {
+	public SQLiteDBLayout(Context context, String tblName, OnRowClickListener onClick) {
 		super(context);
 		init(context, tblName, null, onClick);
 	}
@@ -42,7 +43,7 @@ public class SQLiteDBLayout extends LinearLayout
 		init(context, tblName, container, null);
 	}
 	
-	public SQLiteDBLayout(Context context, String tblName, ViewGroup container, RowOnClickListener onClick) {
+	public SQLiteDBLayout(Context context, String tblName, ViewGroup container, OnRowClickListener onClick) {
 		super(context);
 		init(context, tblName, container, onClick);
 	}
@@ -79,7 +80,7 @@ public class SQLiteDBLayout extends LinearLayout
 		if (autoLoad) show();
 	}
 	
-	private void init(Context context, String tblName, ViewGroup container, RowOnClickListener onClickListener) {
+	private void init(Context context, String tblName, ViewGroup container, OnRowClickListener onClickListener) {
 		this.context = context;
 		this.tblName = tblName;
 		this.container = container;
@@ -186,12 +187,17 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
-	public SQLiteDBLayout setRowOnClickListener(RowOnClickListener listener) {
+	public SQLiteDBLayout setOnTitleClickListener(OnTitleClickListener listener) {
+		this.onTitleClickListener = listener;
+		return this;
+	}
+	
+	public SQLiteDBLayout setOnRowClickListener(OnRowClickListener listener) {
 		this.onClickListener = listener;
 		return this;
 	}
 	
-	public SQLiteDBLayout setRowOnLongClickListener(RowOnLongClickListener listener) {
+	public SQLiteDBLayout setOnRowLongClickListener(OnRowLongClickListener listener) {
 		this.onLongClickListener = listener;
 		return this;
 	}
@@ -223,6 +229,11 @@ public class SQLiteDBLayout extends LinearLayout
 		return rowIDs;
 	}
 	
+	public int getTitleViewID()
+	{
+		return titleViewID;
+	}
+	
 	public List<Map<String, Object>> getTableData()
 	{
 		return tblData;
@@ -247,6 +258,17 @@ public class SQLiteDBLayout extends LinearLayout
 			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
 			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			tvTitle.setLayoutParams(tvTitleParams);
+			titleViewID = generateViewId();
+			tvTitle.setId(titleViewID);
+			if (onTitleClickListener != null) tvTitle.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v)
+					{
+						onTitleClickListener.onClick(v, title);
+					}
+				});
+				
 			addView(tvTitle);
 		}
 		
@@ -382,11 +404,15 @@ public class SQLiteDBLayout extends LinearLayout
 		return header;
 	}
 	
-	public static interface RowOnClickListener {
+	public static interface OnTitleClickListener {
+		public void onClick(View title, String text);
+	}
+	
+	public static interface OnRowClickListener {
 		public void onClick(View row, int index, int id);
 	}
 	
-	public static interface RowOnLongClickListener {
+	public static interface OnRowLongClickListener {
 		public boolean onLongClick(View row, int index, int id);
 	}
 	

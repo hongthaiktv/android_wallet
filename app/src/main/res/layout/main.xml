@@ -91,7 +91,7 @@
 			android:layout_height="match_parent"
 			android:layout_weight="1"
 			app:table="balance"
-			app:title="EXPENDS"
+			app:title="BALANCE"
 			app:hScroll="false"
 			app:hideID="true"
 			app:hideHeader="true"
