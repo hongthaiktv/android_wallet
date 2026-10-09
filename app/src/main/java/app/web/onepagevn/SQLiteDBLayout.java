@@ -23,7 +23,7 @@ public class SQLiteDBLayout extends LinearLayout
 	private OnRowLongClickListener onLongClickListener;
 	private OnCreateView onCreateView;
 	private int[] rowIDs;
-	private int index = -1, titleViewID = -1;
+	private int index = -1;
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
 	private List<Map<String, Object>> tblData;
@@ -229,11 +229,6 @@ public class SQLiteDBLayout extends LinearLayout
 		return rowIDs;
 	}
 	
-	public int getTitleViewID()
-	{
-		return titleViewID;
-	}
-	
 	public List<Map<String, Object>> getTableData()
 	{
 		return tblData;
@@ -258,8 +253,6 @@ public class SQLiteDBLayout extends LinearLayout
 			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
 			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			tvTitle.setLayoutParams(tvTitleParams);
-			titleViewID = generateViewId();
-			tvTitle.setId(titleViewID);
 			if (onTitleClickListener != null) tvTitle.setOnClickListener(new OnClickListener() {
 
 					@Override

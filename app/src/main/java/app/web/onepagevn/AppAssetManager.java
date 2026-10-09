@@ -64,7 +64,9 @@ public class AppAssetManager extends ArrayList<String>
 			String imageDir = "images/";
 			if (!"".equals(path) && path != null) imageDir = path;
 			InputStream is = assetManager.open(imageDir + fileName);
-			Bitmap bitmap = BitmapFactory.decodeStream(is);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inSampleSize = 4;
+			Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
 			is.close();
 			View image = ((Activity) context).findViewById(imageViewID);
 			isOk = image instanceof ImageView;
@@ -83,7 +85,9 @@ public class AppAssetManager extends ArrayList<String>
 			String imageDir = "images/";
 			if (!"".equals(path) && path != null) imageDir = path;
 			InputStream is = assetManager.open(imageDir + fileName);
-			Bitmap bitmap = BitmapFactory.decodeStream(is);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inSampleSize = 4;
+			Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
 			is.close();
 			if (image == null) image = this.image;
 			if (image != null) image.setImageBitmap(bitmap);

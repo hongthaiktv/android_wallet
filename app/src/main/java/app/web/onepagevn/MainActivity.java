@@ -175,7 +175,7 @@ public class MainActivity extends Activity
 			@Override
 			public void onClick(View view)
 			{
-				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' AND name!='priorities' AND name!='todos' ORDER BY name COLLATE NOCASE");
+				List<Map<String, Object>> listTable = db.query("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'android_%' AND name!='logs' AND name!='setting' AND name!='cmdhistory' AND name!='budgets_protected' AND name!='priorities' ORDER BY name COLLATE NOCASE");
 				ArrayList<String> tables = new ArrayList<>();
 				for (Map<String, Object> table : listTable) {
 					tables.add((String) table.get("name"));
@@ -232,6 +232,11 @@ public class MainActivity extends Activity
 									ivBGround.setImageResource(R.drawable.bg_measurement);
 									layoutExpends.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
+									break;
+								case "todos":
+									Intent intEditor = new Intent(MainActivity.this, Editor.class);
+									intEditor.putExtra("tblName", "todos");
+									startActivity(intEditor);
 									break;
 								default:
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);

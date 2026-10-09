@@ -58,6 +58,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE product_types (ptypeid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE products (productid INTEGER PRIMARY KEY, name TEXT UNIQUE NOT NULL, price REAL DEFAULT 0 NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, ptypeid INT REFERENCES product_types (ptypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE expends (expendid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL DEFAULT 0 NOT NULL, quantity REAL DEFAULT 1 NOT NULL, note TEXT, budgetid INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL)");
+			db.execSQL("CREATE TABLE incomes (incomeid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, money REAL DEFAULT 0 NOT NULL, budgetid INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE supplier_products (sproductid INTEGER PRIMARY KEY, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL DEFAULT 0 NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, startdate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, enddate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Important')");
@@ -65,9 +66,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Normal')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Low')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Minimal')");
-			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('Cash', 1)");
-			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('TPBank', 1)");
-			db.execSQL("INSERT INTO budgets_protected (name, protected) VALUES ('Vietcombank', 1)");
+			db.execSQL("INSERT INTO budgets_protected (logo, name, protected) VALUES ('logo_cash.png', 'Cash', 1)");
+			db.execSQL("INSERT INTO budgets_protected (logo, name, protected) VALUES ('logo_tpbank.png', 'TPBank', 1)");
+			db.execSQL("INSERT INTO budgets_protected (logo, name, protected) VALUES ('logo_vietcombank.png', 'Vietcombank', 1)");
 			db.execSQL("INSERT INTO units (name) VALUES ('Kg')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Grams')");
 			db.execSQL("INSERT INTO units (name) VALUES ('Each')");

@@ -2,6 +2,7 @@ package app.web.onepagevn;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
+import android.net.*;
 import android.os.*;
 import android.text.*;
 import android.util.*;
@@ -11,6 +12,7 @@ import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import java.io.*;
 import java.text.*;
 import java.util.*;
 import org.json.*;
@@ -18,6 +20,7 @@ import org.json.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import java.text.ParseException;
 
 public class Editor extends Activity
 {
@@ -40,6 +43,7 @@ public class Editor extends Activity
 	private NumberFormat numConverter;
 	private Map<String, Integer> indexViews = new HashMap<>();
 	private AppAssetManager dirImage;
+	private FileManager fm;
 	private ImageButton ibBudget;
 	private Intent intent;
 	
@@ -68,9 +72,12 @@ public class Editor extends Activity
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		dirImage = new AppAssetManager(this, "images/");
+		dirImage.setImageFile("logo_cash.png", ibBudget);
+		fm = new FileManager(this);
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
+		//fm.openFilePicker(FileManager.PICK_IMAGE);
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
 			RelativeLayout.LayoutParams layoutButtonsParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -430,7 +437,7 @@ public class Editor extends Activity
 						currentBudget = 3;
 					}
 					else {
-						ibBudget.setImageResource(R.drawable.logo_cash);
+						dirImage.setImageFile("logo_cash.png", ibBudget);
 						currentBudget = 1;
 					}
 				}
@@ -967,13 +974,16 @@ public class Editor extends Activity
 				int budget = colValues[numRows + 1];
 				switch (budget) {
 					case 1:
-						ibBudget.setImageResource(R.drawable.logo_cash);
+						dirImage.setImageFile("logo_cash.png", ibBudget);
+						currentBudget = 1;
 						break;
 					case 2:
 						dirImage.setImageFile("logo_tpbank.png", ibBudget);
+						currentBudget = 2;
 						break;
 					case 3:
 						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						currentBudget = 3;
 						break;
 				}
 				break;
@@ -1141,6 +1151,29 @@ public class Editor extends Activity
 		return result;
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode != RESULT_OK) return;
+		
+		switch (requestCode) {
+			case FileManager.PICK_FILE:
+				if (data != null && data.getData() != null) {
+					Uri selectedFileUri = data.getData();
+				}
+				break;
+				
+			case FileManager.PICK_IMAGE:
+				if (data != null && data.getData() != null) {
+					Uri selectedImageUri = data.getData();
+					String path = fm.saveImageToPrivateStorage(selectedImageUri);
+					stt.info("File path: " + path);
+				}
+				break;
+		}
+	}
+	
 	@Override
 	protected void onResume()
 	{

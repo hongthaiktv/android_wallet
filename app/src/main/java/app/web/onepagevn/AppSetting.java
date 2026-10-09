@@ -5,6 +5,7 @@ import java.util.*;
 public class AppSetting extends Application
 {
 	private static AppSetting appContext;
+	
 	private StatusBar stt;
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
