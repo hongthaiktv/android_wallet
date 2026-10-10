@@ -77,7 +77,10 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		//fm.openFilePicker(FileManager.PICK_IMAGE);
+		fm.openFilePicker(FileManager.PICK_FILE);
+		//stt.warning("dirName: " + fm.getDirectoryName());
+		
+		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
 			RelativeLayout.LayoutParams layoutButtonsParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -1161,14 +1164,22 @@ public class Editor extends Activity
 			case FileManager.PICK_FILE:
 				if (data != null && data.getData() != null) {
 					Uri selectedFileUri = data.getData();
+					fm.saveImageToPrivateStorage(selectedFileUri);
+					fm.list();
+					if (fm.size() > 0) {
+						for (String f : fm)
+							stt.log(f);
+					}
 				}
 				break;
 				
 			case FileManager.PICK_IMAGE:
 				if (data != null && data.getData() != null) {
 					Uri selectedImageUri = data.getData();
-					String path = fm.saveImageToPrivateStorage(selectedImageUri);
-					stt.info("File path: " + path);
+					Map<String, Object> fileInfo = fm.saveImageToPrivateStorage(selectedImageUri);
+					//for (Object s : fileInfo.keySet())
+					//stt.info(String.valueOf(s));
+					stt.info("File info: " + fileInfo.get("size") + " : " + fileInfo.get("path"));
 				}
 				break;
 		}

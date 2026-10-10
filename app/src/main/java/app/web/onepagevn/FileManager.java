@@ -25,8 +25,9 @@ public class FileManager extends TreeSet<String>
 	private Context context;
 	private StatusBar stt;
 	private int pickerType = -1;
-	private String fileName, dirName, path, mime;
+	private String dirName = "";
 	private ContentResolver cr;
+	private List<Map<String, Object>> filesInfo = new ArrayList<>();
 	
 	public FileManager(Context context) {
 		super();
@@ -40,9 +41,28 @@ public class FileManager extends TreeSet<String>
 	
 	private void init(Context context, String dirName) {
 		this.context = context;
-		this.dirName = dirName;
+		if (dirName != null && !"".equals(dirName)) this.dirName = dirName;
 		stt = new StatusBar("FileManager");
 		cr = context.getContentResolver();
+	}
+
+	public FileManager setDirectory(String directory)
+	{
+		if (directory == null) dirName = "";
+		else dirName = directory;
+		clear();
+		filesInfo.clear();
+		return this;
+	}
+
+	public String getDirectoryName()
+	{
+		return dirName;
+	}
+	
+	public List<Map<String, Object>> getFilesInfo()
+	{
+		return filesInfo;
 	}
 	
 	public void openFilePicker(int requestCode) {
@@ -71,12 +91,40 @@ public class FileManager extends TreeSet<String>
 		((Activity) context).startActivityForResult(Intent.createChooser(intent, title), requestCode);
     }
 	
-	public String saveImageToPrivateStorage(Uri uri) {
+	public Map<String, Object> saveFileToPrivateStorage(Uri uri) {
 		if (pickerType == -1) {
 			String msg = "Need open picker first";
 			stt.error(msg);
 			return null;
 		}
+
+		Map<String, Object> fileInfo = new HashMap<>();
+
+		if (dirName == null || "".equals(dirName)) {
+			switch (pickerType) {
+				case PICK_FILE:
+					dirName = "user_files";
+					break;
+				case PICK_IMAGE:
+					dirName = "user_images";
+					break;
+			}
+		}
+
+		String mime = cr.getType(uri);
+		fileInfo.put("mime", mime);
+		
+	 return fileInfo;
+	}
+	
+	public Map<String, Object> saveImageToPrivateStorage(Uri uri) {
+		if (pickerType == -1) {
+			String msg = "Need open picker first";
+			stt.error(msg);
+			return null;
+		}
+		
+		Map<String, Object> fileInfo = new HashMap<>();
 		
 		if (dirName == null || "".equals(dirName)) {
 			switch (pickerType) {
@@ -89,7 +137,9 @@ public class FileManager extends TreeSet<String>
 			}
 		}
 		
-		mime = cr.getType(uri);
+		fileInfo.put("directory", dirName);
+		String mime = cr.getType(uri);
+		fileInfo.put("mime", mime);
 		Bitmap.CompressFormat compressFormat = null;
 		switch (mime) {
 			case "image/jpeg":
@@ -106,34 +156,35 @@ public class FileManager extends TreeSet<String>
 				stt.error(msg);
 				return null;
 		}
-		/*
-			case "text/plain":
-				break;
-			case "application/json":
-				break;
-			case "text/markdown":
-				break;
-			case "text/html":
-				break;
-			case "application/octet-stream":
-				break;
-		*/
 		
 		try
 		{
 			Cursor cursor = cr.query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
-					File directory = context.getDir(dirName, Context.MODE_PRIVATE);
+				int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (nameIndex != -1 && sizeIndex != -1) {
+                    String fileName = cursor.getString(nameIndex);
+					fileInfo.put("name", fileName);
+					File directory = new File(context.getFilesDir(), dirName);
+					if (!directory.exists()) directory.mkdirs();
 					File file = new File(directory, fileName);
-					path = file.getAbsolutePath();
+					String path = file.getAbsolutePath();
+					fileInfo.put("path", path);
+					fileInfo.put("size", cursor.getLong(sizeIndex));
 					FileOutputStream fos = new FileOutputStream(file);
 					Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
-					bitmap.compress(compressFormat, 100, fos);
-					add(path);
-					stt.success("File \"" + fileName + "\" saved.");
+					boolean compressed = bitmap.compress(compressFormat, 100, fos);
+					if (compressed) {
+						add(fileName);
+						filesInfo.add(fileInfo);
+						stt.success("File \"" + fileName + "\" saved.");
+					}
+					else {
+						stt.error("Saving file \"" + fileName + "\" failed.");
+						cursor.close();
+						return null;
+					}
                 }
             }
 			if (cursor != null) cursor.close();
@@ -141,7 +192,97 @@ public class FileManager extends TreeSet<String>
 		catch (Exception e)
 		{stt.error(e.getMessage());}
 		
-		return path;
+		return fileInfo;
+	}
+	
+	public TreeSet<String> listPrivateDirs(String directory) {
+		clear();
+		File dir = new File(context.getFilesDir(), directory);
+		if (dir.exists() && dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			if (files != null && files.length > 0) {
+				for (File file : files) {
+					if (file.isDirectory()) add(file.getName());
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> listDirs(String directory) {
+		clear();
+		File dir = new File(directory);
+		if (dir.exists() && dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			if (files != null && files.length > 0) {
+				for (File file : files) {
+					if (file.isDirectory()) add(file.getName());
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> listPrivateFiles(String directory) {
+		clear();
+		File dir = new File(context.getFilesDir(), directory);
+		if (dir.exists() && dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			if (files != null && files.length > 0) {
+				for (File file : files) {
+					if (file.isFile()) add(file.getName());
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> listFiles(String directory) {
+		clear();
+		File dir = new File(directory);
+		if (dir.exists() && dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			if (files != null && files.length > 0) {
+				for (File file : files) {
+					if (file.isFile()) add(file.getName());
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> listPrivate(String directory) {
+		clear();
+		File dir = new File(context.getFilesDir(), directory);
+		if (dir.exists() && dir.isDirectory()) {
+			String[] files = dir.list();
+			if (files != null && files.length > 0) {
+				for (String file : files) {
+					add(file);
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> list(String directory) {
+		clear();
+		File dir = new File(directory);
+		if (dir.exists() && dir.isDirectory()) {
+			String[] files = dir.list();
+			if (files != null && files.length > 0) {
+				for (String file : files) {
+					add(file);
+				}
+			}
+		}
+		return this;
+	}
+	
+	public TreeSet<String> list() {
+		clear();
+		if (!dirName.contains("/")) return listPrivate(dirName);
+		else return list(dirName);
 	}
 	
 	@Override
