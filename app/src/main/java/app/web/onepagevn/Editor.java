@@ -77,8 +77,10 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		fm.openFilePicker(FileManager.PICK_FILE);
+		//fm.openFilePicker(FileManager.PICK_FILE);
 		//stt.warning("dirName: " + fm.getDirectoryName());
+		fm.setDirectory("user_files");
+		stt.log("isNull: " + fm.listPrivate(""));
 		
 		
 		if (!"expends".equals(tblName)) {

@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
-public class FileManager extends TreeSet<String>
+public class FileManager extends LinkedHashSet<String>
 {
 	public static final int PICK_FILE = 1000;
 	public static final int PICK_IMAGE = 1001;
@@ -25,9 +25,9 @@ public class FileManager extends TreeSet<String>
 	private Context context;
 	private StatusBar stt;
 	private int pickerType = -1;
-	private String dirName = "";
+	private String dirName = "", dirPath = "";
+	private Set<String> dirNames = new LinkedHashSet<>(), fileNames = new LinkedHashSet<>();
 	private ContentResolver cr;
-	private List<Map<String, Object>> filesInfo = new ArrayList<>();
 	
 	public FileManager(Context context) {
 		super();
@@ -42,27 +42,67 @@ public class FileManager extends TreeSet<String>
 	private void init(Context context, String dirName) {
 		this.context = context;
 		if (dirName != null && !"".equals(dirName)) this.dirName = dirName;
+		dirPath = context.getFilesDir().getAbsolutePath();
 		stt = new StatusBar("FileManager");
 		cr = context.getContentResolver();
+	}
+	
+	private void refresh(String dirPath) {
+		clear(); dirNames.clear(); fileNames.clear();
+		if (dirPath == null) dirPath = this.dirPath;
+		else if ("".equals(dirPath)) dirPath = context.getFilesDir().getAbsolutePath();
+		File directory = new File(dirPath, dirName);
+		if (directory.exists() && directory.isDirectory()) {
+			File[] files = directory.listFiles();
+			if (files != null && files.length > 0) {
+				for (File file : files) {
+					add(file.getName());
+					if (file.isDirectory()) dirNames.add(file.getName());
+					else if (file.isFile()) fileNames.add(file.getName());
+				}
+			}
+		}
+		else stt.error("Wrong path or not an directory.");
+	}
+	
+	public void list() {
+		refresh(null);
 	}
 
 	public FileManager setDirectory(String directory)
 	{
 		if (directory == null) dirName = "";
 		else dirName = directory;
-		clear();
-		filesInfo.clear();
+		refresh(null);
 		return this;
 	}
 
-	public String getDirectoryName()
+	public String getDirName()
 	{
 		return dirName;
 	}
 	
-	public List<Map<String, Object>> getFilesInfo()
+	public FileManager setDirPath(String dirPath)
 	{
-		return filesInfo;
+		if (dirPath == null) dirPath = context.getFilesDir().getAbsolutePath();
+		else this.dirPath = dirPath;
+		refresh(null);
+		return this;
+	}
+
+	public String getDirPath()
+	{
+		return dirPath;
+	}
+	
+	public Set<String> getDirNames()
+	{
+		return dirNames;
+	}
+	
+	public Set<String> getFileNames()
+	{
+		return fileNames;
 	}
 	
 	public void openFilePicker(int requestCode) {
@@ -125,6 +165,7 @@ public class FileManager extends TreeSet<String>
 		}
 		
 		Map<String, Object> fileInfo = new HashMap<>();
+		fileInfo.put("dirPath", dirPath);
 		
 		if (dirName == null || "".equals(dirName)) {
 			switch (pickerType) {
@@ -167,6 +208,7 @@ public class FileManager extends TreeSet<String>
                     String fileName = cursor.getString(nameIndex);
 					fileInfo.put("name", fileName);
 					File directory = new File(context.getFilesDir(), dirName);
+					dirPath = directory.getAbsolutePath();
 					if (!directory.exists()) directory.mkdirs();
 					File file = new File(directory, fileName);
 					String path = file.getAbsolutePath();
@@ -177,7 +219,7 @@ public class FileManager extends TreeSet<String>
 					boolean compressed = bitmap.compress(compressFormat, 100, fos);
 					if (compressed) {
 						add(fileName);
-						filesInfo.add(fileInfo);
+						fileNames.add(fileName);
 						stt.success("File \"" + fileName + "\" saved.");
 					}
 					else {
@@ -195,166 +237,122 @@ public class FileManager extends TreeSet<String>
 		return fileInfo;
 	}
 	
-	public TreeSet<String> listPrivateDirs(String directory) {
-		clear();
-		File dir = new File(context.getFilesDir(), directory);
+	private Set<String> list(String directory, boolean isPrivate, int returnType) {
+		Set<String> allNames = new LinkedHashSet<>(), dirNames = new LinkedHashSet<>(), fileNames = new LinkedHashSet<>();
+		File dir = directory == null ? new File(context.getFilesDir(), "") : isPrivate ? new File(context.getFilesDir(), directory) : new File(directory);
 		if (dir.exists() && dir.isDirectory()) {
 			File[] files = dir.listFiles();
 			if (files != null && files.length > 0) {
 				for (File file : files) {
-					if (file.isDirectory()) add(file.getName());
+					allNames.add(file.getName());
+					if (file.isDirectory()) dirNames.add(file.getName());
+					else if (file.isFile()) fileNames.add(file.getName());
 				}
 			}
 		}
-		return this;
-	}
-	
-	public TreeSet<String> listDirs(String directory) {
-		clear();
-		File dir = new File(directory);
-		if (dir.exists() && dir.isDirectory()) {
-			File[] files = dir.listFiles();
-			if (files != null && files.length > 0) {
-				for (File file : files) {
-					if (file.isDirectory()) add(file.getName());
-				}
-			}
+		else stt.error("Wrong path or not an directory.");
+		
+		switch (returnType) {
+			case 1: return dirNames;
+			case 2: return fileNames;
+			default: return allNames;
 		}
-		return this;
 	}
 	
-	public TreeSet<String> listPrivateFiles(String directory) {
-		clear();
-		File dir = new File(context.getFilesDir(), directory);
-		if (dir.exists() && dir.isDirectory()) {
-			File[] files = dir.listFiles();
-			if (files != null && files.length > 0) {
-				for (File file : files) {
-					if (file.isFile()) add(file.getName());
-				}
-			}
-		}
-		return this;
+	public Set<String> listPrivate(String directory) {
+		return list(directory, true, 0);
+	}
+
+	public Set<String> list(String directory) {
+		return list(directory, false, 0);
+	}
+
+	public Set<String> listPrivateDirs(String directory) {
+		return list(directory, true, 1);
 	}
 	
-	public TreeSet<String> listFiles(String directory) {
-		clear();
-		File dir = new File(directory);
-		if (dir.exists() && dir.isDirectory()) {
-			File[] files = dir.listFiles();
-			if (files != null && files.length > 0) {
-				for (File file : files) {
-					if (file.isFile()) add(file.getName());
-				}
-			}
-		}
-		return this;
+	public Set<String> listDirs(String directory) {
+		return list(directory, false, 1);
 	}
 	
-	public TreeSet<String> listPrivate(String directory) {
-		clear();
-		File dir = new File(context.getFilesDir(), directory);
-		if (dir.exists() && dir.isDirectory()) {
-			String[] files = dir.list();
-			if (files != null && files.length > 0) {
-				for (String file : files) {
-					add(file);
-				}
-			}
-		}
-		return this;
+	public Set<String> listPrivateFiles(String directory) {
+		return list(directory, true, 2);
 	}
 	
-	public TreeSet<String> list(String directory) {
-		clear();
-		File dir = new File(directory);
-		if (dir.exists() && dir.isDirectory()) {
-			String[] files = dir.list();
-			if (files != null && files.length > 0) {
-				for (String file : files) {
-					add(file);
-				}
-			}
-		}
-		return this;
-	}
-	
-	public TreeSet<String> list() {
-		clear();
-		if (!dirName.contains("/")) return listPrivate(dirName);
-		else return list(dirName);
+	public Set<String> listFiles(String directory) {
+		return list(directory, false, 2);
 	}
 	
 	@Override
 	public static <E extends Object> Set<E> of()
 	{
-		return TreeSet.of();
+		return Set.of();
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1)
 	{
-		return TreeSet.of(e1);
+		return Set.of(e1);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2)
 	{
-		return TreeSet.of(e1, e2);
+		return Set.of(e1, e2);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3)
 	{
-		return TreeSet.of(e1, e2, e3);
+		return Set.of(e1, e2, e3);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4)
 	{
-		return TreeSet.of(e1, e2, e3, e4);
+		return Set.of(e1, e2, e3, e4);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5);
+		return Set.of(e1, e2, e3, e4, e5);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5, E e6)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5, e6);
+		return Set.of(e1, e2, e3, e4, e5, e6);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5, e6, e7);
+		return Set.of(e1, e2, e3, e4, e5, e6, e7);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5, e6, e7, e8);
+		return Set.of(e1, e2, e3, e4, e5, e6, e7, e8);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5, e6, e7, e8, e9);
+		return Set.of(e1, e2, e3, e4, e5, e6, e7, e8, e9);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10)
 	{
-		return TreeSet.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10);
+		return Set.of(e1, e2, e3, e4, e5, e6, e7, e8, e9, e10);
 	}
 
 	@Override
 	public static <E extends Object> Set<E> of(E[] elements)
 	{
-		return TreeSet.of(elements);
+		return Set.of(elements);
 	}
 
 	@Override
