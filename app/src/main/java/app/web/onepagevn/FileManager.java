@@ -6,8 +6,11 @@ import android.graphics.*;
 import android.net.*;
 import android.provider.*;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
+
+import java.nio.file.Path;
 
 public class FileManager extends TreeSet<String>
 {
@@ -28,6 +31,7 @@ public class FileManager extends TreeSet<String>
 	private String dirPath = "";
 	private Set<String> dirNames = new TreeSet<>(), fileNames = new TreeSet<>();
 	private ContentResolver cr;
+	private int imageCompressRatio = 100;
 	
 	public FileManager(Context context) {
 		super();
@@ -171,29 +175,50 @@ public class FileManager extends TreeSet<String>
 		((Activity) context).startActivityForResult(Intent.createChooser(intent, title), requestCode);
     }
 	
-	/*public Map<String, Object> saveFileToPrivateStorage(Uri uri) {
+	public Map<String, Object> saveFile(Uri uri) {
+		if (pickerType != PICK_FILE) {
+			String msg = "Need open file picker first";
+			stt.error(msg);
+			return null;
+		}
+
+		Map<String, Object> fileInfo = new HashMap<>();
+		String dirName = "user_files";
+
+		String mime = cr.getType(uri);
+		fileInfo.put("mime", mime);
 		
-		
-	 return fileInfo;
-	}*/
+		try
+		{
+			File directory = new File(context.getFilesDir(), dirName);
+			String fileName = "test.dump";
+			File file = new File(directory, fileName);
+			InputStream is = cr.openInputStream(uri);
+			OutputStream fos = new FileOutputStream(file);
+			byte[] buffer = new byte[8192];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				fos.write(buffer, 0, bytesRead);
+			}
+			stt.success("File \"" + fileName + "\" saved.");
+			is.close();
+			fos.close();
+		}
+		catch (Exception e)
+		{stt.error(e.getMessage());}
+
+		return fileInfo;
+	}
 	
 	public Map<String, Object> saveImage(Uri uri) {
-		if (pickerType == -1) {
-			String msg = "Need open picker first";
+		if (pickerType != PICK_IMAGE) {
+			String msg = "Need open image picker first";
 			stt.error(msg);
 			return null;
 		}
 		
 		Map<String, Object> fileInfo = new HashMap<>();
-		String dirName = "";
-		switch (pickerType) {
-			case PICK_FILE:
-				dirName = "user_files";
-				break;
-			case PICK_IMAGE:
-				dirName = "user_images";
-				break;
-		}
+		String dirName = "user_images";
 		
 		String mime = cr.getType(uri);
 		fileInfo.put("mime", mime);
@@ -232,8 +257,9 @@ public class FileManager extends TreeSet<String>
 					fileInfo.put("path", path);
 					fileInfo.put("size", cursor.getLong(sizeIndex));
 					FileOutputStream fos = new FileOutputStream(file);
-					Bitmap bitmap = BitmapFactory.decodeStream(cr.openInputStream(uri));
-					boolean compressed = bitmap.compress(compressFormat, 100, fos);
+					InputStream is = cr.openInputStream(uri);
+					Bitmap bitmap = BitmapFactory.decodeStream(is);
+					boolean compressed = bitmap.compress(compressFormat, imageCompressRatio, fos);
 					if (compressed) {
 						if (dirPath.equals(directory.getAbsolutePath())) {
 							add(fileName);
@@ -243,9 +269,13 @@ public class FileManager extends TreeSet<String>
 					}
 					else {
 						stt.error("Saving file \"" + fileName + "\" failed.");
+						is.close();
+						fos.close();
 						cursor.close();
 						return null;
 					}
+					is.close();
+					fos.close();
                 }
             }
 			if (cursor != null) cursor.close();
