@@ -73,15 +73,19 @@ public class Editor extends Activity
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		dirImage = new AppAssetManager(this, "images/");
 		dirImage.setImageFile("logo_cash.png", ibBudget);
-		fm = new FileManager(this);
+		fm = new FileManager(this, "thai/thao");
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
 		//fm.setDirectory("thai");
-		//fm.openFilePicker(FileManager.PICK_IMAGE);
+		
 		//stt.log("isNull: " + fm.listPrivate(""));
-		Set<String> l = fm.list("thao");
-		//for (String s : l) stt.log(s);
+		//stt.log(fm.getDirPath());
+		Set<String> set = fm.list("");
+		//stt.log(fm.getDirPath());
+		for (String s : fm.list("/data/user/0/app.web.onepagevn/files/user_images")) stt.log(s);
+		//stt.warning(fm.getDirPath());
+		//fm.openFilePicker(FileManager.PICK_IMAGE);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
@@ -1179,9 +1183,11 @@ public class Editor extends Activity
 				if (data != null && data.getData() != null) {
 					Uri selectedImageUri = data.getData();
 					Map<String, Object> fileInfo = fm.saveImage(selectedImageUri);
+					//stt.log("" + fm.getDirPath());
+					//for (String s : fm.list("user_images")) stt.info(s);
 					for (Object s : fileInfo.values())
 					stt.info(String.valueOf(s));
-					stt.log(fileInfo.get("path").toString());
+					//stt.log(fileInfo.get("path").toString());
 				}
 				break;
 		}
