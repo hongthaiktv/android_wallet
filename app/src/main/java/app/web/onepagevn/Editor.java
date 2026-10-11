@@ -77,11 +77,11 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		//fm.openFilePicker(FileManager.PICK_FILE);
-		//stt.warning("dirName: " + fm.getDirectoryName());
-		fm.setDirectory("user_files");
-		stt.log("isNull: " + fm.listPrivate(""));
-		
+		//fm.setDirectory("thai");
+		//fm.openFilePicker(FileManager.PICK_IMAGE);
+		//stt.log("isNull: " + fm.listPrivate(""));
+		Set<String> l = fm.list("thao");
+		//for (String s : l) stt.log(s);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
@@ -1166,7 +1166,7 @@ public class Editor extends Activity
 			case FileManager.PICK_FILE:
 				if (data != null && data.getData() != null) {
 					Uri selectedFileUri = data.getData();
-					fm.saveImageToPrivateStorage(selectedFileUri);
+					fm.saveImage(selectedFileUri);
 					fm.list();
 					if (fm.size() > 0) {
 						for (String f : fm)
@@ -1178,10 +1178,10 @@ public class Editor extends Activity
 			case FileManager.PICK_IMAGE:
 				if (data != null && data.getData() != null) {
 					Uri selectedImageUri = data.getData();
-					Map<String, Object> fileInfo = fm.saveImageToPrivateStorage(selectedImageUri);
-					//for (Object s : fileInfo.keySet())
-					//stt.info(String.valueOf(s));
-					stt.info("File info: " + fileInfo.get("size") + " : " + fileInfo.get("path"));
+					Map<String, Object> fileInfo = fm.saveImage(selectedImageUri);
+					for (Object s : fileInfo.values())
+					stt.info(String.valueOf(s));
+					stt.log(fileInfo.get("path").toString());
 				}
 				break;
 		}
