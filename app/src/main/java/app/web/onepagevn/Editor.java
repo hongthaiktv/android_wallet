@@ -77,16 +77,10 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		//fm.setDirectory("thai");
-		//Map<String, Integer> saved = db.saveCheckPoint();
-		//stt.log("blocked: " + saved.get("isBlocked") + " | pages: " + saved.get("pages") + " | committed: " + saved.get("pageCommit"));
-		//stt.log("isNull: " + fm.listPrivate(""));
-		//stt.log(fm.getDirPath());
-		//Set<String> set = fm.list("");
-		//stt.log(fm.getDirPath());
-		//for (String s : fm.list("/data/user/0/app.web.onepagevn/files/user_images")) stt.log(s);
-		//stt.warning(fm.getDirPath());
-		//fm.openFilePicker(FileManager.PICK_FILE);
+		//fm.openFilePicker(FileManager.PICK_DIRECTORY);
+		Uri outputDir = Uri.parse((String) db.getSetting().get("dirUri"));
+		String dbName = "wallet.db";
+		fm.saveToDir(getDatabasePath(dbName), outputDir, dbName);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
@@ -1165,27 +1159,28 @@ public class Editor extends Activity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode != RESULT_OK) return;
+		if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
+		Uri uri = data.getData();
 		
 		switch (requestCode) {
 			case FileManager.PICK_FILE:
-				if (data != null && data.getData() != null) {
-					Uri selectedFileUri = data.getData();
-					fm.saveFile(selectedFileUri);
-					for (String f : fm.list("user_files")) stt.log(f);
-				}
+				fm.saveFile(uri);
+				for (String f : fm.list("user_files")) stt.log(f);
 				break;
 				
 			case FileManager.PICK_IMAGE:
-				if (data != null && data.getData() != null) {
-					Uri selectedImageUri = data.getData();
-					Map<String, Object> fileInfo = fm.saveImage(selectedImageUri);
-					//stt.log("" + fm.getDirPath());
-					//for (String s : fm.list("user_images")) stt.info(s);
-					for (Object s : fileInfo.values())
-					stt.info(String.valueOf(s));
-					//stt.log(fileInfo.get("path").toString());
-				}
+				Map<String, Object> fileInfo = fm.saveImage(uri);
+				for (Object s : fileInfo.values()) stt.info(String.valueOf(s));
+				break;
+			
+			case FileManager.PICK_SAVETO:
+				break;
+			
+			case FileManager.PICK_DIRECTORY:
+				Uri dirUri = fm.takePersistableDirectory(data);
+				long result = db.replaceSetting("dirUri", dirUri.toString());
+				if (result != -1) stt.success("Picked directory uri saved.");
+				else stt.error("Saving picked directory uri failed.");
 				break;
 		}
 	}

@@ -16,14 +16,16 @@ public class FileManager extends TreeSet<String>
 {
 	public static final int PICK_FILE = 1000;
 	public static final int PICK_IMAGE = 1001;
-	public static final int TYPE_JPEG = 1002;
-	public static final int TYPE_PNG = 1003;
-	public static final int TYPE_WEBP = 1004;
-	public static final int TYPE_TEXT = 1005;
-	public static final int TYPE_JSON = 1006;
-	public static final int TYPE_MARKDOWN = 1007;
-	public static final int TYPE_HTML = 1008;
-	public static final int TYPE_OCTET_STREAM = 1009;
+	public static final int PICK_DIRECTORY = 1002;
+	public static final int PICK_SAVETO = 1003;
+	public static final int TYPE_JPEG = 1004;
+	public static final int TYPE_PNG = 1005;
+	public static final int TYPE_WEBP = 1006;
+	public static final int TYPE_TEXT = 1007;
+	public static final int TYPE_JSON = 1008;
+	public static final int TYPE_MARKDOWN = 1009;
+	public static final int TYPE_HTML = 1010;
+	public static final int TYPE_OCTET_STREAM = 1011;
 	
 	private Context context;
 	private StatusBar stt;
@@ -32,6 +34,7 @@ public class FileManager extends TreeSet<String>
 	private Set<String> dirNames = new TreeSet<>(), fileNames = new TreeSet<>();
 	private ContentResolver cr;
 	private int imageCompressRatio = 100;
+	private int bufferSize = 65536;
 	
 	public FileManager(Context context) {
 		super();
@@ -149,24 +152,42 @@ public class FileManager extends TreeSet<String>
 		return fileNames;
 	}
 	
-	public void openFilePicker(int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+	public void openFilePicker(int requestCode, String fileName) {
+        Intent intent = new Intent();
 		String title = null;
 
 		switch (requestCode) {
 			case PICK_FILE:
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("*/*");
 				title = "Select File";
 				pickerType = PICK_FILE;
 				break;
 
 			case PICK_IMAGE:
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("image/*");
 				title = "Select Picture";
 				pickerType = PICK_IMAGE;
 				break;
-
+				
+			case PICK_SAVETO:
+				intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("application/octet-stream");
+				intent.putExtra(Intent.EXTRA_TITLE, fileName);
+				title = "Save To";
+				pickerType = PICK_SAVETO;
+				break;
+				
+			case PICK_DIRECTORY:
+				intent.setAction(Intent.ACTION_OPEN_DOCUMENT_TREE);
+				title = "Select Directory";
+				pickerType = PICK_DIRECTORY;
+				break;
+				
 			default:
 				pickerType = -1;
 				stt.error("Wrong request code.");
@@ -174,6 +195,10 @@ public class FileManager extends TreeSet<String>
 		}
 		((Activity) context).startActivityForResult(Intent.createChooser(intent, title), requestCode);
     }
+	
+	public void openFilePicker(int requestCode) {
+		openFilePicker(requestCode, null);
+	}
 	
 	public Map<String, Object> saveFile(Uri uri) {
 		if (pickerType != PICK_FILE) {
@@ -195,7 +220,7 @@ public class FileManager extends TreeSet<String>
 			File file = new File(directory, fileName);
 			InputStream is = cr.openInputStream(uri);
 			FileOutputStream fos = new FileOutputStream(file);
-			byte[] buffer = new byte[65536];
+			byte[] buffer = new byte[bufferSize];
 			int bytesRead;
 			while ((bytesRead = is.read(buffer)) != -1) {
 				fos.write(buffer, 0, bytesRead);
@@ -283,6 +308,55 @@ public class FileManager extends TreeSet<String>
 		catch (Exception e)
 		{stt.error(e.getMessage());}
 		
+		return fileInfo;
+	}
+	
+	public Map<String, Object> saveDatabase(Uri uri) {
+		if (pickerType != PICK_SAVETO) {
+			String msg = "Need open save picker first";
+			stt.error(msg);
+			return null;
+		}
+
+		Map<String, Object> fileInfo = new HashMap<>();
+		String dirName = "user_images";
+		return fileInfo;
+	}
+	
+	public Uri takePersistableDirectory(Intent data) {
+		if (pickerType != PICK_DIRECTORY) {
+			String msg = "Need open directory picker first";
+			stt.error(msg);
+			return null;
+		}
+		
+		Uri treeUri = data.getData();
+		final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+		cr.takePersistableUriPermission(treeUri, takeFlags);
+		String dirID = DocumentsContract.getTreeDocumentId(treeUri);
+		Uri dirUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, dirID);
+		return dirUri;
+	}
+	
+	public Map<String, Object> saveToDir(File inputFile, Uri outputDir, String fileName) {
+		Map<String, Object> fileInfo = new HashMap<>();
+		try
+		{
+			Uri fileUri = DocumentsContract.createDocument(cr, outputDir, "application/octet-stream", fileName);
+			if (fileUri != null) {
+				InputStream is = new FileInputStream(inputFile);
+				OutputStream os = cr.openOutputStream(fileUri);
+				byte[] buffer = new byte[bufferSize];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+				is.close();
+				os.close();
+			}
+		}
+		catch (Exception e)
+		{stt.error(e.getMessage());}
 		return fileInfo;
 	}
 	

@@ -43,7 +43,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	{
 		super.onConfigure(db);
 		db.enableWriteAheadLogging();
-		db.rawQuery("PRAGMA wal_autocheckpoint=10", null).close();
+		db.rawQuery("PRAGMA wal_autocheckpoint=50", null).close();
 	}
 	
 	@Override
@@ -158,9 +158,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 		try {
 			cursor = db.rawQuery("PRAGMA wal_checkpoint(FULL)", null);
 			if (cursor.moveToFirst()) {
-				result.put("isBlocked", cursor.getInt(0));
+				result.put("busy", cursor.getInt(0));
 				result.put("pages", cursor.getInt(1));
-				result.put("pagesCommit", cursor.getInt(2));
+				result.put("commit", cursor.getInt(2));
 			}
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
@@ -223,20 +223,45 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public int updateSetting(String keyName, Object value) {
 		SQLiteDatabase db = getWritableDatabase();
 		int result = -1;
-		ContentValues values = new ContentValues();
-		if (value instanceof String) values.put("value", (String) value);
-		else if (value instanceof Integer) values.put("value", (Integer) value);
-		else if (value instanceof Long) values.put("value", (Long) value);
-		else if (value instanceof Float) values.put("value", (Float) value);
-		else if (value instanceof Double) values.put("value", (Double) value);
-		else if (value instanceof Boolean) values.put("value", (Boolean) value);
-		else if (value instanceof JSONObject) values.put("value", ((JSONObject) value).toString());
-		else if (value instanceof JSONArray) values.put("value", ((JSONArray) value).toString());
-		values.put("timestamp", new Date().getTime() / 1000L);
+		ContentValues data = new ContentValues();
+		if (value instanceof String) data.put("value", (String) value);
+		else if (value instanceof Integer) data.put("value", (Integer) value);
+		else if (value instanceof Long) data.put("value", (Long) value);
+		else if (value instanceof Float) data.put("value", (Float) value);
+		else if (value instanceof Double) data.put("value", (Double) value);
+		else if (value instanceof Boolean) data.put("value", (Boolean) value);
+		else if (value instanceof Date) data.put("value", ((Date) value).getTime() / 1000L);
+		else if (value instanceof JSONObject) data.put("value", ((JSONObject) value).toString());
+		else if (value instanceof JSONArray) data.put("value", ((JSONArray) value).toString());
+		data.put("timestamp", new Date().getTime() / 1000L);
 		String where = "name = ?";
 		String[] args = {keyName};
 		try {
-			result = db.update("setting", values, where, args);
+			result = db.update("setting", data, where, args);
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		db.close();
+		return result;
+	}
+	
+	public long replaceSetting(String keyName, Object value) {
+		SQLiteDatabase db = getWritableDatabase();
+		long result = -1;
+		ContentValues data = new ContentValues();
+		data.put("timestamp", new Date().getTime() / 1000L);
+		data.put("name", keyName);
+		if (value instanceof String) {data.put("value", (String) value); data.put("datatype", DataType.TEXT.name());}
+		else if (value instanceof Integer) {data.put("value", (Integer) value); data.put("datatype", DataType.INTEGER.name());}
+		else if (value instanceof Long) {data.put("value", (Long) value); data.put("datatype", DataType.NUMERIC.name());}
+		else if (value instanceof Float) {data.put("value", (Float) value); data.put("datatype", DataType.REAL.name());}
+		else if (value instanceof Double) {data.put("value", (Double) value); data.put("datatype", DataType.REAL.name());}
+		else if (value instanceof Boolean) {data.put("value", (Boolean) value); data.put("datatype", DataType.BOOLEAN.name());}
+		else if (value instanceof Date) {data.put("value", ((Date) value).getTime() / 1000L); data.put("datatype", DataType.DATETIME.name());}
+		else if (value instanceof JSONObject) {data.put("value", ((JSONObject) value).toString()); data.put("datatype", DataType.JSON.name());}
+		else if (value instanceof JSONArray) {data.put("value", ((JSONArray) value).toString()); data.put("datatype", DataType.JSON.name());}
+		try {
+			result = db.replace("setting", null, data);
 		} catch (Exception e) {
 			insertLog(e.getMessage(), LogType.ERROR, compName);
 		}
