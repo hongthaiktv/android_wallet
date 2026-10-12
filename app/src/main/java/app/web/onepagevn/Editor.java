@@ -78,14 +78,15 @@ public class Editor extends Activity
 		numConverter.setMaximumFractionDigits(7);
 		
 		//fm.setDirectory("thai");
-		
+		//Map<String, Integer> saved = db.saveCheckPoint();
+		//stt.log("blocked: " + saved.get("isBlocked") + " | pages: " + saved.get("pages") + " | committed: " + saved.get("pageCommit"));
 		//stt.log("isNull: " + fm.listPrivate(""));
 		//stt.log(fm.getDirPath());
 		//Set<String> set = fm.list("");
 		//stt.log(fm.getDirPath());
 		//for (String s : fm.list("/data/user/0/app.web.onepagevn/files/user_images")) stt.log(s);
 		//stt.warning(fm.getDirPath());
-		fm.openFilePicker(FileManager.PICK_FILE);
+		//fm.openFilePicker(FileManager.PICK_FILE);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);

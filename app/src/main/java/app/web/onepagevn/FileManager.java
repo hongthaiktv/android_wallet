@@ -194,8 +194,8 @@ public class FileManager extends TreeSet<String>
 			String fileName = "test.dump";
 			File file = new File(directory, fileName);
 			InputStream is = cr.openInputStream(uri);
-			OutputStream fos = new FileOutputStream(file);
-			byte[] buffer = new byte[8192];
+			FileOutputStream fos = new FileOutputStream(file);
+			byte[] buffer = new byte[65536];
 			int bytesRead;
 			while ((bytesRead = is.read(buffer)) != -1) {
 				fos.write(buffer, 0, bytesRead);

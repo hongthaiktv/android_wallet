@@ -112,6 +112,8 @@ public class AppAssetManager extends ArrayList<String>
 			while ((line = reader.readLine()) != null) {
 				builder.append(line + "\n");
 			}
+			is.close();
+			reader.close();
 		}
 		catch (Exception e)
 		{stt.error(e.getMessage());}

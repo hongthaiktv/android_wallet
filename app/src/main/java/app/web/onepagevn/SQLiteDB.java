@@ -37,6 +37,14 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public SQLiteDB(String dbName, int version) {
 		super(AppSetting.getAppContext(), dbName, cursorFactory, version, errorHandler);
 	}
+
+	@Override
+	public void onConfigure(SQLiteDatabase db)
+	{
+		super.onConfigure(db);
+		db.enableWriteAheadLogging();
+		db.rawQuery("PRAGMA wal_autocheckpoint=10", null).close();
+	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db)
@@ -123,7 +131,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public void onOpen(SQLiteDatabase db)
 	{
 		super.onOpen(db);
-		
 		try {
 			db.execSQL("PRAGMA foreign_keys = true");
 		} catch (Exception e) {
@@ -142,6 +149,26 @@ public class SQLiteDB extends SQLiteOpenHelper
 		String version = (String) result.get(0).get("version");
 		version = "SQLite version: " + version;
 		return version;
+	}
+	
+	public Map<String, Integer> saveCheckPoint() {
+		SQLiteDatabase db = getWritableDatabase();
+		Map<String, Integer> result = new HashMap<>();
+		Cursor cursor = null;
+		try {
+			cursor = db.rawQuery("PRAGMA wal_checkpoint(FULL)", null);
+			if (cursor.moveToFirst()) {
+				result.put("isBlocked", cursor.getInt(0));
+				result.put("pages", cursor.getInt(1));
+				result.put("pagesCommit", cursor.getInt(2));
+			}
+		} catch (Exception e) {
+			insertLog(e.getMessage(), LogType.ERROR, compName);
+		}
+		finally {
+			if (cursor != null) cursor.close();
+		}
+		return result;
 	}
 	
 	public List<Map<String, Object>> query(String sql) {
