@@ -234,33 +234,47 @@ public class FileManager extends TreeSet<String>
 
 		Map<String, Object> fileInfo = new HashMap<>();
 		String dirName = "user_files";
-
 		String mime = cr.getType(uri);
 		fileInfo.put("mime", mime);
-		
+		boolean isOK = false;
 		try
 		{
-			File directory = new File(context.getFilesDir(), dirName);
-			String fileName = "test.dump";
-			File file = new File(directory, fileName);
-			InputStream is = cr.openInputStream(uri);
-			FileOutputStream fos = new FileOutputStream(file);
-			writeFile(is, fos);
-			stt.success("File \"" + fileName + "\" saved.");
+			Cursor cursor = cr.query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+				int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                if (nameIndex != -1 && sizeIndex != -1) {
+                    String fileName = cursor.getString(nameIndex);
+					fileInfo.put("name", fileName);
+					File directory = dirPath.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(dirPath);
+					fileInfo.put("dirPath", directory.getAbsolutePath());
+					fileInfo.put("directory", directory.getName());
+					if (!directory.exists()) directory.mkdirs();
+					File file = new File(directory, fileName);
+					String path = file.getAbsolutePath();
+					fileInfo.put("path", path);
+					fileInfo.put("size", cursor.getLong(sizeIndex));
+					fileInfo.put("lastModified", new Date());
+					InputStream is = cr.openInputStream(uri);
+					FileOutputStream fos = new FileOutputStream(file);
+					writeFile(is, fos);
+					if (dirPath.equals(directory.getAbsolutePath())) {
+						add(fileName);
+						fileNames.add(fileName);
+					}
+					stt.success("File \"" + fileName + "\" saved.");
+					isOK = true;
+                }
+            }
+			if (cursor != null) cursor.close();
 		}
-		catch (Exception e)
+		catch (Exception e) 
 		{stt.error(e.getMessage());}
-
-		return fileInfo;
+		
+		return isOK ? fileInfo : null;
 	}
 	
 	public Map<String, Object> saveImageFromUri(Uri uri) {
-		if (pickerType != PICK_IMAGE) {
-			String msg = "Need open image picker first";
-			stt.error(msg);
-			return null;
-		}
-		
 		Map<String, Object> fileInfo = new HashMap<>();
 		String dirName = "user_images";
 		
@@ -283,9 +297,13 @@ public class FileManager extends TreeSet<String>
 				return null;
 		}
 		
+		Cursor cursor = null;
+		InputStream is = null;
+		FileOutputStream fos = null;
+		boolean isOK = false;
 		try
 		{
-			Cursor cursor = cr.query(uri, null, null, null, null);
+			cursor = cr.query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
                 int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
 				int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
@@ -300,8 +318,9 @@ public class FileManager extends TreeSet<String>
 					String path = file.getAbsolutePath();
 					fileInfo.put("path", path);
 					fileInfo.put("size", cursor.getLong(sizeIndex));
-					InputStream is = cr.openInputStream(uri);
-					FileOutputStream fos = new FileOutputStream(file);
+					fileInfo.put("lastModified", new Date());
+					is = cr.openInputStream(uri);
+					fos = new FileOutputStream(file);
 					Bitmap bitmap = BitmapFactory.decodeStream(is);
 					boolean compressed = bitmap.compress(compressFormat, imageCompressRatio, fos);
 					if (compressed) {
@@ -310,24 +329,25 @@ public class FileManager extends TreeSet<String>
 							fileNames.add(fileName);
 						}
 						stt.success("File \"" + fileName + "\" saved.");
+						isOK = true;
 					}
-					else {
-						stt.error("Saving file \"" + fileName + "\" failed.");
-						is.close();
-						fos.close();
-						cursor.close();
-						return null;
-					}
-					is.close();
-					fos.close();
+					else stt.error("Saving file \"" + fileName + "\" failed.");
                 }
             }
+		}
+		catch (Exception e) 
+		{stt.error(e.getMessage());}
+		
+		try
+		{
+			if (is != null) is.close();
+			if (fos != null) fos.close();
 			if (cursor != null) cursor.close();
 		}
 		catch (Exception e)
 		{stt.error(e.getMessage());}
 		
-		return fileInfo;
+		return isOK ? fileInfo : null;
 	}
 	
 	public Map<String, Object> saveToUri(File inputFile, Uri outputFile) {
@@ -356,11 +376,13 @@ public class FileManager extends TreeSet<String>
 			writeFile(is, os);
 			fileInfo.put("size", fileSize);
 			fileInfo.put("lastModified", new Date());
+			stt.success("File \"" + fileName + "\" saved.");
 		}
 		catch (Exception e) {
 			stt.error(e.getMessage());
 			return null;
 		}
+		
 		return fileInfo;
 	}
 	
@@ -386,25 +408,28 @@ public class FileManager extends TreeSet<String>
 		String mime = URLConnection.guessContentTypeFromName(fileName) != null ? URLConnection.guessContentTypeFromName(fileName) : "application/octet-stream";
 		fileInfo.put("dirPath", outputDir.toString());
 		fileInfo.put("directory", outputDir.getPath().replaceFirst("^.*/", ""));
-		fileInfo.put("name", fileName);
 		fileInfo.put("mime", mime);
 		
 		try
 		{
 			Uri fileUri = DocumentsContract.createDocument(cr, outputDir, mime, fileName);
 			if (fileUri != null) {
+				String fileUriName = fileUri.getPath().replaceFirst("^.*/", "");
+				fileInfo.put("name", fileUriName);
 				fileInfo.put("path", fileUri.toString());
 				InputStream is = new FileInputStream(inputFile);
 				OutputStream os = cr.openOutputStream(fileUri);
 				writeFile(is, os);
 				fileInfo.put("size", fileSize);
 				fileInfo.put("lastModified", new Date());
+				stt.success("File \"" + fileUriName + "\" saved.");
 			}
 		}
 		catch (Exception e) {
 			stt.error(e.getMessage());
 			return null;
 		}
+		
 		return fileInfo;
 	}
 	

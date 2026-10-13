@@ -78,22 +78,24 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		fm.setOnActivityResultListener(FileManager.PICK_DIRECTORY, new FileManager.OnActivityResultListener() {
+		fm.setOnActivityResultListener(FileManager.PICK_FILE, new FileManager.OnActivityResultListener() {
 
 				@Override
 				public void onResult(FileManager fm, Intent data)
 				{
-					String dirUri = fm.takePersistableDirectory(data).toString();
-					db.replaceSetting("dirUri", dirUri);
+					Map<String, Object> fileInfo = fm.saveImageFromUri(data.getData());
+//					String dirUri = fm.takePersistableDirectory(data).toString();
+//					db.replaceSetting("dirUri", dirUri);
 //					File inputFile = getDatabasePath("wallet.db");
 //					Map<String, Object> fileInfo = fm.saveToUri(inputFile, data.getData());
 //					if (fileInfo == null) return;
-//					for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
+					for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
 				}
 			});
-		fm.openFilePicker(FileManager.PICK_DIRECTORY);
-		//Uri dirUri = Uri.parse(db.getSetting().get("dirUri").toString());
-		//fm.saveToDir(getDatabasePath("wallet.db"), dirUri);
+		fm.openFilePicker(FileManager.PICK_FILE);
+//		Uri dirUri = Uri.parse(db.getSetting().get("dirUri").toString());
+//		Map<String, Object> fileInfo = fm.saveToDir(getDatabasePath("wallet.db"), dirUri);
+//		for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
 
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
