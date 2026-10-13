@@ -12,6 +12,7 @@ import java.util.stream.*;
 
 import java.nio.file.Path;
 import java.net.*;
+import java.util.regex.*;
 
 public class FileManager extends TreeSet<String>
 {
@@ -36,6 +37,7 @@ public class FileManager extends TreeSet<String>
 	private ContentResolver cr;
 	private int imageCompressRatio = 100;
 	private int bufferSize = 65536;
+	private OnActivityResultListener onPickFileResultListener, onPickImageResultListener, onPickSaveToResultListener, onPickDirectoryResultListener;
 	
 	public FileManager(Context context) {
 		super();
@@ -85,7 +87,7 @@ public class FileManager extends TreeSet<String>
 		if (dirPath == null || "".equals(dirPath)) dirPath = context.getFilesDir().getAbsolutePath();
 		else if ("..".equals(dirPath)) {
 			String directory = this.dirPath.replaceFirst("/$", "").replaceFirst("^.*/", "");
-			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + directory + "$", "");
+			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + Pattern.quote(directory) + "$", "");
 			dirPath = parentDir;
 		}
 		else if (!dirPath.startsWith("/")) dirPath = this.dirPath.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
@@ -129,7 +131,7 @@ public class FileManager extends TreeSet<String>
 		if (dirPath == null || "".equals(dirPath)) this.dirPath = context.getFilesDir().getAbsolutePath();
 		else if ("..".equals(dirPath)) {
 			String directory = this.dirPath.replaceFirst("/$", "").replaceFirst("^.*/", "");
-			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + directory + "$", "");
+			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + Pattern.quote(directory) + "$", "");
 			this.dirPath = parentDir;
 		}
 		else if (!dirPath.startsWith("/")) this.dirPath = this.dirPath.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
@@ -177,7 +179,8 @@ public class FileManager extends TreeSet<String>
 			case PICK_SAVETO:
 				intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
-				intent.setType("application/octet-stream");
+				String mime = URLConnection.guessContentTypeFromName(fileName) != null ? URLConnection.guessContentTypeFromName(fileName) : "application/octet-stream";
+				intent.setType(mime);
 				intent.putExtra(Intent.EXTRA_TITLE, fileName);
 				title = "Save To";
 				pickerType = PICK_SAVETO;
@@ -201,7 +204,7 @@ public class FileManager extends TreeSet<String>
 		openFilePicker(requestCode, null);
 	}
 	
-	private boolean writeFile(InputStream is, OutputStream os) {
+	private void writeFile(InputStream is, OutputStream os) throws IOException {
 		boolean isOK = false;
 		try {
 			byte[] buffer = new byte[bufferSize];
@@ -219,10 +222,10 @@ public class FileManager extends TreeSet<String>
 		}
 		catch (Exception e)
 		{stt.log(e.getMessage());}
-		return isOK;
+		if (!isOK) throw new IOException("Write file failed.");
 	}
 	
-	public Map<String, Object> saveFile(Uri uri) {
+	public Map<String, Object> saveFromUri(Uri uri) {
 		if (pickerType != PICK_FILE) {
 			String msg = "Need open file picker first";
 			stt.error(msg);
@@ -242,9 +245,8 @@ public class FileManager extends TreeSet<String>
 			File file = new File(directory, fileName);
 			InputStream is = cr.openInputStream(uri);
 			FileOutputStream fos = new FileOutputStream(file);
-			boolean writeOK = writeFile(is, fos);
-			if (writeOK) stt.success("File \"" + fileName + "\" saved.");
-			else stt.error("Saving file \"" + fileName + "\" failed.");
+			writeFile(is, fos);
+			stt.success("File \"" + fileName + "\" saved.");
 		}
 		catch (Exception e)
 		{stt.error(e.getMessage());}
@@ -252,7 +254,7 @@ public class FileManager extends TreeSet<String>
 		return fileInfo;
 	}
 	
-	public Map<String, Object> saveImage(Uri uri) {
+	public Map<String, Object> saveImageFromUri(Uri uri) {
 		if (pickerType != PICK_IMAGE) {
 			String msg = "Need open image picker first";
 			stt.error(msg);
@@ -328,7 +330,7 @@ public class FileManager extends TreeSet<String>
 		return fileInfo;
 	}
 	
-	public Map<String, Object> saveDatabase(Uri uri) {
+	public Map<String, Object> saveToUri(File inputFile, Uri outputFile) {
 		if (pickerType != PICK_SAVETO) {
 			String msg = "Need open save picker first";
 			stt.error(msg);
@@ -336,7 +338,29 @@ public class FileManager extends TreeSet<String>
 		}
 
 		Map<String, Object> fileInfo = new HashMap<>();
-		String dirName = "user_images";
+		String fileName = outputFile.getPath().replaceFirst("^.*/", "");
+		long fileSize = inputFile.length();
+		String mime = URLConnection.guessContentTypeFromName(fileName) != null ? URLConnection.guessContentTypeFromName(fileName) : "application/octet-stream";
+		String dirName = outputFile.getPath().replaceFirst("/" + Pattern.quote(fileName) + "$", "").replaceFirst("^.*/", "");
+		String dirPath = outputFile.toString().replaceFirst("(^.*" + Pattern.quote(dirName) + ").*", "$1");
+		fileInfo.put("dirPath", dirPath);
+		fileInfo.put("directory", dirName);
+		fileInfo.put("name", fileName);
+		fileInfo.put("mime", mime);
+		fileInfo.put("path", outputFile.toString());
+		
+		try
+		{
+			InputStream is = new FileInputStream(inputFile);
+			OutputStream os = cr.openOutputStream(outputFile);
+			writeFile(is, os);
+			fileInfo.put("size", fileSize);
+			fileInfo.put("lastModified", new Date());
+		}
+		catch (Exception e) {
+			stt.error(e.getMessage());
+			return null;
+		}
 		return fileInfo;
 	}
 	
@@ -363,7 +387,6 @@ public class FileManager extends TreeSet<String>
 		fileInfo.put("dirPath", outputDir.toString());
 		fileInfo.put("directory", outputDir.getPath().replaceFirst("^.*/", ""));
 		fileInfo.put("name", fileName);
-		fileInfo.put("size", fileSize);
 		fileInfo.put("mime", mime);
 		
 		try
@@ -374,11 +397,69 @@ public class FileManager extends TreeSet<String>
 				InputStream is = new FileInputStream(inputFile);
 				OutputStream os = cr.openOutputStream(fileUri);
 				writeFile(is, os);
+				fileInfo.put("size", fileSize);
+				fileInfo.put("lastModified", new Date());
 			}
 		}
-		catch (Exception e)
-		{stt.error(e.getMessage());}
+		catch (Exception e) {
+			stt.error(e.getMessage());
+			return null;
+		}
 		return fileInfo;
+	}
+	
+	public void setOnActivityResultListener(int requestCode, OnActivityResultListener listener) {
+		switch (requestCode) {
+			case PICK_FILE:
+				onPickFileResultListener = listener;
+				break;
+			case PICK_IMAGE:
+				onPickImageResultListener = listener;
+				break;
+			case PICK_SAVETO:
+				onPickSaveToResultListener = listener;
+				break;
+			case PICK_DIRECTORY:
+				onPickDirectoryResultListener = listener;
+				break;
+			default:
+				stt.error("Wrong request code.");
+		}
+	}
+	
+	public void activityResultHandler(int requestCode, Intent data) {
+		switch (requestCode) {
+			case PICK_FILE:
+				if (onPickFileResultListener != null) {
+					onPickFileResultListener.onResult(this, data);
+					onPickFileResultListener = null;
+				}
+				break;
+			case PICK_IMAGE:
+				if (onPickImageResultListener != null) {
+					onPickImageResultListener.onResult(this, data);
+					onPickImageResultListener = null;
+				}
+				break;
+			case PICK_SAVETO:
+				if (onPickSaveToResultListener != null) {
+					onPickSaveToResultListener.onResult(this, data);
+					onPickSaveToResultListener = null;
+				}
+				break;
+			case PICK_DIRECTORY:
+				if (onPickDirectoryResultListener != null) {
+					onPickDirectoryResultListener.onResult(this, data);
+					onPickDirectoryResultListener = null;
+				}
+				break;
+			default:
+				stt.error("Wrong request code.");
+		}
+	}
+	
+	public interface OnActivityResultListener {
+		public void onResult(FileManager fm, Intent data);
 	}
 	
 	@Override

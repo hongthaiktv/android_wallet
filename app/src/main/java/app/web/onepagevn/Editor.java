@@ -1,6 +1,7 @@
 package app.web.onepagevn;
 import android.app.*;
 import android.content.*;
+import android.database.*;
 import android.graphics.*;
 import android.net.*;
 import android.os.*;
@@ -21,8 +22,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import java.text.ParseException;
-import java.net.*;
-import android.webkit.*;
 
 public class Editor extends Activity
 {
@@ -79,14 +78,23 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		//fm.openFilePicker(FileManager.PICK_DIRECTORY);
-		Uri outputDir = Uri.parse((String) db.getSetting().get("dirUri"));
-		String dbName = "wallet.db";
-		File inputFile = getDatabasePath(dbName);
-		//stt.log(getFilesDir().getParent() + "");
-		Map<String, Object> fileInfo = fm.saveToDir(inputFile, outputDir);
-		for (Object o : fileInfo.values()) stt.info(o + "");
-		
+		fm.setOnActivityResultListener(FileManager.PICK_DIRECTORY, new FileManager.OnActivityResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, Intent data)
+				{
+					String dirUri = fm.takePersistableDirectory(data).toString();
+					db.replaceSetting("dirUri", dirUri);
+//					File inputFile = getDatabasePath("wallet.db");
+//					Map<String, Object> fileInfo = fm.saveToUri(inputFile, data.getData());
+//					if (fileInfo == null) return;
+//					for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
+				}
+			});
+		fm.openFilePicker(FileManager.PICK_DIRECTORY);
+		//Uri dirUri = Uri.parse(db.getSetting().get("dirUri").toString());
+		//fm.saveToDir(getDatabasePath("wallet.db"), dirUri);
+
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
 			RelativeLayout.LayoutParams layoutButtonsParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -1165,29 +1173,7 @@ public class Editor extends Activity
 	{
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode != RESULT_OK || data == null || data.getData() == null) return;
-		Uri uri = data.getData();
-		
-		switch (requestCode) {
-			case FileManager.PICK_FILE:
-				fm.saveFile(uri);
-				for (String f : fm.list("user_files")) stt.log(f);
-				break;
-				
-			case FileManager.PICK_IMAGE:
-				Map<String, Object> fileInfo = fm.saveImage(uri);
-				for (Object s : fileInfo.values()) stt.info(String.valueOf(s));
-				break;
-			
-			case FileManager.PICK_SAVETO:
-				break;
-			
-			case FileManager.PICK_DIRECTORY:
-				Uri dirUri = fm.takePersistableDirectory(data);
-				long result = db.replaceSetting("dirUri", dirUri.toString());
-				if (result != -1) stt.success("Picked directory uri saved.");
-				else stt.error("Saving picked directory uri failed.");
-				break;
-		}
+		fm.activityResultHandler(requestCode, data);
 	}
 	
 	@Override
