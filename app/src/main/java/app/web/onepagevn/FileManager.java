@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.*;
 
 import java.nio.file.Path;
+import java.net.*;
 
 public class FileManager extends TreeSet<String>
 {
@@ -200,6 +201,27 @@ public class FileManager extends TreeSet<String>
 		openFilePicker(requestCode, null);
 	}
 	
+	private boolean writeFile(InputStream is, OutputStream os) {
+		boolean isOK = false;
+		try {
+			byte[] buffer = new byte[bufferSize];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			isOK = true;
+		} catch (Exception e)
+		{stt.log(e.getMessage());}
+		try
+		{
+			is.close();
+			os.close();
+		}
+		catch (Exception e)
+		{stt.log(e.getMessage());}
+		return isOK;
+	}
+	
 	public Map<String, Object> saveFile(Uri uri) {
 		if (pickerType != PICK_FILE) {
 			String msg = "Need open file picker first";
@@ -220,14 +242,9 @@ public class FileManager extends TreeSet<String>
 			File file = new File(directory, fileName);
 			InputStream is = cr.openInputStream(uri);
 			FileOutputStream fos = new FileOutputStream(file);
-			byte[] buffer = new byte[bufferSize];
-			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				fos.write(buffer, 0, bytesRead);
-			}
-			stt.success("File \"" + fileName + "\" saved.");
-			is.close();
-			fos.close();
+			boolean writeOK = writeFile(is, fos);
+			if (writeOK) stt.success("File \"" + fileName + "\" saved.");
+			else stt.error("Saving file \"" + fileName + "\" failed.");
 		}
 		catch (Exception e)
 		{stt.error(e.getMessage());}
@@ -275,14 +292,14 @@ public class FileManager extends TreeSet<String>
 					fileInfo.put("name", fileName);
 					File directory = dirPath.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(dirPath);
 					fileInfo.put("dirPath", directory.getAbsolutePath());
-					fileInfo.put("directory", directory.getAbsolutePath().replaceFirst("/$", "").replaceFirst("^.*/", ""));
+					fileInfo.put("directory", directory.getName());
 					if (!directory.exists()) directory.mkdirs();
 					File file = new File(directory, fileName);
 					String path = file.getAbsolutePath();
 					fileInfo.put("path", path);
 					fileInfo.put("size", cursor.getLong(sizeIndex));
-					FileOutputStream fos = new FileOutputStream(file);
 					InputStream is = cr.openInputStream(uri);
+					FileOutputStream fos = new FileOutputStream(file);
 					Bitmap bitmap = BitmapFactory.decodeStream(is);
 					boolean compressed = bitmap.compress(compressFormat, imageCompressRatio, fos);
 					if (compressed) {
@@ -338,21 +355,25 @@ public class FileManager extends TreeSet<String>
 		return dirUri;
 	}
 	
-	public Map<String, Object> saveToDir(File inputFile, Uri outputDir, String fileName) {
+	public Map<String, Object> saveToDir(File inputFile, Uri outputDir) {
 		Map<String, Object> fileInfo = new HashMap<>();
+		String fileName = inputFile.getName();
+		long fileSize = inputFile.length();
+		String mime = URLConnection.guessContentTypeFromName(fileName) != null ? URLConnection.guessContentTypeFromName(fileName) : "application/octet-stream";
+		fileInfo.put("dirPath", outputDir.toString());
+		fileInfo.put("directory", outputDir.getPath().replaceFirst("^.*/", ""));
+		fileInfo.put("name", fileName);
+		fileInfo.put("size", fileSize);
+		fileInfo.put("mime", mime);
+		
 		try
 		{
-			Uri fileUri = DocumentsContract.createDocument(cr, outputDir, "application/octet-stream", fileName);
+			Uri fileUri = DocumentsContract.createDocument(cr, outputDir, mime, fileName);
 			if (fileUri != null) {
+				fileInfo.put("path", fileUri.toString());
 				InputStream is = new FileInputStream(inputFile);
 				OutputStream os = cr.openOutputStream(fileUri);
-				byte[] buffer = new byte[bufferSize];
-				int length;
-				while ((length = is.read(buffer)) > 0) {
-					os.write(buffer, 0, length);
-				}
-				is.close();
-				os.close();
+				writeFile(is, os);
 			}
 		}
 		catch (Exception e)

@@ -21,6 +21,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
 import java.text.ParseException;
+import java.net.*;
+import android.webkit.*;
 
 public class Editor extends Activity
 {
@@ -80,7 +82,10 @@ public class Editor extends Activity
 		//fm.openFilePicker(FileManager.PICK_DIRECTORY);
 		Uri outputDir = Uri.parse((String) db.getSetting().get("dirUri"));
 		String dbName = "wallet.db";
-		fm.saveToDir(getDatabasePath(dbName), outputDir, dbName);
+		File inputFile = getDatabasePath(dbName);
+		//stt.log(getFilesDir().getParent() + "");
+		Map<String, Object> fileInfo = fm.saveToDir(inputFile, outputDir);
+		for (Object o : fileInfo.values()) stt.info(o + "");
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
