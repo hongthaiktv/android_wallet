@@ -72,7 +72,7 @@ public class FileManager extends TreeSet<String>
 			}
 
 			@Override
-			public void writeString(String text, File outputFile, boolean append) throws IOException
+			public void writeText(String text, File outputFile, boolean append) throws IOException
 			{
 				writeString(text, outputFile, append);
 			}
@@ -682,7 +682,7 @@ public class FileManager extends TreeSet<String>
 	
 	public interface FileHelper {
 		public void write(InputStream is, OutputStream os) throws IOException;
-		public void writeString(String text, File outputFile, boolean append) throws IOException;
+		public void writeText(String text, File outputFile, boolean append) throws IOException;
 	}
 	
 	@Override

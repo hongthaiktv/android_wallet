@@ -83,8 +83,8 @@ public class Editor extends Activity
 				{
 					File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 					File file = new File(dl, "test.txt");
-					String sample = "save text string";
-					writer.writeString(sample, file, true);
+					String sample = "save text string\n";
+					writer.writeText(sample, file, true);
 				}
 			});
 		fm.requestStoragePermission();
