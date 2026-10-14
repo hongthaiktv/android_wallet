@@ -1,18 +1,18 @@
 package app.web.onepagevn;
+import android.*;
 import android.app.*;
 import android.content.*;
+import android.content.pm.*;
 import android.database.*;
 import android.graphics.*;
 import android.net.*;
+import android.os.*;
 import android.provider.*;
 import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.stream.*;
-
-import java.nio.file.Path;
 import java.net.*;
+import java.util.*;
 import java.util.regex.*;
+import java.util.stream.*;
 
 public class FileManager extends TreeSet<String>
 {
@@ -28,6 +28,8 @@ public class FileManager extends TreeSet<String>
 	public static final int TYPE_MARKDOWN = 1009;
 	public static final int TYPE_HTML = 1010;
 	public static final int TYPE_OCTET_STREAM = 1011;
+	public static final int REQUEST_PERMISSIONS = 2000;
+	public static final int REQUEST_MANAGE_EXTERNAL_STORAGE = 2001;
 	
 	private Context context;
 	private StatusBar stt;
@@ -37,7 +39,9 @@ public class FileManager extends TreeSet<String>
 	private ContentResolver cr;
 	private int imageCompressRatio = 100;
 	private int bufferSize = 65536;
-	private OnActivityResultListener onPickFileResultListener, onPickImageResultListener, onPickSaveToResultListener, onPickDirectoryResultListener;
+	private OnPickResultListener onPickFileResultListener, onPickImageResultListener, onPickSaveToResultListener, onPickDirectoryResultListener;
+	private OnRequestPermissionResultListener onRequestPermissionResultListener;
+	private OnRequestStorageResultListener onRequestStorageResultListener;
 	
 	public FileManager(Context context) {
 		super();
@@ -433,7 +437,67 @@ public class FileManager extends TreeSet<String>
 		return fileInfo;
 	}
 	
-	public void setOnActivityResultListener(int requestCode, OnActivityResultListener listener) {
+	public static void openAppSetting(Context context) {
+		Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+		Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+		intent.setData(uri);
+		context.startActivity(intent);
+	}
+	
+	public void openAppSetting() {
+		Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+		Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+		intent.setData(uri);
+		context.startActivity(intent);
+	}
+	
+	private void requestPermissions(String[] permissions, int requestCode) {
+		List<String> deniesPermissions = new ArrayList<>();
+		for (String permission : permissions) {
+			if (context.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) deniesPermissions.add(permission);
+		}
+		if (deniesPermissions.size() < 1) {
+			if (onRequestPermissionResultListener != null) {
+				onRequestPermissionResultListener.onResult(this, null);
+				onRequestPermissionResultListener = null;
+			}
+		} else {
+			((Activity) context).requestPermissions(deniesPermissions.toArray(new String[0]), requestCode == -1 ? REQUEST_PERMISSIONS : requestCode);
+		}
+	}
+	
+	public void requestPermissions(String[] permissions) {
+		requestPermissions(permissions, -1);
+	}
+	
+	public void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			if (Environment.isExternalStorageManager()) {
+				if (onRequestStorageResultListener != null) {
+					onRequestStorageResultListener.onResult(this, null);
+					onRequestStorageResultListener = null;
+				}
+			}
+			else {
+				try {
+					Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+					intent.setData(Uri.parse("package:" + context.getPackageName()));
+					((Activity) context).startActivityForResult(intent, REQUEST_MANAGE_EXTERNAL_STORAGE);
+				} catch (Exception e) {
+					Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+					((Activity) context).startActivityForResult(intent, REQUEST_MANAGE_EXTERNAL_STORAGE);
+				}
+			}
+        }
+		else {
+			String[] permissions = new String[] {
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
+			};
+			requestPermissions(permissions, REQUEST_MANAGE_EXTERNAL_STORAGE);
+		}
+    }
+	
+	public FileManager setOnPickResultListener(int requestCode, OnPickResultListener listener) {
 		switch (requestCode) {
 			case PICK_FILE:
 				onPickFileResultListener = listener;
@@ -450,32 +514,57 @@ public class FileManager extends TreeSet<String>
 			default:
 				stt.error("Wrong request code.");
 		}
+		return this;
 	}
 	
-	public void activityResultHandler(int requestCode, Intent data) {
+	public FileManager setOnRequestStorageResultListener(OnRequestStorageResultListener listener) {
+		onRequestStorageResultListener = listener;
+		return this;
+	}
+	
+	public FileManager setOnRequestPermissionResultListener(OnRequestPermissionResultListener listener) {
+		onRequestPermissionResultListener = listener;
+		return this;
+	}
+	
+	public void onActivityResultHandler(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 			case PICK_FILE:
 				if (onPickFileResultListener != null) {
-					onPickFileResultListener.onResult(this, data);
+					onPickFileResultListener.onResult(this, resultCode, data);
 					onPickFileResultListener = null;
 				}
 				break;
 			case PICK_IMAGE:
 				if (onPickImageResultListener != null) {
-					onPickImageResultListener.onResult(this, data);
+					onPickImageResultListener.onResult(this, resultCode, data);
 					onPickImageResultListener = null;
 				}
 				break;
 			case PICK_SAVETO:
 				if (onPickSaveToResultListener != null) {
-					onPickSaveToResultListener.onResult(this, data);
+					onPickSaveToResultListener.onResult(this, resultCode, data);
 					onPickSaveToResultListener = null;
 				}
 				break;
 			case PICK_DIRECTORY:
 				if (onPickDirectoryResultListener != null) {
-					onPickDirectoryResultListener.onResult(this, data);
+					onPickDirectoryResultListener.onResult(this, resultCode, data);
 					onPickDirectoryResultListener = null;
+				}
+				break;
+			case REQUEST_MANAGE_EXTERNAL_STORAGE:
+				if (Environment.isExternalStorageManager()) {
+					if (onRequestStorageResultListener != null) {
+						onRequestStorageResultListener.onResult(this, new String[0]);
+						onRequestStorageResultListener = null;
+					}
+				}
+				else {
+					if (onRequestStorageResultListener != null) {
+						onRequestStorageResultListener.onResult(this, new String[] {Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION});
+						onRequestStorageResultListener = null;
+					}
 				}
 				break;
 			default:
@@ -483,8 +572,39 @@ public class FileManager extends TreeSet<String>
 		}
 	}
 	
-	public interface OnActivityResultListener {
-		public void onResult(FileManager fm, Intent data);
+	public void onRequestPermissionsResultHandler(int requestCode, String[] permissions, int[] grantResults) {
+		List<String> denyPermissions = new ArrayList<>();
+		for (int i = 0; i < grantResults.length; i++) {
+			if (grantResults[i] != PackageManager.PERMISSION_GRANTED) denyPermissions.add(permissions[i]);
+		}
+		switch (requestCode) {
+			case REQUEST_PERMISSIONS:
+				if (onRequestPermissionResultListener != null) {
+					onRequestPermissionResultListener.onResult(this, denyPermissions.toArray(new String[0]));
+					onRequestPermissionResultListener = null;
+				}
+				break;
+			case REQUEST_MANAGE_EXTERNAL_STORAGE:
+				if (onRequestStorageResultListener != null) {
+					onRequestStorageResultListener.onResult(this, denyPermissions.toArray(new String[0]));
+					onRequestStorageResultListener = null;
+				}
+				break;
+			default:
+				stt.error("Wrong request code.");
+		}
+	}
+	
+	public interface OnPickResultListener {
+		public void onResult(FileManager fm, int resultCode, Intent data);
+	}
+	
+	public interface OnRequestPermissionResultListener {
+		public void onResult(FileManager fm, String[] denyPermissions);
+	}
+	
+	public interface OnRequestStorageResultListener {
+		public void onResult(FileManager fm, String[] denyPermissions);
 	}
 	
 	@Override
