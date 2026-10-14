@@ -42,6 +42,7 @@ public class FileManager extends TreeSet<String>
 	private OnPickResultListener onPickFileResultListener, onPickImageResultListener, onPickSaveToResultListener, onPickDirectoryResultListener;
 	private OnRequestPermissionResultListener onRequestPermissionResultListener;
 	private OnRequestStorageResultListener onRequestStorageResultListener;
+	private FileHelper fileHelper;
 	
 	public FileManager(Context context) {
 		super();
@@ -62,6 +63,20 @@ public class FileManager extends TreeSet<String>
 		}
 		stt = new StatusBar("FileManager");
 		cr = context.getContentResolver();
+		fileHelper = new FileHelper() {
+
+			@Override
+			public void write(InputStream is, OutputStream os) throws IOException
+			{
+				writeFile(is, os);
+			}
+
+			@Override
+			public void writeString(String text, File outputFile, boolean append) throws IOException
+			{
+				writeString(text, outputFile, append);
+			}
+		};
 		refresh();
 	}
 	
@@ -227,6 +242,24 @@ public class FileManager extends TreeSet<String>
 		catch (Exception e)
 		{stt.log(e.getMessage());}
 		if (!isOK) throw new IOException("Write file failed.");
+	}
+	
+	private void writeString(String text, File outputFile, boolean append) throws IOException {
+		boolean isOK = false;
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(outputFile, append);
+			writer.write(text);
+			isOK = true;
+		} catch (Exception e)
+		{stt.log(e.getMessage());}
+		try
+		{
+			if (writer != null) writer.close();
+		}
+		catch (Exception e)
+		{stt.log(e.getMessage());}
+		if (!isOK) throw new IOException("Write text to file failed.");
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
@@ -458,8 +491,12 @@ public class FileManager extends TreeSet<String>
 		}
 		if (deniesPermissions.size() < 1) {
 			if (onRequestPermissionResultListener != null) {
-				onRequestPermissionResultListener.onResult(this, null);
-				onRequestPermissionResultListener = null;
+				try
+				{
+					onRequestPermissionResultListener.onResult(this, new String[0], fileHelper);
+				}
+				catch (IOException e)
+				{stt.error(e.getMessage());}
 			}
 		} else {
 			((Activity) context).requestPermissions(deniesPermissions.toArray(new String[0]), requestCode == -1 ? REQUEST_PERMISSIONS : requestCode);
@@ -474,8 +511,12 @@ public class FileManager extends TreeSet<String>
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 			if (Environment.isExternalStorageManager()) {
 				if (onRequestStorageResultListener != null) {
-					onRequestStorageResultListener.onResult(this, null);
-					onRequestStorageResultListener = null;
+					try
+					{
+						onRequestStorageResultListener.onResult(this, new String[0], fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 			}
 			else {
@@ -531,39 +572,63 @@ public class FileManager extends TreeSet<String>
 		switch (requestCode) {
 			case PICK_FILE:
 				if (onPickFileResultListener != null) {
-					onPickFileResultListener.onResult(this, resultCode, data);
-					onPickFileResultListener = null;
+					try
+					{
+						onPickFileResultListener.onResult(this, resultCode, data, fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			case PICK_IMAGE:
 				if (onPickImageResultListener != null) {
-					onPickImageResultListener.onResult(this, resultCode, data);
-					onPickImageResultListener = null;
+					try
+					{
+						onPickImageResultListener.onResult(this, resultCode, data, fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			case PICK_SAVETO:
 				if (onPickSaveToResultListener != null) {
-					onPickSaveToResultListener.onResult(this, resultCode, data);
-					onPickSaveToResultListener = null;
+					try
+					{
+						onPickSaveToResultListener.onResult(this, resultCode, data, fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			case PICK_DIRECTORY:
 				if (onPickDirectoryResultListener != null) {
-					onPickDirectoryResultListener.onResult(this, resultCode, data);
-					onPickDirectoryResultListener = null;
+					try
+					{
+						onPickDirectoryResultListener.onResult(this, resultCode, data, fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			case REQUEST_MANAGE_EXTERNAL_STORAGE:
 				if (Environment.isExternalStorageManager()) {
 					if (onRequestStorageResultListener != null) {
-						onRequestStorageResultListener.onResult(this, new String[0]);
-						onRequestStorageResultListener = null;
+						try
+						{
+							onRequestStorageResultListener.onResult(this, new String[0], fileHelper);
+						}
+						catch (IOException e)
+						{stt.error(e.getMessage());}
 					}
 				}
 				else {
 					if (onRequestStorageResultListener != null) {
-						onRequestStorageResultListener.onResult(this, new String[] {Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION});
-						onRequestStorageResultListener = null;
+						try
+						{
+							onRequestStorageResultListener.onResult(this, new String[] {Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION}, fileHelper);
+						}
+						catch (IOException e)
+						{stt.error(e.getMessage());}
 					}
 				}
 				break;
@@ -580,14 +645,22 @@ public class FileManager extends TreeSet<String>
 		switch (requestCode) {
 			case REQUEST_PERMISSIONS:
 				if (onRequestPermissionResultListener != null) {
-					onRequestPermissionResultListener.onResult(this, denyPermissions.toArray(new String[0]));
-					onRequestPermissionResultListener = null;
+					try
+					{
+						onRequestPermissionResultListener.onResult(this, denyPermissions.toArray(new String[0]), fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			case REQUEST_MANAGE_EXTERNAL_STORAGE:
 				if (onRequestStorageResultListener != null) {
-					onRequestStorageResultListener.onResult(this, denyPermissions.toArray(new String[0]));
-					onRequestStorageResultListener = null;
+					try
+					{
+						onRequestStorageResultListener.onResult(this, denyPermissions.toArray(new String[0]), fileHelper);
+					}
+					catch (IOException e)
+					{stt.error(e.getMessage());}
 				}
 				break;
 			default:
@@ -596,15 +669,20 @@ public class FileManager extends TreeSet<String>
 	}
 	
 	public interface OnPickResultListener {
-		public void onResult(FileManager fm, int resultCode, Intent data);
+		public void onResult(FileManager fm, int resultCode, Intent data, FileHelper writer) throws IOException;
 	}
 	
 	public interface OnRequestPermissionResultListener {
-		public void onResult(FileManager fm, String[] denyPermissions);
+		public void onResult(FileManager fm, String[] denyPermissions, FileHelper writer) throws IOException;
 	}
 	
 	public interface OnRequestStorageResultListener {
-		public void onResult(FileManager fm, String[] denyPermissions);
+		public void onResult(FileManager fm, String[] denyPermissions, FileHelper writer) throws IOException;
+	}
+	
+	public interface FileHelper {
+		public void write(InputStream is, OutputStream os) throws IOException;
+		public void writeString(String text, File outputFile, boolean append) throws IOException;
 	}
 	
 	@Override

@@ -1,5 +1,4 @@
 package app.web.onepagevn;
-import android.*;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
@@ -12,6 +11,7 @@ import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import java.io.*;
 import java.text.*;
 import java.util.*;
 import org.json.*;
@@ -19,6 +19,7 @@ import org.json.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
+import app.web.onepagevn.FileManager.*;
 
 public class Editor extends Activity
 {
@@ -75,83 +76,18 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		
 		fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
 
 				@Override
-				public void onResult(FileManager fm, String[] denyPermissions)
+				public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
 				{
-					if (denyPermissions != null && denyPermissions.length > 0) {
-						stt.log(denyPermissions[0]);
-					}
-					else stt.success("isOK: OK.");
+					File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+					File file = new File(dl, "test.txt");
+					String sample = "save text string";
+					writer.writeString(sample, file, true);
 				}
 			});
-			
-		fm.setOnPickResultListener(FileManager.PICK_FILE, new FileManager.OnPickResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, int resultCode, Intent data)
-				{
-					stt.log("active activity result when cancel: result canceled? > " + (resultCode == RESULT_CANCELED));
-				}
-			});
-		//fm.openFilePicker(FileManager.PICK_FILE);
 		fm.requestStoragePermission();
-		/*
-		fm.setOnRequestPermissionResultListener(new FileManager.OnRequestPermissionResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, String[] denyPermissions)
-				{
-					if (denyPermissions != null && denyPermissions.length > 0) {
-						for (String s : denyPermissions)
-						stt.log("denied: " + s + "...");
-						
-						AlertDialog.Builder b = new AlertDialog.Builder(Editor.this);
-						b.setTitle("Need accept storage permission")
-						.setMessage("Open setting for you and allow now")
-						.setPositiveButton("Setting", new DialogInterface.OnClickListener() {
-
-								@Override
-								public void onClick(DialogInterface p1, int p2)
-								{
-									FileManager.openAppSetting(Editor.this);
-								}
-							})
-						.create().show();
-					}
-					else {
-						stt.log("granted...");
-					}
-				}
-			});
-		String[] requestPermissions = new String[] {
-			Manifest.permission.WRITE_EXTERNAL_STORAGE,
-			Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.CAMERA
-		};
-		*/
-		//fm.requestStoragePermission();
-		//fm.requestPermissions(requestPermissions);
-		/*fm.setOnActivityResultListener(FileManager.PICK_FILE, new FileManager.OnActivityResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, Intent data)
-				{
-					Map<String, Object> fileInfo = fm.saveImageFromUri(data.getData());
-//					String dirUri = fm.takePersistableDirectory(data).toString();
-//					db.replaceSetting("dirUri", dirUri);
-//					File inputFile = getDatabasePath("wallet.db");
-//					Map<String, Object> fileInfo = fm.saveToUri(inputFile, data.getData());
-//					if (fileInfo == null) return;
-					for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
-				}
-			});*/
-		//fm.openFilePicker(FileManager.PICK_FILE);
-//		Uri dirUri = Uri.parse(db.getSetting().get("dirUri").toString());
-//		Map<String, Object> fileInfo = fm.saveToDir(getDatabasePath("wallet.db"), dirUri);
-//		for (Object o : fileInfo.values()) stt.log(String.valueOf(o));
 
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
