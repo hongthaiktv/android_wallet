@@ -2,6 +2,7 @@ package app.web.onepagevn;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
+import android.net.*;
 import android.os.*;
 import android.text.*;
 import android.util.*;
@@ -11,6 +12,7 @@ import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
+import app.web.onepagevn.FileManager.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -19,7 +21,7 @@ import org.json.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import app.web.onepagevn.FileManager.*;
+import java.text.ParseException;
 
 public class Editor extends Activity
 {
@@ -81,12 +83,26 @@ public class Editor extends Activity
 				@Override
 				public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
 				{
+					File in = getDatabasePath("wallet.db");
+					InputStream is = new FileInputStream(in);
 					File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-					File file = new File(dl, "test.txt");
-					String sample = "save text string\n";
-					writer.writeText(sample, file, true);
+					File fin = new File(dl, "test.txt");
+					File file = new File(dl, "wallet_bak.db");
+					OutputStream os = new FileOutputStream(file);
+					//String sample = "save text string\n";
+					writer.writeFile(fin, file);
 				}
 			});
+		fm.setOnPickResultListener(FileManager.PICK_DIRECTORY, new OnPickResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
+				{
+					Uri uri = fm.takePersistableDirectory(data);
+					db.replaceSetting("dirUri",uri.toString());
+				}
+			});
+		//fm.openFilePicker(FileManager.PICK_DIRECTORY);
 		fm.requestStoragePermission();
 
 		if (!"expends".equals(tblName)) {

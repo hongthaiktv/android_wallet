@@ -249,7 +249,7 @@ public class FileManager extends TreeSet<String>
 		boolean isOK = false;
 		InputStream is = null;
 		OutputStream os = null;
-		String msgWrite = "", msgClose = "";
+		String msgWrite = "";
 		try {
 			is = new FileInputStream(inputFile);
 			os = new FileOutputStream(outputFile);
@@ -258,6 +258,7 @@ public class FileManager extends TreeSet<String>
 			while ((bytesRead = is.read(buffer)) != -1) {
 				os.write(buffer, 0, bytesRead);
 			}
+			stt.success("File \"" + outputFile.getName() + "\" saved to " + outputFile.getParent() + ".");
 			isOK = true;
 		} catch (Exception e)
 		{msgWrite = e.getMessage();}
@@ -267,18 +268,13 @@ public class FileManager extends TreeSet<String>
 			if (os != null) os.close();
 		}
 		catch (Exception e)
-		{msgClose = e.getMessage();}
-		if (!isOK) {
-			String msgThrow = "";
-			if (!"".equals(msgWrite)) msgThrow = msgWrite;
-			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
-			throw new IOException(msgThrow);
-		}
+		{stt.error(e.getMessage());}
+		if (!isOK) throw new IOException(msgWrite);
 	}
 	
 	public void write(InputStream is, OutputStream os) throws IOException {
 		boolean isOK = false;
-		String msgWrite = "", msgClose = "";
+		String msgWrite = "";
 		try {
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead;
@@ -294,22 +290,18 @@ public class FileManager extends TreeSet<String>
 			if (os != null) os.close();
 		}
 		catch (Exception e)
-		{msgClose = e.getMessage();}
-		if (!isOK) {
-			String msgThrow = "";
-			if (!"".equals(msgWrite)) msgThrow = msgWrite;
-			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
-			throw new IOException(msgThrow);
-		}
+		{stt.error(e.getMessage());}
+		if (!isOK) throw new IOException(msgWrite);
 	}
 	
 	public void write(String text, File outputFile, boolean append) throws IOException {
 		boolean isOK = false;
 		FileWriter writer = null;
-		String msgWrite = "", msgClose = "";
+		String msgWrite = "";
 		try {
 			writer = new FileWriter(outputFile, append);
 			writer.write(text);
+			stt.success((append ? "Appended" : "Writed") + " text to file \"" + outputFile.getName() + "\" at " + outputFile.getParent() + ".");
 			isOK = true;
 		} catch (Exception e)
 		{msgWrite = e.getMessage();}
@@ -318,13 +310,8 @@ public class FileManager extends TreeSet<String>
 			if (writer != null) writer.close();
 		}
 		catch (Exception e)
-		{msgClose = e.getMessage();}
-		if (!isOK) {
-			String msgThrow = "";
-			if (!"".equals(msgWrite)) msgThrow = msgWrite;
-			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
-			throw new IOException(msgThrow);
-		}
+		{stt.error(e.getMessage());}
+		if (!isOK) throw new IOException(msgWrite);
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
