@@ -72,7 +72,7 @@ public class FileManager extends TreeSet<String>
 			if (!dirPath.startsWith("/")) this.dirPath += "/" + dirPath.replaceFirst("/$", "");
 			else this.dirPath = dirPath.replaceFirst("/$", "");
 		}
-		if (fileHelper == null) fileHelper = new FileHelper() {
+		if (this.fileHelper == null) this.fileHelper = new FileHelper() {
 
 			@Override
 			public void writeFile(File inputFile, File outputFile) throws IOException
