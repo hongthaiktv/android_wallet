@@ -2,7 +2,6 @@ package app.web.onepagevn;
 import android.app.*;
 import android.content.*;
 import android.graphics.*;
-import android.net.*;
 import android.os.*;
 import android.text.*;
 import android.util.*;
@@ -12,7 +11,6 @@ import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
-import app.web.onepagevn.FileManager.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -21,7 +19,6 @@ import org.json.*;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup.LayoutParams;
-import java.text.ParseException;
 
 public class Editor extends Activity
 {
@@ -78,32 +75,17 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
-				{
-					File in = getDatabasePath("wallet.db");
-					InputStream is = new FileInputStream(in);
-					File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-					File fin = new File(dl, "test.txt");
-					File file = new File(dl, "wallet_bak.db");
-					OutputStream os = new FileOutputStream(file);
-					//String sample = "save text string\n";
-					writer.writeFile(fin, file);
-				}
-			});
-		fm.setOnPickResultListener(FileManager.PICK_DIRECTORY, new OnPickResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
-				{
-					Uri uri = fm.takePersistableDirectory(data);
-					db.replaceSetting("dirUri",uri.toString());
-				}
-			});
-		//fm.openFilePicker(FileManager.PICK_DIRECTORY);
-		fm.requestStoragePermission();
+		File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+		fm.setDirPath("/storage/emulated/0/Download/Wallet");
+		//fm.setDirPath("/data/user/0/app.web.onepagevn/databases");
+		//stt.log(fm.getDirPath());
+		//stt.log((String) fm.toArray()[0]);
+		//stt.log(getDatabasePath("wallet.db").getParent());
+		
+		//stt.log(fm.getDirPath());
+//		File t = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "test.txt");
+		//Map<String, Object> fileInfo = fm.copy("/data/user/0/app.web.onepagevn/databases/wallet.db", ".");
+		//if (fileInfo != null) for (Object o : fileInfo.values()) stt.info(String.valueOf(o));
 
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);

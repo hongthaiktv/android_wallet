@@ -171,9 +171,8 @@ public class FileManager extends TreeSet<String>
 	{
 		if (dirPath == null || "".equals(dirPath)) this.dirPath = context.getFilesDir().getAbsolutePath();
 		else if ("..".equals(dirPath)) {
-			String directory = this.dirPath.replaceFirst("/$", "").replaceFirst("^.*/", "");
-			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + Pattern.quote(directory) + "$", "");
-			this.dirPath = parentDir;
+			File currentDir = new File(this.dirPath);
+			this.dirPath = currentDir.getParent();
 		}
 		else if (!dirPath.startsWith("/")) this.dirPath = this.dirPath.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
 		else this.dirPath = dirPath.replaceFirst("/$", "");
@@ -312,6 +311,59 @@ public class FileManager extends TreeSet<String>
 		catch (Exception e)
 		{stt.error(e.getMessage());}
 		if (!isOK) throw new IOException(msgWrite);
+	}
+	
+	public Map<String, Object> getFileInfo(File file) {
+		Map<String, Object> fileInfo = new HashMap<>();
+		String fileName = file.getName();
+		String mime = (mime = URLConnection.guessContentTypeFromName(fileName)) != null ? mime : "application/octet-stream";
+		fileInfo.put("name", fileName);
+		fileInfo.put("size", file.length());
+		fileInfo.put("path", file.getAbsolutePath());
+		fileInfo.put("mime", mime);
+		fileInfo.put("dirPath", file.getParent());
+		fileInfo.put("directory", file.getParent().replaceFirst("^.*/", ""));
+		fileInfo.put("lastModified", new Date(file.lastModified()));
+		return fileInfo;
+	}
+	
+	public Map<String, Object> copy(String from, String to) {
+		Map<String, Object> fileInfo = null;
+		File currentDir = new File(this.dirPath);
+		File inputFile = from.startsWith("/") ? new File(from) : new File(currentDir, from);
+		String inputName = inputFile.getName();
+		File outputFile = null;
+		switch (to) {
+			case ".":
+				outputFile = new File(currentDir, inputName);
+				break;
+			case "..":
+				outputFile = new File(currentDir.getParent(), inputName);
+				break;
+			default:
+				outputFile = to.startsWith("/") ? new File(to) : new File(currentDir, to);
+				if (to.endsWith("/") || outputFile.exists() && outputFile.isDirectory()) outputFile = new File(outputFile, inputName);
+				break;
+		}
+		File outputDir = new File(outputFile.getParent());
+		try
+		{
+			if (!outputDir.exists()) outputDir.mkdirs();
+			else if (!outputDir.isDirectory()) {
+				stt.error("Output exist and not an directory.");
+				return null;
+			}
+			write(inputFile, outputFile);
+			if (this.dirPath.replaceFirst("/$", "").equals(outputDir.getAbsolutePath())) {
+				add(outputFile.getName());
+				fileNames.add(outputFile.getName());
+			}
+			fileInfo = getFileInfo(outputFile);
+		}
+		catch (IOException e)
+		{stt.error(e.getMessage());}
+		
+		return fileInfo;
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
