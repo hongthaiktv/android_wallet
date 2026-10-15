@@ -46,37 +46,54 @@ public class FileManager extends TreeSet<String>
 	
 	public FileManager(Context context) {
 		super();
-		init(context, null);
+		init(context, null, null);
 	}
 	
 	public FileManager(Context context, String dirPath) {
 		super();
-		init(context, dirPath);
+		init(context, dirPath, null);
 	}
 	
-	private void init(Context context, String dirPath) {
+	public FileManager(Context context, FileHelper fileHelper) {
+		super();
+		init(context, null, fileHelper);
+	}
+	
+	public FileManager(Context context, String dirPath, FileHelper fileHelper) {
+		super();
+		init(context, dirPath, fileHelper);
+	}
+	
+	private void init(Context context, String dirPath, FileHelper fileHelper) {
 		this.context = context;
 		this.dirPath = context.getFilesDir().getAbsolutePath();
+		this.fileHelper = fileHelper;
 		if (dirPath != null && !"".equals(dirPath)) {
 			if (!dirPath.startsWith("/")) this.dirPath += "/" + dirPath.replaceFirst("/$", "");
 			else this.dirPath = dirPath.replaceFirst("/$", "");
 		}
-		stt = new StatusBar("FileManager");
-		cr = context.getContentResolver();
-		fileHelper = new FileHelper() {
+		if (fileHelper == null) fileHelper = new FileHelper() {
 
 			@Override
-			public void write(InputStream is, OutputStream os) throws IOException
+			public void writeFile(File inputFile, File outputFile) throws IOException
 			{
-				writeFile(is, os);
+				write(inputFile, outputFile);
+			}
+
+			@Override
+			public void writeStream(InputStream is, OutputStream os) throws IOException
+			{
+				write(is, os);
 			}
 
 			@Override
 			public void writeText(String text, File outputFile, boolean append) throws IOException
 			{
-				writeString(text, outputFile, append);
+				write(text, outputFile, append);
 			}
 		};
+		stt = new StatusBar("FileManager");
+		cr = context.getContentResolver();
 		refresh();
 	}
 	
@@ -94,6 +111,11 @@ public class FileManager extends TreeSet<String>
 			}
 		}
 		else stt.error("Wrong path or not an directory.");
+	}
+	
+	public FileManager setFileHelper(FileHelper fileHelper) {
+		this.fileHelper = fileHelper;
+		return this;
 	}
 	
 	public Set<String> list() {
@@ -223,8 +245,40 @@ public class FileManager extends TreeSet<String>
 		openFilePicker(requestCode, null);
 	}
 	
-	private void writeFile(InputStream is, OutputStream os) throws IOException {
+	public void write(File inputFile, File outputFile) throws IOException {
 		boolean isOK = false;
+		InputStream is = null;
+		OutputStream os = null;
+		String msgWrite = "", msgClose = "";
+		try {
+			is = new FileInputStream(inputFile);
+			os = new FileOutputStream(outputFile);
+			byte[] buffer = new byte[bufferSize];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			isOK = true;
+		} catch (Exception e)
+		{msgWrite = e.getMessage();}
+		try
+		{
+			if (is != null) is.close();
+			if (os != null) os.close();
+		}
+		catch (Exception e)
+		{msgClose = e.getMessage();}
+		if (!isOK) {
+			String msgThrow = "";
+			if (!"".equals(msgWrite)) msgThrow = msgWrite;
+			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
+			throw new IOException(msgThrow);
+		}
+	}
+	
+	public void write(InputStream is, OutputStream os) throws IOException {
+		boolean isOK = false;
+		String msgWrite = "", msgClose = "";
 		try {
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead;
@@ -233,33 +287,44 @@ public class FileManager extends TreeSet<String>
 			}
 			isOK = true;
 		} catch (Exception e)
-		{stt.log(e.getMessage());}
+		{msgWrite = e.getMessage();}
 		try
 		{
-			is.close();
-			os.close();
+			if (is != null) is.close();
+			if (os != null) os.close();
 		}
 		catch (Exception e)
-		{stt.log(e.getMessage());}
-		if (!isOK) throw new IOException("Write file failed.");
+		{msgClose = e.getMessage();}
+		if (!isOK) {
+			String msgThrow = "";
+			if (!"".equals(msgWrite)) msgThrow = msgWrite;
+			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
+			throw new IOException(msgThrow);
+		}
 	}
 	
-	private void writeString(String text, File outputFile, boolean append) throws IOException {
+	public void write(String text, File outputFile, boolean append) throws IOException {
 		boolean isOK = false;
 		FileWriter writer = null;
+		String msgWrite = "", msgClose = "";
 		try {
 			writer = new FileWriter(outputFile, append);
 			writer.write(text);
 			isOK = true;
 		} catch (Exception e)
-		{stt.log(e.getMessage());}
+		{msgWrite = e.getMessage();}
 		try
 		{
 			if (writer != null) writer.close();
 		}
 		catch (Exception e)
-		{stt.log(e.getMessage());}
-		if (!isOK) throw new IOException("Write text to file failed.");
+		{msgClose = e.getMessage();}
+		if (!isOK) {
+			String msgThrow = "";
+			if (!"".equals(msgWrite)) msgThrow = msgWrite;
+			if (!"".equals(msgClose)) msgThrow += !"".equals(msgThrow) ? "\n" + msgClose : msgClose;
+			throw new IOException(msgThrow);
+		}
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
@@ -294,7 +359,7 @@ public class FileManager extends TreeSet<String>
 					fileInfo.put("lastModified", new Date());
 					InputStream is = cr.openInputStream(uri);
 					FileOutputStream fos = new FileOutputStream(file);
-					writeFile(is, fos);
+					write(is, fos);
 					if (dirPath.equals(directory.getAbsolutePath())) {
 						add(fileName);
 						fileNames.add(fileName);
@@ -410,7 +475,7 @@ public class FileManager extends TreeSet<String>
 		{
 			InputStream is = new FileInputStream(inputFile);
 			OutputStream os = cr.openOutputStream(outputFile);
-			writeFile(is, os);
+			write(is, os);
 			fileInfo.put("size", fileSize);
 			fileInfo.put("lastModified", new Date());
 			stt.success("File \"" + fileName + "\" saved.");
@@ -456,7 +521,7 @@ public class FileManager extends TreeSet<String>
 				fileInfo.put("path", fileUri.toString());
 				InputStream is = new FileInputStream(inputFile);
 				OutputStream os = cr.openOutputStream(fileUri);
-				writeFile(is, os);
+				write(is, os);
 				fileInfo.put("size", fileSize);
 				fileInfo.put("lastModified", new Date());
 				stt.success("File \"" + fileUriName + "\" saved.");
@@ -681,7 +746,8 @@ public class FileManager extends TreeSet<String>
 	}
 	
 	public interface FileHelper {
-		public void write(InputStream is, OutputStream os) throws IOException;
+		public void writeFile(File inputFile, File outputFile) throws IOException;
+		public void writeStream(InputStream is, OutputStream os) throws IOException;
 		public void writeText(String text, File outputFile, boolean append) throws IOException;
 	}
 	
