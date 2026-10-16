@@ -4,6 +4,7 @@ import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.os.*;
+import android.util.*;
 import android.view.*;
 import android.view.View.*;
 import android.widget.*;
@@ -46,9 +47,52 @@ public class MainActivity extends Activity
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(View view, int rowIndex, int colIndex, Object data)
+				public View onCreate(TextView view, int rowIndex, int colIndex, Object data)
 				{
-					if (rowIndex < 1) return view;
+					switch (rowIndex) {
+						case -1:
+							TypedValue selectableBackGround = new TypedValue();
+							getTheme().resolveAttribute(android.R.attr.selectableItemBackground, selectableBackGround, true);
+							
+							RelativeLayout layoutTitle = new RelativeLayout(MainActivity.this);
+							LinearLayout.LayoutParams layoutTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+							layoutTitle.setLayoutParams(layoutTitleParams);
+							
+							RelativeLayout.LayoutParams tvTitleParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+							tvTitleParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+							view.setLayoutParams(tvTitleParams);
+							view.setGravity(Gravity.CENTER);
+							view.setTextColor(Color.WHITE);
+							view.setTypeface(null, Typeface.BOLD);
+							view.setId(View.generateViewId());
+							
+							ImageButton ibAdd = new ImageButton(MainActivity.this);
+							RelativeLayout.LayoutParams ibAddParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+							ibAddParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+							ibAddParams.addRule(RelativeLayout.RIGHT_OF, view.getId());
+							ibAdd.setLayoutParams(ibAddParams);
+							ibAdd.setImageResource(R.drawable.ico_edit);
+							ibAdd.setScaleType(ImageView.ScaleType.FIT_CENTER);
+							ibAdd.setBackgroundResource(selectableBackGround.resourceId);
+							ibAdd.setColorFilter(getResources().getColor(R.color.yellow));
+							ibAdd.setPadding(15, 15, 15, 15);
+							ibAdd.setOnClickListener(new OnClickListener() {
+
+									@Override
+									public void onClick(View p1)
+									{
+										Intent intEditor = new Intent(MainActivity.this, Editor.class);
+										intEditor.putExtra("tblName", layoutTodos.getTableName());
+										startActivity(intEditor);
+									}
+								});
+							
+							layoutTitle.addView(view);
+							layoutTitle.addView(ibAdd);
+							return layoutTitle;
+						case 0:
+							return view;
+					}
 					switch (colIndex) {
 						case 1:
 						{
@@ -81,11 +125,10 @@ public class MainActivity extends Activity
 						}
 						
 						case 2:
-							TextView tvJob = (TextView) view;
 							TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 4);
-							tvJob.setLayoutParams(colLayoutLG);
-							tvJob.setGravity(Gravity.LEFT);
-							return tvJob;
+							view.setLayoutParams(colLayoutLG);
+							view.setGravity(Gravity.LEFT);
+							return view;
 						
 						case 3:
 							TableRow.LayoutParams colHSLayout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -98,17 +141,6 @@ public class MainActivity extends Activity
 				}
 			});
 			
-		layoutTodos.setOnTitleClickListener(new SQLiteDBLayout.OnTitleClickListener() {
-
-				@Override
-				public void onClick(View title, String text)
-				{
-					Intent intEditor = new Intent(MainActivity.this, Editor.class);
-					intEditor.putExtra("tblName", layoutTodos.getTableName());
-					startActivity(intEditor);
-				}
-			});
-		
 		layoutTodos.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 
 				@Override
@@ -144,17 +176,15 @@ public class MainActivity extends Activity
 		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(View view, int rowIndex, int colIndex, Object data)
+				public View onCreate(TextView view, int rowIndex, int colIndex, Object data)
 				{
 					if (rowIndex != -1) return view;
-					TextView tvTitle = (TextView) view;
-					tvTitle.setText(layoutExpends.getTableName().toUpperCase());
-					return tvTitle;
+					view.setText(layoutExpends.getTableName().toUpperCase());
+					return view;
 				}
 			});
 		
 		btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
-		db.getSetting();
 		
 		ibWallet.setOnClickListener(new OnClickListener() {
 

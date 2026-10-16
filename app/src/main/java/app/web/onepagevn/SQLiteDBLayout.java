@@ -251,20 +251,30 @@ public class SQLiteDBLayout extends LinearLayout
 		if (tblName == null && "".equals(tblName)) return;
 		
 		if (title != null && !"".equals(title)) {
-			TextView tvTitle = (TextView) createColHeader(title, 1, -1, -1);
-			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
-			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			tvTitle.setLayoutParams(tvTitleParams);
-			if (onTitleClickListener != null) tvTitle.setOnClickListener(new OnClickListener() {
+			LinearLayout layoutTitle = new LinearLayout(context);
+			LinearLayout.LayoutParams layoutTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			layoutTitle.setLayoutParams(layoutTitleParams);
+			layoutTitle.setOrientation(LinearLayout.HORIZONTAL);
+			layoutTitle.setBackgroundColor(getResources().getColor(R.color.primary));
+			layoutTitle.setGravity(Gravity.CENTER_HORIZONTAL);
+			
+			final View vTitle = createColHeader(title, 1, -1, -1);
+			if (vTitle instanceof TextView) {
+				LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				vTitle.setLayoutParams(titleParams);
+			}
+			
+			if (onTitleClickListener != null) layoutTitle.setOnClickListener(new OnClickListener() {
 
 						@Override
 						public void onClick(View v)
 						{
-							onTitleClickListener.onClick(v, title);
+							onTitleClickListener.onClick((LinearLayout) v, vTitle, title);
 						}
 					});
 
-			if (!hideTitle) addView(tvTitle);
+			layoutTitle.addView(vTitle);
+			if (!hideTitle) addView(layoutTitle);
 		}
 		
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
@@ -412,7 +422,7 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public static interface OnTitleClickListener {
-		public void onClick(View title, String text);
+		public void onClick(LinearLayout parent, View title, String text);
 	}
 	
 	public static interface OnRowClickListener {
@@ -424,6 +434,6 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public static interface OnCreateView {
-		public View onCreate(View view, int rowIndex, int colIndex, Object data);
+		public View onCreate(TextView view, int rowIndex, int colIndex, Object data);
 	}
 }
