@@ -328,8 +328,9 @@ public class SQLiteDBLayout extends LinearLayout
 							return onLongClickListener.onLongClick(view, index, id);
 						}
 					});
-			if (striped && rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
+			if (striped && rowIndex % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
+			++rowIndex;
 			row.addView(createColumn(rowIndex, 1, rowIndex, -1));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				Object colData = colValues[colIndex];
