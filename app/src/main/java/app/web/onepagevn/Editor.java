@@ -75,18 +75,6 @@ public class Editor extends Activity
 		numConverter = NumberFormat.getInstance(Locale.US);
 		numConverter.setMaximumFractionDigits(7);
 		
-		File dl = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-		fm.setDirPath("/storage/emulated/0/Download/Wallet");
-		//fm.setDirPath("/data/user/0/app.web.onepagevn/databases");
-		//stt.log(fm.getDirPath());
-		//stt.log((String) fm.toArray()[0]);
-		//stt.log(getDatabasePath("wallet.db").getParent());
-		
-		//stt.log(fm.getDirPath());
-//		File t = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "test.txt");
-		//Map<String, Object> fileInfo = fm.copy("/data/user/0/app.web.onepagevn/databases/wallet.db", ".");
-		//if (fileInfo != null) for (Object o : fileInfo.values()) stt.info(String.valueOf(o));
-
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
 			RelativeLayout.LayoutParams layoutButtonsParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);

@@ -34,7 +34,7 @@ public class FileManager extends TreeSet<String>
 	private Context context;
 	private StatusBar stt;
 	private int pickerType = -1;
-	private String dirPath = "";
+	private String workingDir = "", destDir = "";
 	private Set<String> dirNames = new TreeSet<>(), fileNames = new TreeSet<>();
 	private ContentResolver cr;
 	private int imageCompressRatio = 100;
@@ -66,11 +66,11 @@ public class FileManager extends TreeSet<String>
 	
 	private void init(Context context, String dirPath, FileHelper fileHelper) {
 		this.context = context;
-		this.dirPath = context.getFilesDir().getAbsolutePath();
+		this.workingDir = context.getFilesDir().getAbsolutePath();
 		this.fileHelper = fileHelper;
 		if (dirPath != null && !"".equals(dirPath)) {
-			if (!dirPath.startsWith("/")) this.dirPath += "/" + dirPath.replaceFirst("/$", "");
-			else this.dirPath = dirPath.replaceFirst("/$", "");
+			if (!dirPath.startsWith("/")) this.workingDir += "/" + dirPath.replaceFirst("/$", "");
+			else this.workingDir = dirPath.replaceFirst("/$", "");
 		}
 		if (this.fileHelper == null) this.fileHelper = new FileHelper() {
 
@@ -99,7 +99,7 @@ public class FileManager extends TreeSet<String>
 	
 	private void refresh() {
 		clear(); dirNames.clear(); fileNames.clear();
-		File directory = new File(dirPath);
+		File directory = new File(workingDir);
 		if (directory.exists() && directory.isDirectory()) {
 			File[] files = directory.listFiles();
 			if (files != null && files.length > 0) {
@@ -127,11 +127,11 @@ public class FileManager extends TreeSet<String>
 		Set<String> allNames = new LinkedHashSet<>(), dirNames = new LinkedHashSet<>(), fileNames = new LinkedHashSet<>();
 		if (dirPath == null || "".equals(dirPath)) dirPath = context.getFilesDir().getAbsolutePath();
 		else if ("..".equals(dirPath)) {
-			String directory = this.dirPath.replaceFirst("/$", "").replaceFirst("^.*/", "");
-			String parentDir = this.dirPath.replaceFirst("/$", "").replaceFirst("/" + Pattern.quote(directory) + "$", "");
+			String directory = this.workingDir.replaceFirst("/$", "").replaceFirst("^.*/", "");
+			String parentDir = this.workingDir.replaceFirst("/$", "").replaceFirst("/" + Pattern.quote(directory) + "$", "");
 			dirPath = parentDir;
 		}
-		else if (!dirPath.startsWith("/")) dirPath = this.dirPath.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
+		else if (!dirPath.startsWith("/")) dirPath = this.workingDir.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
 		else dirPath = dirPath.replaceFirst("/$", "");
 		File directory = new File(dirPath);
 		if (directory.exists() && directory.isDirectory()) {
@@ -167,22 +167,53 @@ public class FileManager extends TreeSet<String>
 		return list(dirPath, 2);
 	}
 	
-	public FileManager setDirPath(String dirPath)
+	public FileManager setWorkingDir(String dirPath)
 	{
-		if (dirPath == null || "".equals(dirPath)) this.dirPath = context.getFilesDir().getAbsolutePath();
+		if (dirPath == null || "".equals(dirPath)) this.workingDir = context.getFilesDir().getAbsolutePath();
 		else if ("..".equals(dirPath)) {
-			File currentDir = new File(this.dirPath);
-			this.dirPath = currentDir.getParent();
+			File currentDir = new File(this.workingDir);
+			this.workingDir = currentDir.getParent();
 		}
-		else if (!dirPath.startsWith("/")) this.dirPath = this.dirPath.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
-		else this.dirPath = dirPath.replaceFirst("/$", "");
+		else if (!dirPath.startsWith("/")) this.workingDir = this.workingDir.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
+		else this.workingDir = dirPath.replaceFirst("/$", "");
 		refresh();
 		return this;
 	}
-
-	public String getDirPath()
+	
+	public FileManager setDestDir(String dirPath)
 	{
-		return dirPath;
+		if (dirPath == null || "".equals(dirPath)) this.destDir = context.getFilesDir().getAbsolutePath();
+		else if ("..".equals(dirPath)) {
+			File currentDir = new File(this.destDir);
+			this.destDir = currentDir.getParent();
+		}
+		else if (!dirPath.startsWith("/")) this.destDir = this.destDir.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
+		else this.destDir = dirPath.replaceFirst("/$", "");
+		return this;
+	}
+	
+	public FileManager cd(String dirPath) {
+		return setWorkingDir(dirPath);
+	}
+
+	public String getWorkingDir()
+	{
+		return workingDir;
+	}
+	
+	public String getWorkingDirName()
+	{
+		return workingDir.replaceFirst("/$", "").replaceFirst("^.*/", "");
+	}
+	
+	public String getDestDir()
+	{
+		return destDir;
+	}
+
+	public String getDestDirName()
+	{
+		return destDir.replaceFirst("/$", "").replaceFirst("^.*/", "");
 	}
 	
 	public Set<String> getDirNames()
@@ -327,14 +358,14 @@ public class FileManager extends TreeSet<String>
 		return fileInfo;
 	}
 	
-	public Map<String, Object> copy(String from, String to) {
+	public Map<String, Object> copy(File from, String to) {
 		Map<String, Object> fileInfo = null;
-		File currentDir = new File(this.dirPath);
-		File inputFile = from.startsWith("/") ? new File(from) : new File(currentDir, from);
-		String inputName = inputFile.getName();
+		File currentDir = new File(this.workingDir);
+		String inputName = from.getName();
 		File outputFile = null;
+		if (to == null) to = ".";
 		switch (to) {
-			case ".":
+			case ".": case "":
 				outputFile = new File(currentDir, inputName);
 				break;
 			case "..":
@@ -353,8 +384,8 @@ public class FileManager extends TreeSet<String>
 				stt.error("Output exist and not an directory.");
 				return null;
 			}
-			write(inputFile, outputFile);
-			if (this.dirPath.replaceFirst("/$", "").equals(outputDir.getAbsolutePath())) {
+			write(from, outputFile);
+			if (this.workingDir.replaceFirst("/$", "").equals(outputDir.getAbsolutePath())) {
 				add(outputFile.getName());
 				fileNames.add(outputFile.getName());
 			}
@@ -364,6 +395,27 @@ public class FileManager extends TreeSet<String>
 		{stt.error(e.getMessage());}
 		
 		return fileInfo;
+	}
+	
+	public Map<String, Object> copy(String from, String to) {
+		File inputFile = from.startsWith("/") ? new File(from) : new File(this.workingDir, from);
+		return copy(inputFile, to);
+	}
+	
+	public Map<String, Object> copy(File from) {
+		return copy(from, null);
+	}
+	
+	public Map<String, Object> copy(String from) {
+		return copy(from, null);
+	}
+
+	public Map<String, Object> copyToDest(File from) {
+		return copy(from, destDir);
+	}
+
+	public Map<String, Object> copyToDest(String from) {
+		return copy(from, destDir);
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
@@ -387,7 +439,7 @@ public class FileManager extends TreeSet<String>
                 if (nameIndex != -1 && sizeIndex != -1) {
                     String fileName = cursor.getString(nameIndex);
 					fileInfo.put("name", fileName);
-					File directory = dirPath.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(dirPath);
+					File directory = workingDir.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(workingDir);
 					fileInfo.put("dirPath", directory.getAbsolutePath());
 					fileInfo.put("directory", directory.getName());
 					if (!directory.exists()) directory.mkdirs();
@@ -399,7 +451,7 @@ public class FileManager extends TreeSet<String>
 					InputStream is = cr.openInputStream(uri);
 					FileOutputStream fos = new FileOutputStream(file);
 					write(is, fos);
-					if (dirPath.equals(directory.getAbsolutePath())) {
+					if (workingDir.equals(directory.getAbsolutePath())) {
 						add(fileName);
 						fileNames.add(fileName);
 					}
@@ -451,7 +503,7 @@ public class FileManager extends TreeSet<String>
                 if (nameIndex != -1 && sizeIndex != -1) {
                     String fileName = cursor.getString(nameIndex);
 					fileInfo.put("name", fileName);
-					File directory = dirPath.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(dirPath);
+					File directory = workingDir.equals(context.getFilesDir().getAbsolutePath()) ? new File(context.getFilesDir(), dirName) : new File(workingDir);
 					fileInfo.put("dirPath", directory.getAbsolutePath());
 					fileInfo.put("directory", directory.getName());
 					if (!directory.exists()) directory.mkdirs();
@@ -465,7 +517,7 @@ public class FileManager extends TreeSet<String>
 					Bitmap bitmap = BitmapFactory.decodeStream(is);
 					boolean compressed = bitmap.compress(compressFormat, imageCompressRatio, fos);
 					if (compressed) {
-						if (dirPath.equals(directory.getAbsolutePath())) {
+						if (workingDir.equals(directory.getAbsolutePath())) {
 							add(fileName);
 							fileNames.add(fileName);
 						}
