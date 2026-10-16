@@ -82,6 +82,7 @@
 			app:hideOrder="true"
 			app:expandLastColumn="false"
 			app:autoLoad="false"
+			app:striped="true"
 			app:sql="SELECT todos.todoid, priorities.priorityid AS priority, todos.job, todos.complete FROM todos INNER JOIN priorities USING (priorityid) ORDER BY todos.priorityid, todos.date DESC">
 		</app.web.onepagevn.SQLiteDBLayout>
 		

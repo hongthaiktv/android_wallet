@@ -12,7 +12,7 @@ public class SQLiteDBLayout extends LinearLayout
 {
 	private Context context;
 	private String tblName = "", ordHeader = "#", title;
-	private boolean hScroll = false, hideID = true, hideHeader = false, hideOrder = false, autoLoad = true, expandLastColumn = true;
+	private boolean hScroll = false, hideID = true, hideTitle = false, hideHeader = false, striped = true, hideOrder = false, autoLoad = true, expandLastColumn = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private Map<String, Object> layoutAttrs = new HashMap<String, Object>();
 	private String sql = "";
@@ -58,7 +58,9 @@ public class SQLiteDBLayout extends LinearLayout
 		title = attrsMain.getString(R.styleable.SQLiteDBLayout_title);
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
+		hideTitle = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideTitle, hideTitle);
 		hideHeader = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideHeader, hideHeader);
+		striped = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_striped, striped);
 		hideOrder = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideOrder, hideOrder);
 		autoLoad = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_autoLoad, autoLoad);
 		expandLastColumn = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_expandLastColumn, expandLastColumn);
@@ -125,8 +127,18 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
+	public SQLiteDBLayout setHideTitle(boolean hide) {
+		hideTitle = hide;
+		return this;
+	}
+	
 	public SQLiteDBLayout setHideHeader(boolean hide) {
 		hideHeader = hide;
+		return this;
+	}
+	
+	public SQLiteDBLayout setStriped(boolean striped) {
+		this.striped = striped;
 		return this;
 	}
 	
@@ -237,6 +249,24 @@ public class SQLiteDBLayout extends LinearLayout
 	public void show() {
 		removeAllViews();
 		if (tblName == null && "".equals(tblName)) return;
+		
+		if (title != null && !"".equals(title)) {
+			TextView tvTitle = (TextView) createColHeader(title, 1, -1, -1);
+			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
+			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			tvTitle.setLayoutParams(tvTitleParams);
+			if (onTitleClickListener != null) tvTitle.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v)
+						{
+							onTitleClickListener.onClick(v, title);
+						}
+					});
+
+			if (!hideTitle) addView(tvTitle);
+		}
+		
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		
@@ -247,23 +277,6 @@ public class SQLiteDBLayout extends LinearLayout
 		
 		int colNums = data.get(0).keySet().size();
 		int lastCol = colNums - 1;
-		
-		if (title != null && !"".equals(title)) {
-			TextView tvTitle = (TextView) createColHeader(title, 1, -1, -1);
-			tvTitle.setBackgroundColor(getResources().getColor(R.color.primary));
-			LinearLayout.LayoutParams tvTitleParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			tvTitle.setLayoutParams(tvTitleParams);
-			if (onTitleClickListener != null) tvTitle.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v)
-					{
-						onTitleClickListener.onClick(v, title);
-					}
-				});
-				
-			addView(tvTitle);
-		}
 		
 		if (!hideHeader) {
 			TableRow rowHeader = new TableRow(context);
@@ -315,7 +328,7 @@ public class SQLiteDBLayout extends LinearLayout
 							return onLongClickListener.onLongClick(view, index, id);
 						}
 					});
-			if (rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
+			if (striped && rowIndex++ % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
 			row.addView(createColumn(rowIndex, 1, rowIndex, -1));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
