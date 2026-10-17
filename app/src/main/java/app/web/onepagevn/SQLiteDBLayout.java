@@ -284,7 +284,7 @@ public class SQLiteDBLayout extends LinearLayout
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		colNames = data.get(0).keySet().toArray(new String[0]);
-		dataTypes = app.getTblDataType(tblName);
+		dataTypes = db.getDataTypes(tblName);
 		
 		tblData = data;
 		table = new TableLayout(context);

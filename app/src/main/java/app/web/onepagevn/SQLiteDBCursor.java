@@ -11,7 +11,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 	private AppSetting app = AppSetting.getAppContext();
 	private List<Map<String, Object>> list = new ArrayList<>();
 	
-	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query) {
+	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, UUID queryID) {
 		super(db, driver, editTable, query);
 		DataType[] types = null;
 		
@@ -104,7 +104,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 	}
 	
 	public Map<String, DataType> getDataTypes() {
-		Map<String, DataType> colDataTypes = new HashMap<>();
+		Map<String, DataType> colDataTypes = new LinkedHashMap<>();
 		try {
 			while (moveToNext()) {
 				colDataTypes.put(getString(1), DataType.valueOf(getString(2)));

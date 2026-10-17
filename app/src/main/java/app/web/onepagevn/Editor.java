@@ -113,8 +113,7 @@ public class Editor extends Activity
 		}
 		
 		dataTypes = db.getDataTypes(tblName);
-		stt.log(dataTypes[8] + "");
-		/*foreignColumns = db.getForeignColumns(tblName);
+		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
 			final int row = i;
@@ -409,7 +408,7 @@ public class Editor extends Activity
 					break;
 			}
 		}
-		*/// End of create views
+		// End of create views
 		
 		btnCancel.setOnClickListener(new OnClickListener() {
 

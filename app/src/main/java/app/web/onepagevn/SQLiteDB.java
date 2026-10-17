@@ -11,12 +11,30 @@ public class SQLiteDB extends SQLiteOpenHelper
 {
 	private AppSetting app = AppSetting.getAppContext();
 	private String compName = "Database";
+	
+	private static SQLiteDB instance;
+	private static Map<UUID, String> queryIDs = new HashMap<>();
+	private static Map<UUID, Map<String, DataType>> queryTableDataTypes = new HashMap<>();
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
 		public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query)
 		{
-			return new SQLiteDBCursor(db, driver, editTable, query);
+			// fix for query can't get uniqueID
+			UUID queryID = null;
+			UUID[] uuids = queryIDs.keySet().toArray(new UUID[0]);
+			for (UUID uuid : uuids) {
+				String sQuery = queryIDs.get(uuid);
+				if (sQuery.equals(query.toString())) {
+					queryID = uuid;
+					break;
+				}
+			}
+			if (queryID == null) {
+				queryID = UUID.randomUUID();
+				queryIDs.put(queryID, query.toString());
+			}
+			return new SQLiteDBCursor(db, driver, editTable, query, queryID);
 		}
 	};
 	
@@ -142,6 +160,11 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
 		insertLog("Database upgraded.", LogType.SUCCESS, compName, db);
+	}
+	
+	public static SQLiteDB getInstance() {
+		if (instance == null) instance = new SQLiteDB();
+		return instance;
 	}
 	
 	public String getVersion() {
@@ -373,6 +396,16 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return result;
 	}
 	
+	public static long log(String msg, LogType type, String compName) {
+		SQLiteDB instance = getInstance();
+		return instance.insertLog(msg, type, compName);
+	}
+	
+	public static long log(String msg, LogType type, String compName, SQLiteDatabase db) {
+		SQLiteDB instance = getInstance();
+		return instance.insertLog(msg, type, compName, db);
+	}
+	
 	public List<Map<String, Object>> getLogs() {
 		String table = "logs";
 		String sql = "SELECT * FROM " + table + " ORDER BY timestamp DESC";
@@ -512,8 +545,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
 		DataType[] types = cursor.getDataTypes().values().toArray(new DataType[0]);
-		//insertLog(types + "", LogType.INFO, "SQLiteDB");
-		//insertLog(cursor.getDataTypes().keySet().toArray(new String[0])[4] + "", LogType.INFO, "SQLiteDB");
 		cursor.close();
 		return types;
 	}
