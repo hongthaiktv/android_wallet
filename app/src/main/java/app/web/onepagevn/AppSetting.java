@@ -10,6 +10,7 @@ public class AppSetting extends Application
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
 	private Map<String, Object> setting;
+	private final Map<String, DataType[]> tblDataTypes = new HashMap<>();
 
 	@Override
 	public void onCreate()
@@ -54,5 +55,21 @@ public class AppSetting extends Application
 	
 	public int getMaxLogs() {
 		return setting.get("dlgMaxLogs");
+	}
+	
+	public AppSetting setTblDataType(String table, DataType[] dataTypes)
+	{
+		tblDataTypes.put(table, dataTypes);
+		return this;
+	}
+
+	public DataType[] getTblDataType(String table)
+	{
+		DataType[] dataTypes = tblDataTypes.get(table);
+		if (dataTypes == null) {
+			dataTypes = db.getDataTypes(table);
+			tblDataTypes.put(table, dataTypes);
+		}
+		return dataTypes;
 	}
 }

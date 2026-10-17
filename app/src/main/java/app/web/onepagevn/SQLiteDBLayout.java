@@ -11,6 +11,7 @@ import java.text.*;
 public class SQLiteDBLayout extends LinearLayout
 {
 	private Context context;
+	private AppSetting app;
 	private String tblName = "", ordHeader = "#", title;
 	private boolean hScroll = false, hideID = true, hideTitle = false, hideHeader = false, striped = true, hideOrder = false, autoLoad = true, expandLastColumn = true;
 	private Set<Integer> hideColumns = new HashSet<>();
@@ -27,6 +28,8 @@ public class SQLiteDBLayout extends LinearLayout
 	private StatusBar stt = new StatusBar("SQLiteDBLayout");
 	private SQLiteDB db = new SQLiteDB();
 	private List<Map<String, Object>> tblData;
+	private String[] colNames;
+	private DataType[] dataTypes;
 	
 	public SQLiteDBLayout(Context context, String tblName) {
 		super(context);
@@ -51,6 +54,7 @@ public class SQLiteDBLayout extends LinearLayout
 	public SQLiteDBLayout(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		this.context = context;
+		app = AppSetting.getAppContext();
 		
 		TypedArray attrsMain = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout);
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_table)) tblName = attrsMain.getString(R.styleable.SQLiteDBLayout_table);
@@ -279,6 +283,8 @@ public class SQLiteDBLayout extends LinearLayout
 		
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
+		colNames = data.get(0).keySet().toArray(new String[0]);
+		dataTypes = app.getTblDataType(tblName);
 		
 		tblData = data;
 		table = new TableLayout(context);
@@ -293,7 +299,7 @@ public class SQLiteDBLayout extends LinearLayout
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
 			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1));
-			String[] colNames = data.get(0).keySet().toArray(new String[0]);
+			
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				String colName = colNames[colIndex];
 				switch (colIndex) {
@@ -398,6 +404,17 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
+		/*if (data != null && colIndex >= 0) {
+			for (String name : colNames) {
+				for (DataType type : dataTypes) {
+					if (name)
+				}
+			}
+			stt.log(tblName + ": " + dataTypes[colIndex] + "");
+//			switch (dataTypes[colIndex]) {
+//				default: stt.log(dataTypes[colIndex] + "");
+//			}
+		}*/
 		if (data != null && data instanceof Date) {
 			// add check to print short date
 			SimpleDateFormat fLocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

@@ -103,19 +103,17 @@ public class SQLiteDBCursor extends SQLiteCursor
 		return types;
 	}
 	
-	public DataType[] getDataTypes() {
-		DataType[] types = new DataType[getCount()];
+	public Map<String, DataType> getDataTypes() {
+		Map<String, DataType> colDataTypes = new HashMap<>();
 		try {
-			int i = 0;
 			while (moveToNext()) {
-				types[i] = DataType.valueOf(getString(2));
-				++i;
+				colDataTypes.put(getString(1), DataType.valueOf(getString(2)));
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
-		return types;
+		return colDataTypes;
 	}
 	
 	public List<Map<String, Object>> getForeignColumns() {

@@ -511,7 +511,9 @@ public class SQLiteDB extends SQLiteOpenHelper
 	public DataType[] getDataTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
-		DataType[] types = cursor.getDataTypes();
+		DataType[] types = cursor.getDataTypes().values().toArray(new DataType[0]);
+		//insertLog(types + "", LogType.INFO, "SQLiteDB");
+		//insertLog(cursor.getDataTypes().keySet().toArray(new String[0])[4] + "", LogType.INFO, "SQLiteDB");
 		cursor.close();
 		return types;
 	}
