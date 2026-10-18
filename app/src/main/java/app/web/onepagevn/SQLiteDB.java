@@ -14,25 +14,26 @@ public class SQLiteDB extends SQLiteOpenHelper
 	
 	private static SQLiteDB instance;
 	private static Map<UUID, String> queryIDs = new HashMap<>();
-	private static Map<UUID, Map<String, DataType>> queryTableDataTypes = new HashMap<>();
+	private static Map<UUID, Map<String, DataType>> dataTypeQuerys = new HashMap<>();
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
 		public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query)
 		{
 			// fix for query can't get uniqueID
+			String sQuery = query.toString().substring(13);
 			UUID queryID = null;
 			UUID[] uuids = queryIDs.keySet().toArray(new UUID[0]);
 			for (UUID uuid : uuids) {
-				String sQuery = queryIDs.get(uuid);
-				if (sQuery.equals(query.toString())) {
+				String cachedQuery = queryIDs.get(uuid);
+				if (cachedQuery.equals(sQuery)) {
 					queryID = uuid;
 					break;
 				}
 			}
 			if (queryID == null) {
 				queryID = UUID.randomUUID();
-				queryIDs.put(queryID, query.toString());
+				queryIDs.put(queryID, sQuery);
 			}
 			return new SQLiteDBCursor(db, driver, editTable, query, queryID);
 		}
@@ -172,6 +173,18 @@ public class SQLiteDB extends SQLiteOpenHelper
 		String version = (String) result.get(0).get("version");
 		version = "SQLite version: " + version;
 		return version;
+	}
+	
+	private static void addDataTypeQuery(UUID uuid, Map<String, DataType> dataTypeQuery)
+	{
+		dataTypeQuerys.put(uuid, dataTypeQuery);
+	}
+
+	public static Map<String, DataType> getDataTypeQuery(UUID uuid)
+	{
+		Map<String, DataType> dataTypeQuery = null;
+		//dataTypeQuerys.put(queryID, dataTypeQuery);
+		return dataTypeQuerys.get(uuid);
 	}
 	
 	public Map<String, Integer> saveCheckPoint() {
@@ -541,12 +554,12 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return types;
 	}
 	
-	public DataType[] getDataTypes(String table) {
+	public Map<String, DataType> getDataTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
-		DataType[] types = cursor.getDataTypes().values().toArray(new DataType[0]);
+		Map<String, DataType> dataTypes = cursor.getDataTypes();
 		cursor.close();
-		return types;
+		return dataTypes;
 	}
 	
 	public List<Map<String, Object>> getForeignColumns(String table) {

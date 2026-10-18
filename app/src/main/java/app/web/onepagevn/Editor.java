@@ -30,7 +30,8 @@ public class Editor extends Activity
 	private String tblName = "expends", mode = "insert";
 	private String[] colNames, labels;
 	private Object[] colValues;
-	private DataType[] dataTypes;
+	private Map<String, DataType> dataTypes;
+	private DataType[] colTypes;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
 	private int rowID = -1, pickedRow = -1, currentBudget = 1;
@@ -105,14 +106,15 @@ public class Editor extends Activity
 			case "expends":
 			{
 				labels = new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"};
-				List<String> rows = new ArrayList<String>(Arrays.asList(colNames));
-				rows.remove(colNames.length - 1);
-				colNames = rows.toArray(new String[0]);
+				List<String> originColNames = new ArrayList<String>(Arrays.asList(colNames));
+				originColNames.remove(colNames.length - 1);
+				colNames = originColNames.toArray(new String[0]);
 				break;
 			}
 		}
 		
 		dataTypes = db.getDataTypes(tblName);
+		colTypes = dataTypes.values().toArray(new DataType[0]);
 		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
 		for (int i = 1; i < colNames.length; i++) {
@@ -223,7 +225,7 @@ public class Editor extends Activity
 				if (isCatalog) continue;
 			}
 			
-			switch (dataTypes[i]) {
+			switch (colTypes[i]) {
 				case DATETIME:
 					TypedValue backGround = new TypedValue();
 					getTheme().resolveAttribute(android.R.attr.selectableItemBackground, backGround, true);
@@ -594,7 +596,7 @@ public class Editor extends Activity
 			View view = getViewByIndex(i);
 			if (view == null) continue;
 			
-			switch (dataTypes[i]) {
+			switch (colTypes[i]) {
 				case DATETIME:
 				{
 					LinearLayout layoutPicker = (LinearLayout) view;
@@ -919,7 +921,7 @@ public class Editor extends Activity
 		for (int i = 1; i <= numRows; i++) {
 			View view = getViewByIndex(i);
 			if (view == null) continue;
-			switch (dataTypes[i]) {
+			switch (colTypes[i]) {
 				case DATETIME:
 				{
 					if (view instanceof LinearLayout) {
@@ -953,7 +955,7 @@ public class Editor extends Activity
 				default:
 				{
 					EditText input = (EditText) view;
-					String value = objectToString(colValues[i], dataTypes[i]);
+					String value = objectToString(colValues[i], colTypes[i]);
 					if (!isFocus) {
 						input.requestFocus();
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -1028,7 +1030,7 @@ public class Editor extends Activity
 		for (int i = 1; i <= numRows; i++) {
 			View view = getViewByIndex(i);
 			if (view == null) continue;
-			switch (dataTypes[i]) {
+			switch (colTypes[i]) {
 				case DATETIME:
 					data.put(colNames[i], getDateTime(i).getTime() / 1000L);
 					break;
@@ -1044,7 +1046,7 @@ public class Editor extends Activity
 					EditText input = (EditText) view;
 					String inputText = input.getText().toString();
 					if ("".equals(inputText)) continue;
-					switch (dataTypes[i]) {
+					switch (colTypes[i]) {
 						case INTEGER: case INT:
 							Number numInteger = stringToNumber(inputText);
 							if (numInteger != null) data.put(colNames[i], numInteger.intValue());

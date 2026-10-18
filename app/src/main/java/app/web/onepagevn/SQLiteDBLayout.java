@@ -29,7 +29,7 @@ public class SQLiteDBLayout extends LinearLayout
 	private SQLiteDB db = new SQLiteDB();
 	private List<Map<String, Object>> tblData;
 	private String[] colNames;
-	private DataType[] dataTypes;
+	private Map<String, DataType> dataTypes;
 	
 	public SQLiteDBLayout(Context context, String tblName) {
 		super(context);
