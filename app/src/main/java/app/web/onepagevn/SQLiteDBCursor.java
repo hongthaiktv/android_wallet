@@ -15,32 +15,36 @@ public class SQLiteDBCursor extends SQLiteCursor
 	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, UUID queryID) {
 		super(db, driver, editTable, query);
 		
-		if (editTable != null && !"".equals(editTable)) {
-			Cursor cursorTypes = null;
-			
-			try {
-				cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
-				if (cursorTypes.getCount() > 0) {
-					String[] colNames = getColumnNames();
-					for (int i = 0; i < colNames.length; i++) {
-						String colName = colNames[i];
-						while (cursorTypes.moveToNext()) {
-							String defineName = cursorTypes.getString(1);
-							if (colName.equals(defineName)) {
-								DataType type = DataType.valueOf(cursorTypes.getString(2));
-								colDataTypes.put(colName, type);
-								break;
+		Map<String, DataType> cachedDataType = SQLiteDB.getDataTypeQuery(queryID);
+		if (cachedDataType == null) {
+			if (editTable != null && !"".equals(editTable)) {
+				Cursor cursorTypes = null;
+				try {
+					cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
+					if (cursorTypes.getCount() > 0) {
+						String[] colNames = getColumnNames();
+						for (int i = 0; i < colNames.length; i++) {
+							String colName = colNames[i];
+							while (cursorTypes.moveToNext()) {
+								String defineName = cursorTypes.getString(1);
+								if (colName.equals(defineName)) {
+									DataType type = DataType.valueOf(cursorTypes.getString(2));
+									colDataTypes.put(colName, type);
+									break;
+								}
 							}
+							cursorTypes.moveToPosition(-1);
+							if (colDataTypes.get(colName) == null) colDataTypes.put(colName, DataType.NULL);
 						}
-						cursorTypes.moveToPosition(-1);
-						if (colDataTypes.get(colName) == null) colDataTypes.put(colName, DataType.NULL);
 					}
+				} catch (Exception e) {
+					Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 				}
-			} catch (Exception e) {
-				Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
+				if (cursorTypes != null) cursorTypes.close();
+				if (colDataTypes.size() > 0) SQLiteDB.addDataTypeQuery(queryID, colDataTypes);
 			}
-			if (cursorTypes != null) cursorTypes.close();
 		}
+		else colDataTypes = cachedDataType;
 		
 		try {
 			while (moveToNext()) {

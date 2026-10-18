@@ -175,16 +175,19 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return version;
 	}
 	
-	private static void addDataTypeQuery(UUID uuid, Map<String, DataType> dataTypeQuery)
+	public static void addDataTypeQuery(UUID uuid, Map<String, DataType> dataTypeQuery)
 	{
 		dataTypeQuerys.put(uuid, dataTypeQuery);
 	}
 
 	public static Map<String, DataType> getDataTypeQuery(UUID uuid)
 	{
-		Map<String, DataType> dataTypeQuery = null;
-		//dataTypeQuerys.put(queryID, dataTypeQuery);
 		return dataTypeQuerys.get(uuid);
+	}
+	
+	public static int getCachedQueriesLength()
+	{
+		return dataTypeQuerys.size();
 	}
 	
 	public Map<String, Integer> saveCheckPoint() {
