@@ -15,7 +15,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, UUID queryID) {
 		super(db, driver, editTable, query);
 		
-		Map<String, DataType> cachedDataType = SQLiteDB.getDataTypeQuery(queryID);
+		Map<String, DataType> cachedDataType = SQLiteDB.getCachedDataTypeQuery(queryID);
 		if (cachedDataType == null) {
 			if (editTable != null && !"".equals(editTable)) {
 				Cursor cursorTypes = null;

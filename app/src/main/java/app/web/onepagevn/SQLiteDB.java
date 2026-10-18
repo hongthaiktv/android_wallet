@@ -14,7 +14,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 	
 	private static SQLiteDB instance;
 	private static Map<UUID, String> queryIDs = new HashMap<>();
-	private static Map<UUID, Map<String, DataType>> dataTypeQuerys = new HashMap<>();
+	private static Map<UUID, Map<String, DataType>> cachedDataTypeQueries = new HashMap<>();
 	private static SQLiteDatabase.CursorFactory cursorFactory = new SQLiteDatabase.CursorFactory() {
 
 		@Override
@@ -177,17 +177,33 @@ public class SQLiteDB extends SQLiteOpenHelper
 	
 	public static void addDataTypeQuery(UUID uuid, Map<String, DataType> dataTypeQuery)
 	{
-		dataTypeQuerys.put(uuid, dataTypeQuery);
+		cachedDataTypeQueries.put(uuid, dataTypeQuery);
 	}
 
-	public static Map<String, DataType> getDataTypeQuery(UUID uuid)
+	public static Map<String, DataType> getCachedDataTypeQuery(UUID uuid)
 	{
-		return dataTypeQuerys.get(uuid);
+		return cachedDataTypeQueries.get(uuid);
+	}
+	
+	public static Map<String, DataType> getCachedDataTypeQuery(String query)
+	{
+		Map<String, DataType> cachedDataType = null;
+		UUID queryID = null;
+		UUID[] uuids = queryIDs.keySet().toArray(new UUID[0]);
+		for (UUID uuid : uuids) {
+			String cachedQuery = queryIDs.get(uuid);
+			if (query.equals(cachedQuery)) {
+				queryID = uuid;
+				break;
+			}
+		}
+		if (queryID != null) cachedDataType = cachedDataTypeQueries.get(queryID);
+		return cachedDataType;
 	}
 	
 	public static int getCachedQueriesLength()
 	{
-		return dataTypeQuerys.size();
+		return cachedDataTypeQueries.size();
 	}
 	
 	public Map<String, Integer> saveCheckPoint() {

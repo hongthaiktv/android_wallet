@@ -69,7 +69,8 @@ public class SQLiteDBLayout extends LinearLayout
 		autoLoad = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_autoLoad, autoLoad);
 		expandLastColumn = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_expandLastColumn, expandLastColumn);
 		layoutAttrs.put("limit", attrsMain.getInt(R.styleable.SQLiteDBLayout_limit, -1));
-		layoutAttrs.put("sort", attrsMain.getString(R.styleable.SQLiteDBLayout_sort));
+		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_sort)) layoutAttrs.put("sort", attrsMain.getString(R.styleable.SQLiteDBLayout_sort));
+		else layoutAttrs.put("sort", "rowid");
 		sql = attrsMain.getString(R.styleable.SQLiteDBLayout_sql);
 		if (hideOrder) hideColumns.add(0);
 		if (hideID) hideColumns.add(1);
@@ -404,6 +405,10 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
+		//String defaultQuery = "SELECT * FROM " + tblName + " ORDER BY " + layoutAttrs.get("sort") + " LIMIT " + layoutAttrs.get("limit");
+		//String queryQuery = (sql != null && !"".equals(sql)) ? sql : defaultQuery;
+		//boolean isCached = SQLiteDB.getCachedDataTypeQuery(queryQuery) != null;
+		//stt.log("table: " + tblName + " | cached? " + isCached + " | query: " + sql.substring(0, 20));
 		/*if (data != null && colIndex >= 0) {
 			for (String name : colNames) {
 				for (DataType type : dataTypes) {
