@@ -15,6 +15,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 	public SQLiteDBCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, UUID queryID) {
 		super(db, driver, editTable, query);
 		
+		if (getCount() < 1) return;
 		Map<String, DataType> cachedDataType = SQLiteDB.getCachedDataTypeQuery(queryID);
 		if (cachedDataType == null) {
 			if (editTable != null && !"".equals(editTable)) {
@@ -22,20 +23,46 @@ public class SQLiteDBCursor extends SQLiteCursor
 				try {
 					cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
 					if (cursorTypes.getCount() > 0) {
+						moveToFirst();
 						String[] colNames = getColumnNames();
 						for (int i = 0; i < colNames.length; i++) {
 							String colName = colNames[i];
 							while (cursorTypes.moveToNext()) {
 								String defineName = cursorTypes.getString(1);
 								if (colName.equals(defineName)) {
-									DataType type = DataType.valueOf(cursorTypes.getString(2));
-									colDataTypes.put(colName, type);
+									String sDataType = cursorTypes.getString(2).toUpperCase();
+									if (sDataType != null && !"".equals(sDataType)) {
+										DataType type = DataType.valueOf(sDataType);
+										colDataTypes.put(colName, type);
+									}
 									break;
 								}
 							}
 							cursorTypes.moveToPosition(-1);
-							if (colDataTypes.get(colName) == null) colDataTypes.put(colName, DataType.NULL);
+							if (colDataTypes.get(colName) == null) {
+								int dataType = getType(i);
+								switch (dataType) {
+									case Cursor.FIELD_TYPE_INTEGER:
+										colDataTypes.put(colName, DataType.INT);
+										break;
+									case Cursor.FIELD_TYPE_FLOAT:
+										colDataTypes.put(colName, DataType.REAL);
+										break;
+									case Cursor.FIELD_TYPE_STRING:
+										colDataTypes.put(colName, DataType.TEXT);
+										break;
+									case Cursor.FIELD_TYPE_BLOB:
+										colDataTypes.put(colName, DataType.BLOB);
+										break;
+									case Cursor.FIELD_TYPE_NULL:
+										colDataTypes.put(colName, DataType.NULL);
+										break;
+									default:
+										colDataTypes.put(colName, DataType.TEXT);
+								}
+							}
 						}
+						moveToPosition(-1);
 					}
 				} catch (Exception e) {
 					Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -186,7 +213,10 @@ public class SQLiteDBCursor extends SQLiteCursor
 						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
 					}
 					break;
-				case BLOB: case NULL: default:
+				case NULL:
+					row.put(getColumnName(i), null);
+					break;
+				case BLOB: default:
 					int dataType = getType(i);
 					switch (dataType) {
 						case Cursor.FIELD_TYPE_INTEGER:

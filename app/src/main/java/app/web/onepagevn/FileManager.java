@@ -66,7 +66,7 @@ public class FileManager extends TreeSet<String>
 	
 	private void init(Context context, String dirPath, FileHelper fileHelper) {
 		this.context = context;
-		this.workingDir = context.getFilesDir().getAbsolutePath();
+		this.workingDir = this.destDir = context.getFilesDir().getAbsolutePath();
 		this.fileHelper = fileHelper;
 		if (dirPath != null && !"".equals(dirPath)) {
 			if (!dirPath.startsWith("/")) this.workingDir += "/" + dirPath.replaceFirst("/$", "");

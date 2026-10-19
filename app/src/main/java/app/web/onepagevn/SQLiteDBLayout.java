@@ -16,7 +16,7 @@ public class SQLiteDBLayout extends LinearLayout
 	private boolean hScroll = false, hideID = true, hideTitle = false, hideHeader = false, striped = true, hideOrder = false, autoLoad = true, expandLastColumn = true;
 	private Set<Integer> hideColumns = new HashSet<>();
 	private Map<String, Object> layoutAttrs = new HashMap<String, Object>();
-	private String sql = "";
+	private String sql = "", query = "";
 	private ViewGroup container;
 	private TableLayout table, tBody;
 	private OnTitleClickListener onTitleClickListener;
@@ -92,6 +92,8 @@ public class SQLiteDBLayout extends LinearLayout
 		this.tblName = tblName;
 		this.container = container;
 		this.onClickListener = onClickListener;
+		layoutAttrs.put("sort", "rowid");
+		layoutAttrs.put("limit", -1);
 		LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
 		setLayoutParams(layout);
 		setOrientation(LinearLayout.VERTICAL);
@@ -157,6 +159,11 @@ public class SQLiteDBLayout extends LinearLayout
 		return this;
 	}
 	
+	public SQLiteDBLayout setSort(String sort) {
+		layoutAttrs.put("sort", sort);
+		return this;
+	}
+	
 	public SQLiteDBLayout setLimit(int limit) {
 		layoutAttrs.put("limit", limit);
 		return this;
@@ -164,11 +171,6 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public SQLiteDBLayout setSQL(String sql) {
 		this.sql = sql;
-		return this;
-	}
-	
-	public SQLiteDBLayout setSort(String sort) {
-		layoutAttrs.put("sort", sort);
 		return this;
 	}
 	
@@ -253,7 +255,8 @@ public class SQLiteDBLayout extends LinearLayout
 	
 	public void show() {
 		removeAllViews();
-		if (tblName == null && "".equals(tblName)) return;
+		if (tblName == null || "".equals(tblName)) return;
+		query = (sql != null && !"".equals(sql)) ? sql : "SELECT * FROM " + tblName + " ORDER BY " + layoutAttrs.get("sort") + " LIMIT " + layoutAttrs.get("limit");
 		
 		if (title != null && !"".equals(title)) {
 			LinearLayout layoutTitle = new LinearLayout(context);
@@ -285,7 +288,8 @@ public class SQLiteDBLayout extends LinearLayout
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		colNames = data.get(0).keySet().toArray(new String[0]);
-		dataTypes = db.getDataTypes(tblName);
+		dataTypes = SQLiteDB.getCachedDataTypeQuery(query);
+		stt.log(dataTypes + "");
 		
 		tblData = data;
 		table = new TableLayout(context);
@@ -405,10 +409,10 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
-		//String defaultQuery = "SELECT * FROM " + tblName + " ORDER BY " + layoutAttrs.get("sort") + " LIMIT " + layoutAttrs.get("limit");
-		//String queryQuery = (sql != null && !"".equals(sql)) ? sql : defaultQuery;
+		
+		
 		//boolean isCached = SQLiteDB.getCachedDataTypeQuery(queryQuery) != null;
-		//stt.log("table: " + tblName + " | cached? " + isCached + " | query: " + sql.substring(0, 20));
+		//stt.log("table: " + tblName + " | cached? " + isCached + " | query: " + queryQuery.substring(0, 20));
 		/*if (data != null && colIndex >= 0) {
 			for (String name : colNames) {
 				for (DataType type : dataTypes) {
