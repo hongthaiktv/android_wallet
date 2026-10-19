@@ -288,8 +288,10 @@ public class SQLiteDBLayout extends LinearLayout
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		colNames = data.get(0).keySet().toArray(new String[0]);
+		DataType[] colTypes = null;
 		dataTypes = SQLiteDB.getCachedDataTypeQuery(query);
-		stt.log(dataTypes + "");
+		if (dataTypes != null) colTypes = dataTypes.values().toArray(new DataType[0]);
+		//stt.log("table: " + tblName + " | dataType: " + dataTypes);
 		
 		tblData = data;
 		table = new TableLayout(context);

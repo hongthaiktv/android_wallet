@@ -19,12 +19,12 @@ public class SQLiteDBCursor extends SQLiteCursor
 		Map<String, DataType> cachedDataType = SQLiteDB.getCachedDataTypeQuery(queryID);
 		if (cachedDataType == null) {
 			if (editTable != null && !"".equals(editTable)) {
+				String[] colNames = getColumnNames();
 				Cursor cursorTypes = null;
+				moveToFirst();
 				try {
 					cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
 					if (cursorTypes.getCount() > 0) {
-						moveToFirst();
-						String[] colNames = getColumnNames();
 						for (int i = 0; i < colNames.length; i++) {
 							String colName = colNames[i];
 							while (cursorTypes.moveToNext()) {
@@ -40,43 +40,42 @@ public class SQLiteDBCursor extends SQLiteCursor
 							}
 							cursorTypes.moveToPosition(-1);
 							if (colDataTypes.get(colName) == null) {
-								int dataType = getType(i);
-								switch (dataType) {
-									case Cursor.FIELD_TYPE_INTEGER:
-										colDataTypes.put(colName, DataType.INT);
-										break;
-									case Cursor.FIELD_TYPE_FLOAT:
-										colDataTypes.put(colName, DataType.REAL);
-										break;
-									case Cursor.FIELD_TYPE_STRING:
-										colDataTypes.put(colName, DataType.TEXT);
-										break;
-									case Cursor.FIELD_TYPE_BLOB:
-										colDataTypes.put(colName, DataType.BLOB);
-										break;
-									case Cursor.FIELD_TYPE_NULL:
-										colDataTypes.put(colName, DataType.NULL);
-										break;
-									default:
-										colDataTypes.put(colName, DataType.TEXT);
+								int typeValue = getType(i);
+								DataType dataType = getDataTypeByValue(typeValue);
+								if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName)) &&
+									(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
+									colDataTypes.put(colName, DataType.DATETIME);
 								}
+								else colDataTypes.put(colName, dataType);
 							}
 						}
-						moveToPosition(-1);
 					}
 				} catch (Exception e) {
 					Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 				}
 				if (cursorTypes != null) cursorTypes.close();
+				if (colDataTypes.size() < 1) {
+					for (int i = 0; i < colNames.length; i++) {
+						String colName = colNames[i];
+						int typeValue = getType(i);
+						DataType dataType = getDataTypeByValue(typeValue);
+						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName)) &&
+							(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
+							colDataTypes.put(colName, DataType.DATETIME);
+						}
+						else colDataTypes.put(colName, dataType);
+					}
+				}
 				if (colDataTypes.size() > 0) SQLiteDB.addDataTypeQuery(queryID, colDataTypes);
+				moveToPosition(-1);
 			}
 		}
 		else colDataTypes = cachedDataType;
 		
+		DataType[] types = colDataTypes.values().toArray(new DataType[0]);
+		if (types == null || types.length < 1) types = new DataType[getColumnCount()];
 		try {
 			while (moveToNext()) {
-				DataType[] types = colDataTypes.values().toArray(new DataType[0]);
-				if (types == null || types.length < 1) types = new DataType[getColumnCount()];
 				list.add(getTypedRow(types));
 			}
 			moveToPosition(-1);
@@ -89,26 +88,16 @@ public class SQLiteDBCursor extends SQLiteCursor
 		return list;
 	}
 	
-	public String[] getColumnTypes() {
-		String[] types = new String[getCount()];
-		try {
-			int i = 0;
-			while (moveToNext()) {
-				types[i] = getString(2);
-				++i;
-			}
-			moveToPosition(-1);
-		} catch (Exception e) {
-			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
-		}
-		return types;
-	}
-	
 	public Map<String, DataType> getDataTypes() {
 		Map<String, DataType> colDataTypes = new LinkedHashMap<>();
 		try {
 			while (moveToNext()) {
-				colDataTypes.put(getString(1), DataType.valueOf(getString(2)));
+				String sDataType = getString(2).toUpperCase();
+				if (sDataType != null && !"".equals(sDataType)) {
+					DataType type = DataType.valueOf(sDataType);
+					colDataTypes.put(getString(1), type);
+				}
+				else colDataTypes.put(getString(1), DataType.BLOB);
 			}
 			moveToPosition(-1);
 		} catch (Exception e) {
@@ -167,6 +156,30 @@ public class SQLiteDBCursor extends SQLiteCursor
 			Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();
 		}
 		return ids;
+	}
+	
+	private DataType getDataTypeByValue(int typeValue) {
+		DataType dataType = null;
+		switch (typeValue) {
+			case Cursor.FIELD_TYPE_INTEGER:
+				dataType = DataType.INT;
+				break;
+			case Cursor.FIELD_TYPE_FLOAT:
+				dataType = DataType.REAL;
+				break;
+			case Cursor.FIELD_TYPE_STRING:
+				dataType = DataType.TEXT;
+				break;
+			case Cursor.FIELD_TYPE_BLOB:
+				dataType = DataType.BLOB;
+				break;
+			case Cursor.FIELD_TYPE_NULL:
+				dataType = DataType.NULL;
+				break;
+			default:
+				dataType = DataType.TEXT;
+		}
+		return dataType;
 	}
 	
 	private Map<String, Object> getTypedRow(DataType[] columnTypes) {

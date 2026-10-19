@@ -156,7 +156,7 @@ public class MainActivity extends Activity
 				}
 			});
 		
-		final String sqlTblBalance = "SELECT expends.expendid, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, printf('%,.0f', expends.price * expends.quantity) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(expends.price * expends.quantity AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
 		layoutExpends.setSQL(sqlTblBalance);
 		layoutExpends.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 

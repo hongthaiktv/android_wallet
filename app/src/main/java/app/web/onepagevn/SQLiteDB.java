@@ -565,14 +565,6 @@ public class SQLiteDB extends SQLiteOpenHelper
 		return rowData;
 	}
 	
-	public String[] getColumnTypes(String table) {
-		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
-		String[] types = cursor.getColumnTypes();
-		cursor.close();
-		return types;
-	}
-	
 	public Map<String, DataType> getDataTypes(String table) {
 		SQLiteDatabase db = getReadableDatabase();
 		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
