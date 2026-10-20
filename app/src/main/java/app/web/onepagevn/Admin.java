@@ -61,7 +61,7 @@ public class Admin extends Activity
 						edtInput.setText("");
 						switch (tblName) {
 							case "logs":
-								tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize).show();
+								tblData.setSQL("SELECT id, timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize).show();
 								break;
 							case "setting":
 								tblData.show();
@@ -128,7 +128,7 @@ public class Admin extends Activity
 								switch (tblName) {
 									case "logs":
 										int logSize = app.getMaxLogs();
-										tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+										tblData.setSQL("SELECT id, timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 										break;
 									case "setting":
 										tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, name, value, datatype FROM setting ORDER BY name COLLATE NOCASE");
@@ -195,7 +195,7 @@ public class Admin extends Activity
 		super.onResume();
 		if ("logs".equals(tblName)) {
 			int logSize = app.getMaxLogs();
-			tblData.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+			tblData.setSQL("SELECT id, timestamp, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		}
 		tblData.show();
 		stt.update();

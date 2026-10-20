@@ -44,7 +44,7 @@ public class AppLog extends Activity
 				}
 			});
 		int logSize = app.getMaxLogs();
-		tblLog.setSQL("SELECT id, CASE WHEN strftime('%Y', timestamp, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M:%S', timestamp, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M:%S', timestamp, 'unixepoch', 'localtime') END AS timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
+		tblLog.setSQL("SELECT id, timestamp, type, component, message FROM logs ORDER BY timestamp DESC LIMIT " + logSize);
 		mainLayout.addView(tblLog, 0);
 		tblLog.setOrdHeader("#").setHScroll(true);
 	}

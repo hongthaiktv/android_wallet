@@ -427,7 +427,7 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
-		if (data != null && colIndex >= 1) {
+		if (data != null && rowIndex >= 1 && colIndex >= 1) {
 			switch (colTypes[colIndex]) {
 				case INT: case INTEGER: case NUMERIC: case REAL:
 					colText = numFormatter.format(data);
