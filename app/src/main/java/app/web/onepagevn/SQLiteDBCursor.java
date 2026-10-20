@@ -26,9 +26,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 					cursorTypes = db.rawQuery("PRAGMA table_info(" + editTable + ")", null);
 					if (cursorTypes.getCount() > 0) {
 						for (int i = 0; i < colNames.length; i++) {
-							String colName = colNames[i];
+							String colName = colNames[i].toLowerCase();
 							while (cursorTypes.moveToNext()) {
-								String defineName = cursorTypes.getString(1);
+								String defineName = cursorTypes.getString(1).toLowerCase();
 								if (colName.equals(defineName)) {
 									String sDataType = cursorTypes.getString(2).toUpperCase();
 									if (sDataType != null && !"".equals(sDataType)) {
@@ -42,7 +42,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 							if (colDataTypes.get(colName) == null) {
 								int typeValue = getType(i);
 								DataType dataType = getDataTypeByValue(typeValue);
-								if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName)) &&
+								if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) &&
 									(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 									colDataTypes.put(colName, DataType.DATETIME);
 								}
@@ -59,7 +59,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 						String colName = colNames[i];
 						int typeValue = getType(i);
 						DataType dataType = getDataTypeByValue(typeValue);
-						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName)) &&
+						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) &&
 							(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 							colDataTypes.put(colName, DataType.DATETIME);
 						}
@@ -185,24 +185,25 @@ public class SQLiteDBCursor extends SQLiteCursor
 	private Map<String, Object> getTypedRow(DataType[] columnTypes) {
 		Map<String, Object> row = new LinkedHashMap<>();
 		for (int i = 0; i < columnTypes.length; i++) {
+			String colName = getColumnName(i).toLowerCase();
 			switch (columnTypes[i]) {
 				case INTEGER: case INT:
-					row.put(getColumnName(i), getInt(i));
+					row.put(colName, getInt(i));
 					break;
 				case NUMERIC: case NUM: case LONG:
-					row.put(getColumnName(i), getLong(i));
+					row.put(colName, getLong(i));
 					break;
 				case REAL: case FLOAT: case DOUBLE:
-					row.put(getColumnName(i), getDouble(i));
+					row.put(colName, getDouble(i));
 					break;
 				case TEXT:
-					row.put(getColumnName(i), getString(i));
+					row.put(colName, getString(i));
 					break;
 				case BOOLEAN:
-					row.put(getColumnName(i), getInt(i) == 1 ? true : false);
+					row.put(colName, getInt(i) == 1 ? true : false);
 					break;
 				case DATETIME:
-					row.put(getColumnName(i), new Date(getLong(i) * 1000L));
+					row.put(colName, new Date(getLong(i) * 1000L));
 					break;
 				case JSON:
 					String jsonText = getString(i);
@@ -211,7 +212,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 						try
 						{
 							JSONObject jObj = new JSONObject(jsonText);
-							row.put(getColumnName(i), jObj);
+							row.put(colName, jObj);
 						}
 						catch (JSONException e)
 						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
@@ -220,35 +221,41 @@ public class SQLiteDBCursor extends SQLiteCursor
 						try
 						{
 							JSONArray jArr = new JSONArray(jsonText);
-							row.put(getColumnName(i), jArr);
+							row.put(colName, jArr);
 						}
 						catch (JSONException e)
 						{Toast.makeText(app, e.getMessage(), Toast.LENGTH_LONG).show();}
 					}
 					break;
 				case NULL:
-					row.put(getColumnName(i), null);
+					row.put(colName, null);
 					break;
 				case BLOB: default:
 					int dataType = getType(i);
 					switch (dataType) {
 						case Cursor.FIELD_TYPE_INTEGER:
-							row.put(getColumnName(i), getInt(i));
+							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) {
+								row.put(colName, new Date(getLong(i) * 1000L));
+							}
+							else row.put(colName, getInt(i));
 							break;
 						case Cursor.FIELD_TYPE_FLOAT:
-							row.put(getColumnName(i), getDouble(i));
+							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) {
+								row.put(colName, new Date(getLong(i) * 1000L));
+							}
+							else row.put(colName, getDouble(i));
 							break;
 						case Cursor.FIELD_TYPE_STRING:
-							row.put(getColumnName(i), getString(i));
+							row.put(colName, getString(i));
 							break;
 						case Cursor.FIELD_TYPE_BLOB:
-							row.put(getColumnName(i), getBlob(i));
+							row.put(colName, getBlob(i));
 							break;
 						case Cursor.FIELD_TYPE_NULL:
-							row.put(getColumnName(i), null);
+							row.put(colName, null);
 							break;
 						default:
-							row.put(getColumnName(i), getString(i));
+							row.put(colName, getString(i));
 					}
 			}
 		}
