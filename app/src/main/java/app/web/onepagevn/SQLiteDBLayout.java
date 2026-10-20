@@ -29,7 +29,9 @@ public class SQLiteDBLayout extends LinearLayout
 	private SQLiteDB db = new SQLiteDB();
 	private List<Map<String, Object>> tblData;
 	private String[] colNames;
+	private DataType[] colTypes;
 	private Map<String, DataType> dataTypes;
+	private NumberFormat numFormatter;
 	
 	public SQLiteDBLayout(Context context, String tblName) {
 		super(context);
@@ -55,6 +57,8 @@ public class SQLiteDBLayout extends LinearLayout
 		super(context, attrs);
 		this.context = context;
 		app = AppSetting.getAppContext();
+		numFormatter = NumberFormat.getInstance(Locale.US);
+		numFormatter.setMaximumFractionDigits(7);
 		
 		TypedArray attrsMain = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout);
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_table)) tblName = attrsMain.getString(R.styleable.SQLiteDBLayout_table);
@@ -86,12 +90,14 @@ public class SQLiteDBLayout extends LinearLayout
 		setOrientation(LinearLayout.VERTICAL);
 		if (autoLoad) show();
 	}
-	
+
 	private void init(Context context, String tblName, ViewGroup container, OnRowClickListener onClickListener) {
 		this.context = context;
 		this.tblName = tblName;
 		this.container = container;
 		this.onClickListener = onClickListener;
+		numFormatter = NumberFormat.getInstance(Locale.US);
+		numFormatter.setMaximumFractionDigits(7);
 		layoutAttrs.put("sort", "rowid");
 		layoutAttrs.put("limit", -1);
 		LayoutParams layout = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 1);
@@ -252,6 +258,11 @@ public class SQLiteDBLayout extends LinearLayout
 	{
 		return tblData;
 	}
+
+	public Map<String, DataType> getDataTypes()
+	{
+		return dataTypes;
+	}
 	
 	public void show() {
 		removeAllViews();
@@ -264,13 +275,20 @@ public class SQLiteDBLayout extends LinearLayout
 			layoutTitle.setLayoutParams(layoutTitleParams);
 			layoutTitle.setOrientation(LinearLayout.HORIZONTAL);
 			layoutTitle.setBackgroundColor(getResources().getColor(R.color.primary));
-			layoutTitle.setGravity(Gravity.CENTER_HORIZONTAL);
+			layoutTitle.setGravity(Gravity.CENTER);
 			
-			final View vTitle = createColHeader(title, 1, -1, -1);
-			if (vTitle instanceof TextView) {
-				LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-				vTitle.setLayoutParams(titleParams);
-			}
+			TextView tvTitle = new TextView(context);
+			LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			tvTitle.setLayoutParams(titleParams);
+			tvTitle.setGravity(Gravity.CENTER);
+			tvTitle.setTextColor(Color.WHITE);
+			tvTitle.setTypeface(null, Typeface.BOLD);
+			tvTitle.setPadding(15, 15, 15, 15);
+			tvTitle.setText(title);
+			
+			final View vTitle;
+			if (onCreateView != null) vTitle = onCreateView.onCreate(tvTitle, -1, -1, title);
+			else vTitle = tvTitle;
 			
 			if (onTitleClickListener != null) layoutTitle.setOnClickListener(new OnClickListener() {
 
@@ -288,10 +306,8 @@ public class SQLiteDBLayout extends LinearLayout
 		List<Map<String, Object>> data = sql == null || "".equals(sql) ? db.getData(tblName, layoutAttrs) : db.sql(tblName, sql, null);
 		if (data.size() < 1) return;
 		colNames = data.get(0).keySet().toArray(new String[0]);
-		DataType[] colTypes = null;
 		dataTypes = SQLiteDB.getCachedDataTypeQuery(query);
-		if (dataTypes != null) colTypes = dataTypes.values().toArray(new DataType[0]);
-		//stt.log("table: " + tblName + " | dataType: " + dataTypes);
+		colTypes = dataTypes.values().toArray(new DataType[0]);
 		
 		tblData = data;
 		table = new TableLayout(context);
@@ -411,25 +427,23 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
-		
-		
-		//boolean isCached = SQLiteDB.getCachedDataTypeQuery(queryQuery) != null;
-		//stt.log("table: " + tblName + " | cached? " + isCached + " | query: " + queryQuery.substring(0, 20));
-		/*if (data != null && colIndex >= 0) {
-			for (String name : colNames) {
-				for (DataType type : dataTypes) {
-					if (name)
-				}
+		if (data != null && colIndex >= 1) {
+			switch (colTypes[colIndex]) {
+				case INT: case INTEGER: case NUMERIC: case REAL:
+					colText = numFormatter.format(data);
+					break;
+				case BOOLEAN:
+					// add checked box or switch
+					colText = String.valueOf(data);
+					break;
+				case DATETIME:
+					colText = SQLiteDB.formatShortedDate((Date) data);
+					break;
+				case NULL: break;
+				default:
+					colText = String.valueOf(data);
 			}
-			stt.log(tblName + ": " + dataTypes[colIndex] + "");
-//			switch (dataTypes[colIndex]) {
-//				default: stt.log(dataTypes[colIndex] + "");
-//			}
-		}*/
-		if (data != null && data instanceof Date) {
-			colText = SQLiteDB.formatShortedDate((Date) data);
-		}
-		else if (data != null) colText = String.valueOf(data);
+		} else if (data != null) colText = String.valueOf(data);
 		col.setText(colText);
 		if (onCreateView != null) return onCreateView.onCreate(col, rowIndex, colIndex, data);
 		return col;

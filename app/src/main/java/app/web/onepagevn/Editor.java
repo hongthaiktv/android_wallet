@@ -39,7 +39,7 @@ public class Editor extends Activity
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
-	private NumberFormat numConverter;
+	private NumberFormat numFormatter;
 	private Map<String, Integer> indexViews = new HashMap<>();
 	private AppAssetManager dirImage;
 	private FileManager fm;
@@ -73,8 +73,8 @@ public class Editor extends Activity
 		dirImage = new AppAssetManager(this, "images/");
 		dirImage.setImageFile("logo_cash.png", ibBudget);
 		fm = new FileManager(this);
-		numConverter = NumberFormat.getInstance(Locale.US);
-		numConverter.setMaximumFractionDigits(7);
+		numFormatter = NumberFormat.getInstance(Locale.US);
+		numFormatter.setMaximumFractionDigits(7);
 		
 		if (!"expends".equals(tblName)) {
 			ibBudget.setVisibility(ImageButton.INVISIBLE);
@@ -338,8 +338,8 @@ public class Editor extends Activity
 												String sPrice = textChanged.toString();
 												String sQuantity = iptQuantity.getText().toString();
 												if (!"".equals(sPrice) && !"".equals(sQuantity)) {
-													double price = numConverter.parse(sPrice).doubleValue();
-													double quantity = numConverter.parse(sQuantity).doubleValue();
+													double price = numFormatter.parse(sPrice).doubleValue();
+													double quantity = numFormatter.parse(sQuantity).doubleValue();
 													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
 												} else iptTotal.setText("");
 											}
@@ -379,8 +379,8 @@ public class Editor extends Activity
 												String sQuantity = textChanged.toString();
 												String sPrice = iptPrice.getText().toString();
 												if (!"".equals(sPrice) && !"".equals(sQuantity)) {
-													double price = numConverter.parse(sPrice).doubleValue();
-													double quantity = numConverter.parse(sQuantity).doubleValue();
+													double price = numFormatter.parse(sPrice).doubleValue();
+													double quantity = numFormatter.parse(sQuantity).doubleValue();
 													iptTotal.setText(String.format(Locale.US, "%,.0f", price * quantity));
 												} else iptTotal.setText("");
 											}
@@ -868,7 +868,7 @@ public class Editor extends Activity
 					String sNumber = input.getText().toString();
 					if ("".equals(sNumber)) return;
 					try {
-						double number = numConverter.parse(sNumber).doubleValue();
+						double number = numFormatter.parse(sNumber).doubleValue();
 						if (focus) input.setText(String.format(Locale.US, "%.0f", number));
 						else input.setText(String.format(Locale.US, "%,.0f", number));
 					}
@@ -901,9 +901,9 @@ public class Editor extends Activity
 						String sTotal = textChanged.toString();
 						String sPrice = iptPrice.getText().toString();
 						if (!"".equals(sTotal) && !"".equals(sPrice)) {
-							double total = numConverter.parse(sTotal).doubleValue();
-							double price = numConverter.parse(sPrice).doubleValue();
-							iptQuantity.setText(numConverter.format(total / price));
+							double total = numFormatter.parse(sTotal).doubleValue();
+							double price = numFormatter.parse(sPrice).doubleValue();
+							iptQuantity.setText(numFormatter.format(total / price));
 						} else iptQuantity.setText("");
 					}
 					catch (ParseException e)
@@ -994,7 +994,7 @@ public class Editor extends Activity
 		if (stringNumber != null && !"".equals(stringNumber)) {
 			try
 			{
-				number = numConverter.parse(stringNumber);
+				number = numFormatter.parse(stringNumber);
 			}
 			catch (ParseException e)
 			{stt.error(e.getMessage());}
@@ -1015,7 +1015,7 @@ public class Editor extends Activity
 					String sNumber = input.getText().toString();
 					if ("".equals(sNumber)) return;
 					try {
-						double number = numConverter.parse(sNumber).doubleValue();
+						double number = numFormatter.parse(sNumber).doubleValue();
 						if (focus) input.setText(String.format(Locale.US, "%.0f", number));
 						else input.setText(String.format(Locale.US, "%,.0f", number));
 					}
@@ -1102,7 +1102,7 @@ public class Editor extends Activity
 		switch (type) {
 			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
 			case REAL: case FLOAT: case DOUBLE:
-				result = numConverter.format(object);
+				result = numFormatter.format(object);
 				break;
 			case TEXT:
 				result = (String) object;
@@ -1127,7 +1127,7 @@ public class Editor extends Activity
 				break;
 			case BLOB: default:
 				if (object instanceof String) result = (String) object;
-				else if (object instanceof Integer || object instanceof Long || object instanceof Float || object instanceof Double) result = numConverter.format(object);
+				else if (object instanceof Integer || object instanceof Long || object instanceof Float || object instanceof Double) result = numFormatter.format(object);
 				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
 				else if (object instanceof Date) result = flocal.format((Date) object);
 				else if (object instanceof JSONObject) {
