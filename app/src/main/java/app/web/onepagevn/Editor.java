@@ -283,6 +283,27 @@ public class Editor extends Activity
 					layoutPicker.setBaselineAlignedChildIndex(0);
 					layoutTop.addView(layoutPicker);
 					continue;
+					
+				case BOOLEAN:
+					GridLayout.LayoutParams lCheckBoxParams = new GridLayout.LayoutParams();
+					lCheckBoxParams.width = 0;
+					lCheckBoxParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+					lCheckBoxParams.setMargins(20, 20, 20, 0);
+					LinearLayout layoutCheckBox = new LinearLayout(this);
+					layoutCheckBox.setLayoutParams(lCheckBoxParams);
+					layoutCheckBox.setPadding(0, 0, 0, 0);
+					layoutCheckBox.setOrientation(LinearLayout.HORIZONTAL);
+					layoutCheckBox.setBaselineAligned(true);
+					setViewID(layoutCheckBox, i);
+					
+					LinearLayout.LayoutParams checkBoxParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+					CheckBox checkBox = new CheckBox(this);
+					checkBox.setLayoutParams(checkBoxParams);
+					checkBox.setGravity(Gravity.CENTER);
+					layoutCheckBox.addView(checkBox);
+					layoutCheckBox.setBaselineAlignedChildIndex(0);
+					layoutTop.addView(layoutCheckBox);
+					continue;
 			}
 			
 			GridLayout.LayoutParams iptParams = new GridLayout.LayoutParams();
@@ -608,6 +629,12 @@ public class Editor extends Activity
 					pickedRows[i][1] = now.getTime();
 					break;
 				}
+				
+				case BOOLEAN:
+					LinearLayout layoutCheckBox = (LinearLayout) view;
+					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					checkBox.setChecked(false);
+					break;
 
 				case INTEGER: case INT:
 					if (view instanceof Spinner) {
@@ -935,6 +962,16 @@ public class Editor extends Activity
 					}
 					break;
 				}
+				
+				case BOOLEAN:
+				{
+					LinearLayout layoutCheckBox = (LinearLayout) view;
+					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					boolean checked = (Boolean) colValues[i];
+					checkBox.setChecked(checked);
+					break;
+				}
+				
 				case INTEGER: case INT:
 				{
 					if (view instanceof Spinner) {
@@ -951,6 +988,7 @@ public class Editor extends Activity
 						break;
 					}
 				}
+				
 				default:
 				{
 					EditText input = (EditText) view;
@@ -1033,6 +1071,13 @@ public class Editor extends Activity
 				case DATETIME:
 					data.put(colNames[i], getDateTime(i).getTime() / 1000L);
 					break;
+					
+				case BOOLEAN:
+					LinearLayout layoutCheckBox = (LinearLayout) view;
+					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					boolean checked = checkBox.isChecked();
+					data.put(colNames[i], checked);
+					break;
 
 				case INTEGER: case INT:
 					if (view instanceof Spinner) {
@@ -1095,28 +1140,28 @@ public class Editor extends Activity
 		return data;
 	}
 	
-	public String objectToString(Object object, DataType type) {
-		if (object == null) return null;
+	public String objectToString(Object value, DataType type) {
+		if (value == null) return null;
 		String result = null;
 		switch (type) {
 			case INTEGER: case INT: case NUMERIC: case NUM: case LONG:
 			case REAL: case FLOAT: case DOUBLE:
-				result = numFormatter.format(object);
+				result = numFormatter.format(value);
 				break;
 			case TEXT:
-				result = (String) object;
+				result = (String) value;
 				break;
 			case BOOLEAN:
-				result = (Boolean) object ? "1" : "0";
+				result = (Boolean) value ? "true" : "false";
 				break;
 			case DATETIME:
-				result = flocal.format((Date) object);
+				result = flocal.format((Date) value);
 				break;
 			case JSON:
 				try
 				{
-					if (object instanceof JSONObject) result = ((JSONObject) object).toString(4);
-					else result = ((JSONArray) object).toString(4);
+					if (value instanceof JSONObject) result = ((JSONObject) value).toString(4);
+					else result = ((JSONArray) value).toString(4);
 				}
 				catch (JSONException e)
 				{stt.error(e.getMessage());}
@@ -1125,22 +1170,22 @@ public class Editor extends Activity
 				result = null;
 				break;
 			case BLOB: default:
-				if (object instanceof String) result = (String) object;
-				else if (object instanceof Integer || object instanceof Long || object instanceof Float || object instanceof Double) result = numFormatter.format(object);
-				else if (object instanceof Boolean) result = (Boolean) object ? "1" : "0";
-				else if (object instanceof Date) result = flocal.format((Date) object);
-				else if (object instanceof JSONObject) {
+				if (value instanceof String) result = (String) value;
+				else if (value instanceof Integer || value instanceof Long || value instanceof Float || value instanceof Double) result = numFormatter.format(value);
+				else if (value instanceof Boolean) result = (Boolean) value ? "true" : "false";
+				else if (value instanceof Date) result = flocal.format((Date) value);
+				else if (value instanceof JSONObject) {
 					try
 					{
-						result = ((JSONObject) object).toString(4);
+						result = ((JSONObject) value).toString(4);
 					}
 					catch (JSONException e)
 					{stt.error(e.getMessage());}
 				}
-				else if (object instanceof JSONArray) {
+				else if (value instanceof JSONArray) {
 					try
 					{
-						result = ((JSONArray) object).toString(4);
+						result = ((JSONArray) value).toString(4);
 					}
 					catch (JSONException e)
 					{stt.error(e.getMessage());}
