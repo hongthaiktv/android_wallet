@@ -577,7 +577,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 				cursor.close();
 				cursor = null;
 				if (dataTypes == null || dataTypes.size() < 1) {
-					cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
+					cursor = (SQLiteDBCursor) db.rawQuery("PRAGMA table_info(" + table + ")", null);
 					dataTypes = cursor.getTableDataTypes();
 				}
 			}
