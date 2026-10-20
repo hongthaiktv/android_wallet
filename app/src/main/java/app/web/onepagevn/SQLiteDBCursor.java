@@ -89,6 +89,10 @@ public class SQLiteDBCursor extends SQLiteCursor
 	}
 	
 	public Map<String, DataType> getDataTypes() {
+		return colDataTypes;
+	}
+	
+	public Map<String, DataType> getTableDataTypes() {
 		Map<String, DataType> colDataTypes = new LinkedHashMap<>();
 		try {
 			while (moveToNext()) {

@@ -11,7 +11,6 @@ import android.view.ViewGroup.*;
 import android.view.inputmethod.*;
 import android.widget.*;
 import android.widget.AdapterView.*;
-import java.io.*;
 import java.text.*;
 import java.util.*;
 import org.json.*;

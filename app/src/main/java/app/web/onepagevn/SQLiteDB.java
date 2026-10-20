@@ -1,11 +1,11 @@
 package app.web.onepagevn;
+import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
 import android.widget.*;
-import java.util.*;
-import android.content.*;
-import org.json.*;
 import java.text.*;
+import java.util.*;
+import org.json.*;
 
 public class SQLiteDB extends SQLiteOpenHelper
 {
@@ -566,10 +566,26 @@ public class SQLiteDB extends SQLiteOpenHelper
 	}
 	
 	public Map<String, DataType> getDataTypes(String table) {
-		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
-		Map<String, DataType> dataTypes = cursor.getDataTypes();
-		cursor.close();
+		String query = "SELECT * FROM " + table + " LIMIT 1";
+		Map<String, DataType> dataTypes = SQLiteDB.getCachedDataTypeQuery(query);
+		if (dataTypes == null) {
+			SQLiteDBCursor cursor = null;
+			try {
+				SQLiteDatabase db = getReadableDatabase();
+				cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, query, null, table);
+				dataTypes = cursor.getDataTypes();
+				cursor.close();
+				cursor = null;
+				if (dataTypes == null || dataTypes.size() < 1) {
+					cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "PRAGMA table_info(" + table + ")", null, table);
+					dataTypes = cursor.getTableDataTypes();
+				}
+			}
+			catch (Exception e) {
+				insertLog(e.getMessage(), LogType.ERROR, compName);
+			}
+			if (cursor != null) cursor.close();
+		}
 		return dataTypes;
 	}
 	

@@ -5,8 +5,8 @@ import android.graphics.*;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
-import java.util.*;
 import java.text.*;
+import java.util.*;
 
 public class SQLiteDBLayout extends LinearLayout
 {
@@ -348,6 +348,9 @@ public class SQLiteDBLayout extends LinearLayout
 			final Object[] colValues = rowData.values().toArray();
 			rowIDs[rowIndex] = colValues[0];
 			TableRow row = new TableRow(context);
+			TableLayout.LayoutParams rowParams = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			row.setLayoutParams(rowParams);
+			row.setGravity(Gravity.CENTER_VERTICAL);
 			final int index = rowIndex;
 			if (onClickListener != null) row.setOnClickListener(new OnClickListener() {
 
@@ -431,11 +434,10 @@ public class SQLiteDBLayout extends LinearLayout
 			switch (colTypes[colIndex]) {
 				case INT: case INTEGER: case NUMERIC: case REAL:
 					colText = numFormatter.format(data);
+					col.setGravity(Gravity.RIGHT);
 					break;
 				case BOOLEAN:
-					// add checked box or switch
-					colText = String.valueOf(data);
-					break;
+					return createCheckbox((Boolean) data);
 				case DATETIME:
 					colText = SQLiteDB.formatShortedDate((Date) data);
 					break;
@@ -459,6 +461,16 @@ public class SQLiteDBLayout extends LinearLayout
 			return tvHeader;
 		}
 		return header;
+	}
+	
+	private View createCheckbox(boolean checked) {
+		CheckBox checkBox = new CheckBox(context);
+		TableRow.LayoutParams checkBoxParams = new TableRow.LayoutParams(90, 50);
+		checkBoxParams.gravity = Gravity.CENTER;
+		checkBox.setLayoutParams(checkBoxParams);
+		checkBox.setGravity(Gravity.CENTER);
+		checkBox.setChecked(checked);
+		return checkBox;
 	}
 	
 	public static interface OnTitleClickListener {
