@@ -10,7 +10,7 @@ import java.text.*;
 public class SQLiteDB extends SQLiteOpenHelper
 {
 	private AppSetting app = AppSetting.getAppContext();
-	private String compName = "Database";
+	private String compName = "SQLiteDB";
 	
 	private static SQLiteDB instance;
 	private static Map<UUID, String> queryIDs = new HashMap<>();
@@ -702,5 +702,35 @@ public class SQLiteDB extends SQLiteOpenHelper
 				}
 		}
 		return result;
+	}
+	
+	public static String formatShortedDate(Date date, String futurePrefix) {
+		futurePrefix = futurePrefix == null || "".equals(futurePrefix) ? "" : "'" + futurePrefix + "'";
+		SimpleDateFormat formater = new SimpleDateFormat("MMM d, yyyy");
+		Date now = new Date();
+		Date dateNow = null, dateInput = null;
+		try
+		{
+			dateNow = formater.parse(formater.format(now));
+			dateInput = formater.parse(formater.format(date));
+		}
+		catch (ParseException e)
+		{log(e.getMessage(), LogType.ERROR, "SQLiteDB");}
+		if (dateInput.equals(dateNow) && date.before(now)) {
+			formater.applyPattern("HH:mm:ss");
+		} else if (dateInput.before(dateNow) && dateInput.getYear() == dateNow.getYear()) {
+			formater.applyPattern("dd MMM HH:mm:ss");
+		} else if (dateInput.before(dateNow)) {
+			formater.applyPattern("dd MMM yyyy HH:mm:ss");
+		} else if (dateInput.equals(dateNow) && date.after(now)) {
+			formater.applyPattern(futurePrefix + "HH:mm:ss");
+		} else if (dateInput.after(dateNow) && dateInput.getYear() == dateNow.getYear()) {
+			formater.applyPattern(futurePrefix + "dd MMM HH:mm:ss");
+		} else formater.applyPattern(futurePrefix + "dd MMM yyyy HH:mm:ss");
+		return formater.format(date);
+	}
+	
+	public static String formatShortedDate(Date date) {
+		return formatShortedDate(date, "");
 	}
 }

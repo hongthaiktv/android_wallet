@@ -427,9 +427,7 @@ public class SQLiteDBLayout extends LinearLayout
 //			}
 		}*/
 		if (data != null && data instanceof Date) {
-			// add check to print short date
-			SimpleDateFormat fLocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			colText = fLocal.format(data);
+			colText = SQLiteDB.formatShortedDate((Date) data);
 		}
 		else if (data != null) colText = String.valueOf(data);
 		col.setText(colText);
