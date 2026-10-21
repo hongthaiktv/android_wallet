@@ -47,7 +47,7 @@ public class MainActivity extends Activity
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(TextView view, int rowIndex, int colIndex, Object data)
+				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type)
 				{
 					switch (rowIndex) {
 						case -1:
@@ -60,16 +60,17 @@ public class MainActivity extends Activity
 							
 							RelativeLayout.LayoutParams tvTitleParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 							tvTitleParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-							view.setLayoutParams(tvTitleParams);
-							view.setGravity(Gravity.CENTER);
-							view.setTextColor(Color.WHITE);
-							view.setTypeface(null, Typeface.BOLD);
-							view.setId(View.generateViewId());
+							TextView tvTitle = (TextView) view;
+							tvTitle.setLayoutParams(tvTitleParams);
+							tvTitle.setGravity(Gravity.CENTER);
+							tvTitle.setTextColor(Color.WHITE);
+							tvTitle.setTypeface(null, Typeface.BOLD);
+							tvTitle.setId(View.generateViewId());
 							
 							ImageButton ibAdd = new ImageButton(MainActivity.this);
 							RelativeLayout.LayoutParams ibAddParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 							ibAddParams.addRule(RelativeLayout.CENTER_IN_PARENT);
-							ibAddParams.addRule(RelativeLayout.RIGHT_OF, view.getId());
+							ibAddParams.addRule(RelativeLayout.RIGHT_OF, tvTitle.getId());
 							ibAdd.setLayoutParams(ibAddParams);
 							ibAdd.setImageResource(R.drawable.ico_edit);
 							ibAdd.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -87,7 +88,7 @@ public class MainActivity extends Activity
 									}
 								});
 							
-							layoutTitle.addView(view);
+							layoutTitle.addView(tvTitle);
 							layoutTitle.addView(ibAdd);
 							return layoutTitle;
 						case 0:
@@ -126,15 +127,29 @@ public class MainActivity extends Activity
 						
 						case 2:
 							TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 4);
-							view.setLayoutParams(colLayoutLG);
-							view.setGravity(Gravity.LEFT);
-							return view;
+							TextView tvJob = (TextView) view;
+							tvJob.setLayoutParams(colLayoutLG);
+							tvJob.setGravity(Gravity.LEFT);
+							return tvJob;
 						
 						case 3:
-							TableRow.LayoutParams colHSLayout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-							view.setLayoutParams(colHSLayout);
-							view.setPadding(15, 15, 40, 15);
-							return view;
+							CheckBox checkBox = (CheckBox) view;
+							checkBox.setClickable(true);
+							boolean isChecked = checkBox.isChecked();
+							TableRow row = (TableRow) parent;
+							final TextView tvStrikeThrough = (TextView) row.getChildAt(colIndex);
+							if (isChecked) tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+							
+							checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+									@Override
+									public void onCheckedChanged(CompoundButton v, boolean checked)
+									{
+										if (checked) tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+										else tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+									}
+								});
+							return checkBox;
 						
 						default: return view;
 					}
@@ -176,11 +191,12 @@ public class MainActivity extends Activity
 		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(TextView view, int rowIndex, int colIndex, Object data)
+				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type)
 				{
 					if (rowIndex != -1) return view;
-					view.setText(layoutExpends.getTableName().toUpperCase());
-					return view;
+					TextView tvTitle = (TextView) view;
+					tvTitle.setText(layoutExpends.getTableName().toUpperCase());
+					return tvTitle;
 				}
 			});
 		

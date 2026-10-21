@@ -287,7 +287,7 @@ public class SQLiteDBLayout extends LinearLayout
 			tvTitle.setText(title);
 			
 			final View vTitle;
-			if (onCreateView != null) vTitle = onCreateView.onCreate(tvTitle, -1, -1, title);
+			if (onCreateView != null) vTitle = onCreateView.onCreate(layoutTitle, tvTitle, -1, -1, title, DataType.TEXT);
 			else vTitle = tvTitle;
 			
 			if (onTitleClickListener != null) layoutTitle.setOnClickListener(new OnClickListener() {
@@ -321,17 +321,17 @@ public class SQLiteDBLayout extends LinearLayout
 			TableRow rowHeader = new TableRow(context);
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
-			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1));
+			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1, rowHeader));
 			
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				String colName = colNames[colIndex];
 				switch (colIndex) {
 					case 0:
-						rowHeader.addView(createColHeader(colName, 1, 0, colIndex));
+						rowHeader.addView(createColHeader(colName, 1, 0, colIndex, rowHeader));
 						break;
 					default:
-						if (colIndex == lastCol && expandLastColumn) rowHeader.addView(createColHeader(colName, 4, 0, colIndex));
-						else rowHeader.addView(createColHeader(colName, 2, 0, colIndex));
+						if (colIndex == lastCol && expandLastColumn) rowHeader.addView(createColHeader(colName, 4, 0, colIndex, rowHeader));
+						else rowHeader.addView(createColHeader(colName, 2, 0, colIndex, rowHeader));
 				}
 			}
 			table.addView(rowHeader);
@@ -373,17 +373,17 @@ public class SQLiteDBLayout extends LinearLayout
 			if (striped && rowIndex % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
 			++rowIndex;
-			row.addView(createColumn(rowIndex, 1, rowIndex, -1));
+			row.addView(createColumn(rowIndex, 1, rowIndex, -1, row));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				Object colData = colValues[colIndex];
 				switch (colIndex) {
 					case 0:
-						row.addView(createColumn(colData, 1, rowIndex, colIndex));
+						row.addView(createColumn(colData, 1, rowIndex, colIndex, row));
 						break;
 					default:
 						if (colIndex == lastCol && expandLastColumn) {
-							row.addView(createColumn(colData, 4, rowIndex, colIndex));
-						} else row.addView(createColumn(colData, 2, rowIndex, colIndex));
+							row.addView(createColumn(colData, 4, rowIndex, colIndex, row));
+						} else row.addView(createColumn(colData, 2, rowIndex, colIndex, row));
 				}
 			}
 			tBody.addView(row);
@@ -404,7 +404,8 @@ public class SQLiteDBLayout extends LinearLayout
 		} else addView(table);
 	}
 	
-	private View createColumn(Object data, int size, int rowIndex, int colIndex) {
+	private View createColumn(Object data, int size, int rowIndex, int colIndex, TableRow row) {
+		View viewColumn = null;
 		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.1f);
 		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
 		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3);
@@ -430,14 +431,22 @@ public class SQLiteDBLayout extends LinearLayout
 		} else col.setLayoutParams(colHSLayout);
 		col.setPadding(15, 15, 15, 15);
 		String colText = "";
+		DataType colType;
+		if (rowIndex < 1) colType = DataType.TEXT;
+		else if (colIndex == -1) colType = DataType.INT;
+		else if (colIndex == 0) colType = DataType.INTEGER;
+		else colType = colTypes[colIndex];
 		if (data != null && rowIndex >= 1 && colIndex >= 1) {
-			switch (colTypes[colIndex]) {
+			switch (colType) {
 				case INT: case INTEGER: case NUMERIC: case REAL:
 					colText = numFormatter.format(data);
 					col.setGravity(Gravity.RIGHT);
 					break;
 				case BOOLEAN:
-					return createCheckbox((Boolean) data);
+					boolean checked = (Boolean) data;
+					CheckBox checkBox = createCheckbox(checked);
+					viewColumn = checkBox;
+					break;
 				case DATETIME:
 					colText = SQLiteDB.formatShortedDate((Date) data);
 					break;
@@ -446,13 +455,17 @@ public class SQLiteDBLayout extends LinearLayout
 					colText = String.valueOf(data);
 			}
 		} else if (data != null) colText = String.valueOf(data);
-		col.setText(colText);
-		if (onCreateView != null) return onCreateView.onCreate(col, rowIndex, colIndex, data);
-		return col;
+		
+		if (viewColumn == null) {
+			col.setText(colText);
+			viewColumn = col;
+		}
+		if (onCreateView != null) viewColumn = onCreateView.onCreate(row, viewColumn, rowIndex, colIndex, data, colType);
+		return viewColumn;
 	}
 	
-	private View createColHeader(String text, int size, int rowIndex, int colIndex) {
-		View header = createColumn(text.toUpperCase(), size, rowIndex, colIndex);
+	private View createColHeader(String text, int size, int rowIndex, int colIndex, TableRow rowHeader) {
+		View header = createColumn(text.toUpperCase(), size, rowIndex, colIndex, rowHeader);
 		if (header instanceof TextView) {
 			TextView tvHeader = (TextView) header;
 			tvHeader.setGravity(Gravity.CENTER);
@@ -463,13 +476,14 @@ public class SQLiteDBLayout extends LinearLayout
 		return header;
 	}
 	
-	private View createCheckbox(boolean checked) {
+	private CheckBox createCheckbox(boolean checked) {
 		CheckBox checkBox = new CheckBox(context);
 		TableRow.LayoutParams checkBoxParams = new TableRow.LayoutParams(90, 50);
 		checkBoxParams.gravity = Gravity.CENTER;
 		checkBox.setLayoutParams(checkBoxParams);
 		checkBox.setGravity(Gravity.CENTER);
 		checkBox.setChecked(checked);
+		checkBox.setClickable(false);
 		return checkBox;
 	}
 	
@@ -486,6 +500,6 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public static interface OnCreateView {
-		public View onCreate(TextView view, int rowIndex, int colIndex, Object data);
+		public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type);
 	}
 }
