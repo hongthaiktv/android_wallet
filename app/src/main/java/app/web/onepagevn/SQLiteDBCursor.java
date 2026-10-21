@@ -42,7 +42,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 							if (colDataTypes.get(colName) == null) {
 								int typeValue = getType(i);
 								DataType dataType = getDataTypeByValue(typeValue);
-								if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) &&
+								if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName) || "createdate".equals(colName) || "completedate".equals(colName) || "updatedate".equals(colName) || "modifieddate".equals(colName)) &&
 									(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 									colDataTypes.put(colName, DataType.DATETIME);
 								}
@@ -59,7 +59,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 						String colName = colNames[i];
 						int typeValue = getType(i);
 						DataType dataType = getDataTypeByValue(typeValue);
-						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) &&
+						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName) || "createdate".equals(colName) || "completedate".equals(colName) || "updatedate".equals(colName) || "modifieddate".equals(colName)) &&
 							(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 							colDataTypes.put(colName, DataType.DATETIME);
 						}
@@ -238,13 +238,13 @@ public class SQLiteDBCursor extends SQLiteCursor
 					int dataType = getType(i);
 					switch (dataType) {
 						case Cursor.FIELD_TYPE_INTEGER:
-							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) {
+							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName) || "createdate".equals(colName) || "completedate".equals(colName) || "updatedate".equals(colName) || "modifieddate".equals(colName)) {
 								row.put(colName, new Date(getLong(i) * 1000L));
 							}
 							else row.put(colName, getInt(i));
 							break;
 						case Cursor.FIELD_TYPE_FLOAT:
-							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName)) {
+							if ("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName) || "createdate".equals(colName) || "completedate".equals(colName) || "updatedate".equals(colName) || "modifieddate".equals(colName)) {
 								row.put(colName, new Date(getLong(i) * 1000L));
 							}
 							else row.put(colName, getDouble(i));

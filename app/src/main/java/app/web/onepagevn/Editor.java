@@ -288,7 +288,7 @@ public class Editor extends Activity
 					GridLayout.LayoutParams lCheckBoxParams = new GridLayout.LayoutParams();
 					lCheckBoxParams.width = 0;
 					lCheckBoxParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-					lCheckBoxParams.setMargins(20, 20, 20, 0);
+					lCheckBoxParams.setMargins(20, 20, 20, 20);
 					LinearLayout layoutCheckBox = new LinearLayout(this);
 					layoutCheckBox.setLayoutParams(lCheckBoxParams);
 					layoutCheckBox.setPadding(0, 0, 0, 0);

@@ -47,7 +47,7 @@ public class MainActivity extends Activity
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type)
+				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type, final int rowID)
 				{
 					switch (rowIndex) {
 						case -1:
@@ -145,8 +145,22 @@ public class MainActivity extends Activity
 									@Override
 									public void onCheckedChanged(CompoundButton v, boolean checked)
 									{
-										if (checked) tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-										else tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+										String table = layoutTodos.getTableName();
+										ContentValues data = new ContentValues();
+										if (checked) {
+											tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+											data.put("completedate", System.currentTimeMillis() / 1000L);
+										}
+										else {
+											tvStrikeThrough.setPaintFlags(tvStrikeThrough.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+											List<Map<String, Object>> createDates = db.sql(table, "SELECT createdate FROM " + table + " WHERE rowid=?", new String[] {String.valueOf(rowID)});
+											long createdate = ((Date) createDates.get(0).get("createdate")).getTime() / 1000L;
+											data.put("completedate", createdate);
+										}
+										data.put("complete", checked);
+										int result = db.update(table, rowID, data);
+										if (result == -1) stt.error("Set todo job complete status failed.");
+										layoutTodos.show();
 									}
 								});
 							return checkBox;
@@ -191,7 +205,7 @@ public class MainActivity extends Activity
 		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
 				@Override
-				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type)
+				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type, int rowID)
 				{
 					if (rowIndex != -1) return view;
 					TextView tvTitle = (TextView) view;

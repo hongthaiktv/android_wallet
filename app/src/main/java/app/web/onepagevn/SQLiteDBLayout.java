@@ -287,7 +287,7 @@ public class SQLiteDBLayout extends LinearLayout
 			tvTitle.setText(title);
 			
 			final View vTitle;
-			if (onCreateView != null) vTitle = onCreateView.onCreate(layoutTitle, tvTitle, -1, -1, title, DataType.TEXT);
+			if (onCreateView != null) vTitle = onCreateView.onCreate(layoutTitle, tvTitle, -1, -1, title, DataType.TEXT, -1);
 			else vTitle = tvTitle;
 			
 			if (onTitleClickListener != null) layoutTitle.setOnClickListener(new OnClickListener() {
@@ -321,17 +321,17 @@ public class SQLiteDBLayout extends LinearLayout
 			TableRow rowHeader = new TableRow(context);
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
-			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1, rowHeader));
+			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1, rowHeader, -1));
 			
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				String colName = colNames[colIndex];
 				switch (colIndex) {
 					case 0:
-						rowHeader.addView(createColHeader(colName, 1, 0, colIndex, rowHeader));
+						rowHeader.addView(createColHeader(colName, 1, 0, colIndex, rowHeader, -1));
 						break;
 					default:
-						if (colIndex == lastCol && expandLastColumn) rowHeader.addView(createColHeader(colName, 4, 0, colIndex, rowHeader));
-						else rowHeader.addView(createColHeader(colName, 2, 0, colIndex, rowHeader));
+						if (colIndex == lastCol && expandLastColumn) rowHeader.addView(createColHeader(colName, 4, 0, colIndex, rowHeader, -1));
+						else rowHeader.addView(createColHeader(colName, 2, 0, colIndex, rowHeader, -1));
 				}
 			}
 			table.addView(rowHeader);
@@ -373,21 +373,22 @@ public class SQLiteDBLayout extends LinearLayout
 			if (striped && rowIndex % 2 != 0) row.setBackgroundColor(Color.LTGRAY);
 			row.setGravity(Gravity.CENTER);
 			++rowIndex;
-			row.addView(createColumn(rowIndex, 1, rowIndex, -1, row));
+			row.addView(createColumn(rowIndex, 1, rowIndex, -1, row, colValues[0]));
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
 				Object colData = colValues[colIndex];
 				switch (colIndex) {
 					case 0:
-						row.addView(createColumn(colData, 1, rowIndex, colIndex, row));
+						row.addView(createColumn(colData, 1, rowIndex, colIndex, row, colValues[0]));
 						break;
 					default:
 						if (colIndex == lastCol && expandLastColumn) {
-							row.addView(createColumn(colData, 4, rowIndex, colIndex, row));
-						} else row.addView(createColumn(colData, 2, rowIndex, colIndex, row));
+							row.addView(createColumn(colData, 4, rowIndex, colIndex, row, colValues[0]));
+						} else row.addView(createColumn(colData, 2, rowIndex, colIndex, row, colValues[0]));
 				}
 			}
 			tBody.addView(row);
 		}
+		
 		if (hideColumns.size() > 0) {
 			for (int index : hideColumns) {
 				hideColumn(index, true);
@@ -404,7 +405,7 @@ public class SQLiteDBLayout extends LinearLayout
 		} else addView(table);
 	}
 	
-	private View createColumn(Object data, int size, int rowIndex, int colIndex, TableRow row) {
+	private View createColumn(Object data, int size, int rowIndex, int colIndex, TableRow row, int rowID) {
 		View viewColumn = null;
 		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.1f);
 		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
@@ -460,12 +461,12 @@ public class SQLiteDBLayout extends LinearLayout
 			col.setText(colText);
 			viewColumn = col;
 		}
-		if (onCreateView != null) viewColumn = onCreateView.onCreate(row, viewColumn, rowIndex, colIndex, data, colType);
+		if (onCreateView != null) viewColumn = onCreateView.onCreate(row, viewColumn, rowIndex, colIndex, data, colType, rowID);
 		return viewColumn;
 	}
 	
-	private View createColHeader(String text, int size, int rowIndex, int colIndex, TableRow rowHeader) {
-		View header = createColumn(text.toUpperCase(), size, rowIndex, colIndex, rowHeader);
+	private View createColHeader(String text, int size, int rowIndex, int colIndex, TableRow rowHeader, int rowID) {
+		View header = createColumn(text.toUpperCase(), size, rowIndex, colIndex, rowHeader, rowID);
 		if (header instanceof TextView) {
 			TextView tvHeader = (TextView) header;
 			tvHeader.setGravity(Gravity.CENTER);
@@ -500,6 +501,6 @@ public class SQLiteDBLayout extends LinearLayout
 	}
 	
 	public static interface OnCreateView {
-		public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type);
+		public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type, int rowID);
 	}
 }
