@@ -27,10 +27,10 @@ public class Editor extends Activity
 	private StatusBar stt;
 	private SQLiteDB db;
 	private String tblName = "expends", mode = "insert";
-	private String[] colNames, labels;
-	private Object[] colValues;
 	private Map<String, DataType> dataTypes;
 	private DataType[] colTypes;
+	private String[] colNames, labels;
+	private Object[] colValues;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
 	private int rowID = -1, pickedRow = -1, currentBudget = 1;
@@ -300,6 +300,7 @@ public class Editor extends Activity
 					checkBox.setLayoutParams(checkBoxParams);
 					checkBox.setGravity(Gravity.CENTER);
 					setViewID(checkBox, i);
+					
 					layoutCheckBox.addView(checkBox);
 					layoutCheckBox.setBaselineAlignedChildIndex(0);
 					layoutTop.addView(layoutCheckBox);
@@ -461,10 +462,47 @@ public class Editor extends Activity
 					}
 				}
 			});
+			
+		switch (tblName) {
+			case "todos":
+				CheckBox checkBox = (CheckBox) getViewByColumnName("complete").get("view");
+				checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+						@Override
+						public void onCheckedChanged(CompoundButton v, boolean checked)
+						{
+							Map<String, Object> completeDate = getViewByColumnName("completedate");
+							int index = completeDate.get("index");
+							LinearLayout layoutCompleteDate = (LinearLayout) completeDate.get("view");
+							Button btnCompleteDatePicker = (Button) layoutCompleteDate.getChildAt(0);
+							Button btnCompleteTimePicker = (Button) layoutCompleteDate.getChildAt(1);
+							if (checked) {
+								Date now = new Date();
+								btnCompleteDatePicker.setText(dff.format(now));
+								btnCompleteTimePicker.setText(tff.format(now));
+								pickedRows[index][0] = now.getTime();
+								pickedRows[index][1] = now.getTime();
+							}
+							else {
+								Map<String, Object> createDate = getViewByColumnName("createdate");
+								int indexCreateDate = createDate.get("index");
+								Date dCreateDate = new Date(pickedRows[indexCreateDate][0]);
+								Date dCreateTime = new Date(pickedRows[indexCreateDate][1]);
+								String sCreateDate = dff.format(dCreateDate);
+								String sCreateTime = tff.format(dCreateTime);
+								btnCompleteDatePicker.setText(sCreateDate);
+								btnCompleteTimePicker.setText(sCreateTime);
+								pickedRows[index][0] = dCreateDate.getTime();
+								pickedRows[index][1] = dCreateTime.getTime();
+							}
+						}
+					});
+				break;
+		}
 		
 		// Check for Insert mode or Update mode
 		if (!Intent.ACTION_EDIT.equals(intAction)) {
-			// Insert mode
+		// Insert mode
 			btnClear.setOnClickListener(new OnClickListener() {
 
 					@Override
@@ -497,6 +535,7 @@ public class Editor extends Activity
 						}
 					}
 				});
+			
 			reset();
 			return;
 		}
@@ -824,6 +863,20 @@ public class Editor extends Activity
 		View view = findViewById(id);
 		if (view == null) stt.error("View at index \"" + index + "\" not found.");
 		return view;
+	}
+	
+	private Map<String, Object> getViewByColumnName(String colName) {
+		Map<String, Object> result = null;
+		int numRow = layoutTop.getRowCount();
+		for (int i = 1; i <= numRow; i++) {
+			if (colName.equals(colNames[i])) {
+				result = new HashMap<>();
+				result.put("view", getViewByIndex(i));
+				result.put("index", i);
+				break;
+			}
+		}
+		return result;
 	}
 	
 	private LinearLayout createRowTotal() {
