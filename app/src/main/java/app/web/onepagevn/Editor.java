@@ -294,12 +294,12 @@ public class Editor extends Activity
 					layoutCheckBox.setPadding(0, 0, 0, 0);
 					layoutCheckBox.setOrientation(LinearLayout.HORIZONTAL);
 					layoutCheckBox.setBaselineAligned(true);
-					setViewID(layoutCheckBox, i);
 					
 					LinearLayout.LayoutParams checkBoxParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 					CheckBox checkBox = new CheckBox(this);
 					checkBox.setLayoutParams(checkBoxParams);
 					checkBox.setGravity(Gravity.CENTER);
+					setViewID(checkBox, i);
 					layoutCheckBox.addView(checkBox);
 					layoutCheckBox.setBaselineAlignedChildIndex(0);
 					layoutTop.addView(layoutCheckBox);
@@ -631,8 +631,7 @@ public class Editor extends Activity
 				}
 				
 				case BOOLEAN:
-					LinearLayout layoutCheckBox = (LinearLayout) view;
-					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					CheckBox checkBox = (CheckBox) view;
 					checkBox.setChecked(false);
 					break;
 
@@ -965,8 +964,7 @@ public class Editor extends Activity
 				
 				case BOOLEAN:
 				{
-					LinearLayout layoutCheckBox = (LinearLayout) view;
-					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					CheckBox checkBox = (CheckBox) view;
 					boolean checked = (Boolean) colValues[i];
 					checkBox.setChecked(checked);
 					break;
@@ -1073,8 +1071,7 @@ public class Editor extends Activity
 					break;
 					
 				case BOOLEAN:
-					LinearLayout layoutCheckBox = (LinearLayout) view;
-					CheckBox checkBox = (CheckBox) layoutCheckBox.getChildAt(0);
+					CheckBox checkBox = (CheckBox) view;
 					boolean checked = checkBox.isChecked();
 					data.put(colNames[i], checked);
 					break;
