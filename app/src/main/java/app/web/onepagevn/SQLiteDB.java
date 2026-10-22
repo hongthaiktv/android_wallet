@@ -88,7 +88,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE incomes (incomeid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, money REAL DEFAULT 0 NOT NULL, budgetid INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE supplier_products (sproductid INTEGER PRIMARY KEY, supplierid INT REFERENCES suppliers (supplierid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, productid INT REFERENCES products (productid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, price REAL DEFAULT 0 NOT NULL, unitid INT REFERENCES units (unitid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, startdate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, enddate DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, note TEXT)");
 			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('dlgMaxLogs', 100, 'INTEGER')");
-			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('todosLimit', 10, 'INTEGER')");
+			db.execSQL("INSERT INTO setting (name, value, datatype) VALUES ('todosLimit', 100, 'INTEGER')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Important')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('High')");
 			db.execSQL("INSERT INTO priorities (name) VALUES ('Normal')");

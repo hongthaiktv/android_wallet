@@ -338,7 +338,7 @@ public class MainActivity extends Activity
 	{
 		super.onResume();
 		todosLimit = app.getTodosLimit();
-		layoutTodos.setSQL("SELECT todoid, priorityid , job, complete FROM todos ORDER BY complete, priorityid, completedate DESC LIMIT " + todosLimit).show();
+		layoutTodos.setSQL("SELECT * FROM (SELECT todoid, priorityid , job, complete FROM todos WHERE complete=0 ORDER BY priorityid, createdate DESC LIMIT " + todosLimit + ") UNION ALL SELECT * FROM (SELECT todoid, priorityid , job, complete FROM todos WHERE complete=1 ORDER BY completedate DESC LIMIT " + todosLimit + ")").show();
 		layoutExpends.show();
 		switch (tblName) {
 			case "funds":
