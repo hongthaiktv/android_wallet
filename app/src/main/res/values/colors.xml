@@ -10,7 +10,8 @@
 	<color name="blue">#0000ff</color>
 	<color name="orange">#ff9900</color>
 	<color name="darkGreen">#008000</color>
-	<color name="cyan">#33ccff</color>
+	<color name="cyan">#00bfff</color>
+	<color name="darkCyan">#0099cc</color>
 	<color name="purple">#6600cc</color>
 	<color name="maroon">#800000</color>
 	<color name="pink">#ff00ff</color>

@@ -116,16 +116,16 @@ public class MainActivity extends Activity
 									icon.setColorFilter(getResources().getColor(R.color.orange));
 									break;
 								case 3:
-									icon.setImageResource(R.drawable.ico_user_tie);
-									icon.setColorFilter(getResources().getColor(R.color.purple));
+									icon.setImageResource(R.drawable.ic_hand_point_right);
+									icon.setColorFilter(getResources().getColor(R.color.darkCyan));
 									break;
 								case 4:
-									icon.setImageResource(R.drawable.ico_box);
-									icon.setColorFilter(getResources().getColor(R.color.cyan));
+									icon.setImageResource(R.drawable.ic_bookmark);
+									icon.setColorFilter(getResources().getColor(R.color.darkGreen));
 									break;
 								case 5:
-									icon.setImageResource(R.drawable.ico_clipboard_list);
-									icon.setColorFilter(getResources().getColor(R.color.darkGreen));
+									icon.setImageResource(R.drawable.ic_alarm_snooze);
+									icon.setColorFilter(getResources().getColor(R.color.purple));
 									break;
 							}
 							return icon;
