@@ -43,16 +43,35 @@ public class AppSetting extends Application
 		return appSrvConn;
 	}
 	
-	public void setMaxLogs(int limit) {
+	public Map<String, Object> getSetting() {
+		return setting;
+	}
+	
+	public AppSetting setMaxLogs(int limit) {
 		if (limit <= 0) stt.error("Dialog max logs must >= 1");
 		else {
 			db.updateSetting("dlgMaxLogs", limit);
 			setting.put("dlgMaxLogs", limit);
 			stt.success("Max logs changed to " + limit);
 		}
+		return this;
 	}
 	
 	public int getMaxLogs() {
 		return setting.get("dlgMaxLogs");
+	}
+	
+	public AppSetting setTodosLimit(int limit) {
+		if (limit <= 0) stt.error("Todos limit must >= 1");
+		else {
+			db.updateSetting("todosLimit", limit);
+			setting.put("todosLimit", limit);
+			stt.success("Todos limit changed to " + limit);
+		}
+		return this;
+	}
+
+	public int getTodosLimit() {
+		return setting.get("todosLimit");
 	}
 }

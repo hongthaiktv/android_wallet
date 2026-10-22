@@ -15,10 +15,12 @@ import android.view.View.OnClickListener;
 
 public class MainActivity extends Activity 
 {
-	Button btnTable, btnAdmin;
-	ImageButton ibFAB, ibWallet;
-	ImageView ivBGround;
-	String tblName = "balance";
+	private AppSetting app;
+	private Button btnTable, btnAdmin;
+	private ImageButton ibFAB, ibWallet;
+	private ImageView ivBGround;
+	private String tblName = "balance";
+	private int todosLimit = -1;
 	private LinearLayout mainLayout;
 	private StatusBar stt;
 	private SQLiteDB db;
@@ -32,6 +34,7 @@ public class MainActivity extends Activity
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
+		app = AppSetting.getAppContext();
 		btnTable = findViewById(R.id.mainBtnTable);
 		btnAdmin = findViewById(R.id.mainBtnAdmin);
 		ibFAB = findViewById(R.id.mainIbFAB);
@@ -43,6 +46,9 @@ public class MainActivity extends Activity
 		srv = AppSetting.getAppContext().getServiceConnection();
 		layoutExpends = findViewById(R.id.mainTableData);
 		layoutTodos = findViewById(R.id.mainTableTodos);
+		
+		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(expends.price * expends.quantity AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
+		layoutExpends.setSQL(sqlTblBalance);
 		
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
 
@@ -185,8 +191,6 @@ public class MainActivity extends Activity
 				}
 			});
 		
-		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(expends.price * expends.quantity AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
-		layoutExpends.setSQL(sqlTblBalance);
 		layoutExpends.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 
 				@Override
@@ -333,8 +337,9 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
+		todosLimit = app.getTodosLimit();
+		layoutTodos.setSQL("SELECT todoid, priorityid , job, complete FROM todos ORDER BY complete, priorityid, completedate DESC LIMIT " + todosLimit).show();
 		layoutExpends.show();
-		layoutTodos.show();
 		switch (tblName) {
 			case "funds":
 				btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
