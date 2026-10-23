@@ -108,15 +108,15 @@ public class MainActivity extends Activity
 							int priority = data;
 							switch (priority) {
 								case 1:
-									icon.setImageResource(R.drawable.ico_info_circle);
+									icon.setImageResource(R.drawable.ic_exclamation_circle);
 									icon.setColorFilter(Color.RED);
 									break;
 								case 2:
-									icon.setImageResource(R.drawable.ico_bell);
+									icon.setImageResource(R.drawable.ic_bell_alt);
 									icon.setColorFilter(getResources().getColor(R.color.orange));
 									break;
 								case 3:
-									icon.setImageResource(R.drawable.ic_hand_point_right);
+									icon.setImageResource(R.drawable.ic_flag);
 									icon.setColorFilter(getResources().getColor(R.color.darkCyan));
 									break;
 								case 4:
@@ -262,10 +262,16 @@ public class MainActivity extends Activity
 									btnTable.setText(tblName);
 									break;
 								case "funds":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_money_bill, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_fund);
 									layoutExpends.setSQL("SELECT funds.fundid, CASE WHEN strftime('%Y', funds.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', funds.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', funds.date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', funds.cash) AS cash, bank1.name AS bank1, printf('%,.0f', funds.balance1) AS balance1, bank2.name AS bank2, printf('%,.0f', funds.balance2) AS balance2, printf('%,.0f', funds.cash + funds.balance1 + funds.balance2) AS total, funds.note FROM funds INNER JOIN budgets AS bank1 ON funds.bank1=bank1.budgetid INNER JOIN budgets AS bank2 ON funds.bank2=bank2.budgetid ORDER BY funds.date");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
+									break;
+								case "incomes":
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pig, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_income);
+									layoutExpends.setSQL("SELECT * FROM incomes");
+									btnTable.setText(tblName);
 									break;
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
