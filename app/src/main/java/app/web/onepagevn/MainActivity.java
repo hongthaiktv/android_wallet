@@ -256,7 +256,7 @@ public class MainActivity extends Activity
 							tblName = tableNames[index];
 							switch (tblName) {
 								case "budgets":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_store, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_money_bag, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									layoutExpends.setSQL("SELECT budgetid, date, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
@@ -268,9 +268,9 @@ public class MainActivity extends Activity
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 									break;
 								case "incomes":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pig, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_hand_holding_usd, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_income);
-									layoutExpends.setSQL("SELECT * FROM incomes");
+									layoutExpends.setSQL("SELECT * FROM incomes ORDER BY date DESC");
 									btnTable.setText(tblName);
 									break;
 								case "expends":
@@ -280,7 +280,7 @@ public class MainActivity extends Activity
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpends()));
 									break;
 								case "product_types":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_table, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_luggage_cart, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_grocery_list);
 									layoutExpends.setSQL("SELECT * FROM product_types ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
@@ -291,14 +291,26 @@ public class MainActivity extends Activity
 									layoutExpends.setSQL("SELECT products.productid, products.name, printf('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
+								case "supplier_products":
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_list, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_address_book);
+									layoutExpends.setSQL("SELECT * FROM supplier_products ORDER BY supplierid, productid");
+									btnTable.setText(tblName);
+									break;
+								case "supplier_types":
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ico_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_address_book);
+									layoutExpends.setSQL("SELECT * FROM supplier_types ORDER BY name COLLATE NOCASE");
+									btnTable.setText(tblName);
+									break;
 								case "suppliers":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_address_book, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_id_card, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
 									layoutExpends.setSQL("SELECT * FROM suppliers ORDER BY type COLLATE NOCASE, name COLLATE NOCASE, address COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "units":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_chart_bar, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ruler, 0, R.drawable.ico_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_measurement);
 									layoutExpends.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
