@@ -71,7 +71,7 @@ public class StatusBar
 				public void onClick(View p1)
 				{
 					AlertDialog.Builder dlgType = new AlertDialog.Builder(context);
-					dlgType.setTitle("Filter Type").setIcon(R.drawable.ico_question_circle);
+					dlgType.setTitle("Filter Type").setIcon(R.drawable.ic_question_circle);
 					final List<Map<String, Object>> types = new ArrayList<>();
 					Map<String, Object> allType = new HashMap<>();
 					allType.put("message", "All");
@@ -110,7 +110,7 @@ public class StatusBar
 				{
 					AlertDialog.Builder dlgStatus = new AlertDialog.Builder(context);
 					dlgStatus.setTitle("Status Logs")
-						.setIcon(R.drawable.ico_clipboard_list)
+						.setIcon(R.drawable.ic_clipboard_list)
 						.setPositiveButton("Ok", null);
 					if (!"AppLog".equals(compName)) {
 						dlgStatus.setNeutralButton("Detail", new DialogInterface.OnClickListener() {
@@ -205,22 +205,22 @@ public class StatusBar
 	private void setIconType(LogType type) {
 		switch (type) {
 			case ERROR:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_bug);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_bug);
 				break;
 			case SUCCESS:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_check_circle);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_check_circle);
 				break;
 			case WARNING:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_exclamation_triangle);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_exclamation_triangle);
 				break;
 			case INFO:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_info_circle);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_info_circle);
 				break;
 			case LOG:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_feather);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_feather);
 				break;
 			default:
-				lastSttBar.iconType.setImageResource(R.drawable.ico_clipboard_list_white);
+				lastSttBar.iconType.setImageResource(R.drawable.ic_clipboard_list_white);
 		}
 	}
 }

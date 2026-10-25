@@ -39,8 +39,8 @@
 			android:layout_margin="5dp"
 			android:gravity="center"
 			android:singleLine="true"
-			android:drawableLeft="@drawable/ico_dollar_sign"
-			android:drawableRight="@drawable/ico_caret_down"
+			android:drawableLeft="@drawable/ic_dollar_sign"
+			android:drawableRight="@drawable/ic_caret_down"
 			android:drawablePadding="@dimen/iconDrawablePad5"
 			android:drawableTint="@color/cyan"/>
 
@@ -50,7 +50,7 @@
 			android:layout_height="match_parent"
 			android:text="Adm"
 			style="?android:attr/buttonStyleSmall"
-			android:drawableLeft="@drawable/ico_user"
+			android:drawableLeft="@drawable/ic_user"
 			android:drawablePadding="@dimen/iconDrawablePad6"/>
 
 	</LinearLayout>

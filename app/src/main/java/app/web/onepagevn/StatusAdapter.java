@@ -136,19 +136,19 @@ public class StatusAdapter extends ArrayAdapter<Map<String, Object>> {
 	private void setImageResource(ImageView iconType, LogType type) {
 		switch (type) {
 			case ERROR:
-				iconType.setImageResource(R.drawable.ico_bug);
+				iconType.setImageResource(R.drawable.ic_bug);
 				break;
 			case SUCCESS:
-				iconType.setImageResource(R.drawable.ico_check_circle);
+				iconType.setImageResource(R.drawable.ic_check_circle);
 				break;
 			case WARNING:
-				iconType.setImageResource(R.drawable.ico_exclamation_triangle);
+				iconType.setImageResource(R.drawable.ic_exclamation_triangle);
 				break;
 			case INFO:
-				iconType.setImageResource(R.drawable.ico_info_circle);
+				iconType.setImageResource(R.drawable.ic_info_circle);
 				break;
 			case LOG:
-				iconType.setImageResource(R.drawable.ico_feather);
+				iconType.setImageResource(R.drawable.ic_feather);
 				break;
 		}
 	}

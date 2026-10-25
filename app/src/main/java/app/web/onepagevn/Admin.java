@@ -117,7 +117,7 @@ public class Admin extends Activity
 					final String[] tableNames = tables.toArray(new String[0]);
 					AlertDialog.Builder dlgTable = new AlertDialog.Builder(Admin.this);
 					dlgTable.setTitle("Select Table")
-						.setIcon(R.drawable.ico_table)
+						.setIcon(R.drawable.ic_table)
 						.setItems(tableNames, new DialogInterface.OnClickListener() {
 
 							@Override

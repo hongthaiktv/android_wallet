@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:state_pressed="true"
-		android:drawable="@drawable/ico_edit" /> <!-- pressed -->
+		android:drawable="@drawable/ic_edit" /> <!-- pressed -->
 	<item android:state_focused="true"
-		android:drawable="@drawable/ico_edit" /> <!-- focused -->
-	<item android:drawable="@drawable/ico_plus" /> <!-- default -->
+		android:drawable="@drawable/ic_edit" /> <!-- focused -->
+	<item android:drawable="@drawable/ic_plus" /> <!-- default -->
 </selector>

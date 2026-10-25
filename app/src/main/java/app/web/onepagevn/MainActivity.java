@@ -1,9 +1,9 @@
 package app.web.onepagevn;
 
-import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.os.*;
+import android.support.v7.app.*;
 import android.util.*;
 import android.view.*;
 import android.view.View.*;
@@ -13,7 +13,7 @@ import java.util.*;
 
 import android.view.View.OnClickListener;
 
-public class MainActivity extends Activity 
+public class MainActivity extends AppCompatActivity
 {
 	private AppSetting app;
 	private Button btnTable, btnAdmin;
@@ -31,7 +31,6 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
 		app = AppSetting.getAppContext();
@@ -78,7 +77,7 @@ public class MainActivity extends Activity
 							ibAddParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 							ibAddParams.addRule(RelativeLayout.RIGHT_OF, tvTitle.getId());
 							ibAdd.setLayoutParams(ibAddParams);
-							ibAdd.setImageResource(R.drawable.ico_edit);
+							ibAdd.setImageResource(R.drawable.ic_edit);
 							ibAdd.setScaleType(ImageView.ScaleType.FIT_CENTER);
 							ibAdd.setBackgroundResource(selectableBackGround.resourceId);
 							ibAdd.setColorFilter(getResources().getColor(R.color.yellow));
@@ -227,7 +226,7 @@ public class MainActivity extends Activity
 				{
 					tblName = "balance";
 					layoutExpends.setTable(tblName);
-					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_dollar_sign, 0, R.drawable.ico_caret_down, 0);
+					btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar_sign, 0, R.drawable.ic_caret_down, 0);
 					ivBGround.setImageResource(R.drawable.bg_wallet_crypto);
 					layoutExpends.setSQL(sqlTblBalance).show();
 					btnTable.setText(String.format(Locale.US, "%,.0f", db.getCashRemain()));
@@ -247,7 +246,7 @@ public class MainActivity extends Activity
 				final String[] tableNames = tables.toArray(new String[0]);
 				AlertDialog.Builder dlgTable = new AlertDialog.Builder(MainActivity.this);
 				dlgTable.setTitle("Select Table")
-					.setIcon(R.drawable.ico_table)
+					.setIcon(R.drawable.ic_table)
 					.setItems(tableNames, new DialogInterface.OnClickListener() {
 
 						@Override
@@ -256,67 +255,67 @@ public class MainActivity extends Activity
 							tblName = tableNames[index];
 							switch (tblName) {
 								case "budgets":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_money_bag, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_money_bag, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									layoutExpends.setSQL("SELECT budgetid, date, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "funds":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_fund);
 									layoutExpends.setSQL("SELECT funds.fundid, CASE WHEN strftime('%Y', funds.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', funds.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', funds.date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', funds.cash) AS cash, bank1.name AS bank1, printf('%,.0f', funds.balance1) AS balance1, bank2.name AS bank2, printf('%,.0f', funds.balance2) AS balance2, printf('%,.0f', funds.cash + funds.balance1 + funds.balance2) AS total, funds.note FROM funds INNER JOIN budgets AS bank1 ON funds.bank1=bank1.budgetid INNER JOIN budgets AS bank2 ON funds.bank2=bank2.budgetid ORDER BY funds.date");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 									break;
 								case "incomes":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_hand_holding_usd, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_hand_holding_usd, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_income);
 									layoutExpends.setSQL("SELECT * FROM incomes ORDER BY date DESC");
 									btnTable.setText(tblName);
 									break;
 								case "expends":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_shopping_cart, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_shopping_cart, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
 									layoutExpends.setSQL("SELECT expends.expendid, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, printf('%,.0f', expends.price) AS price, printf('%,.2f', expends.quantity) AS quantity, printf('%,.0f', expends.price * expends.quantity) AS total, budgets.name AS budget, ifnull(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) INNER JOIN budgets USING (budgetid) ORDER BY expends.date DESC");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpends()));
 									break;
 								case "product_types":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_luggage_cart, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_luggage_cart, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_grocery_list);
 									layoutExpends.setSQL("SELECT * FROM product_types ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "products":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_box, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_box, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
 									layoutExpends.setSQL("SELECT products.productid, products.name, printf('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_products":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_list, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_list, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
 									layoutExpends.setSQL("SELECT * FROM supplier_products ORDER BY supplierid, productid");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_types":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
 									layoutExpends.setSQL("SELECT * FROM supplier_types ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "suppliers":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_id_card, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_id_card, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_address_book);
 									layoutExpends.setSQL("SELECT * FROM suppliers ORDER BY type COLLATE NOCASE, name COLLATE NOCASE, address COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "units":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ruler, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ruler, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_measurement);
 									layoutExpends.setSQL("SELECT * FROM units ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								default:
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ico_database, 0, R.drawable.ico_caret_down, 0);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_database, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_database);
 									layoutExpends.setSQL(null);
 									btnTable.setText(tblName);

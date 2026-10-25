@@ -19,7 +19,7 @@
 		android:layout_height="@dimen/dialogIconSM"
 		android:layout_marginHorizontal="@dimen/dialogIconMHorizontalSM"
 		android:layout_marginTop="@dimen/dialogIconMTopSM"
-		android:src="@drawable/ico_clipboard_list"/>
+		android:src="@drawable/ic_clipboard_list"/>
 	
     <TextView
 		android:id="@+id/status_logTvLog"
