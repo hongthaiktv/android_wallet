@@ -1,9 +1,9 @@
-package app.web.onepagevn;
+package app.web.wallet;
 
+import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.os.*;
-import android.support.v7.app.*;
 import android.util.*;
 import android.view.*;
 import android.view.View.*;
@@ -13,7 +13,7 @@ import java.util.*;
 
 import android.view.View.OnClickListener;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends Activity
 {
 	private AppSetting app;
 	private Button btnTable, btnAdmin;
