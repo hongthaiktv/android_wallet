@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 import android.*;
 import android.app.*;
 import android.content.*;

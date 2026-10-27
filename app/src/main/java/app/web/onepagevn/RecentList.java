@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 import java.util.*;
 import java.util.stream.*;
 

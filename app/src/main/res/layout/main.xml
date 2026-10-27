@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res/app.web.wallet"
+	xmlns:app="http://schemas.android.com/apk/res/app.web.onepagevn"
 	android:id="@+id/mainLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -70,7 +70,7 @@
 			android:background="@drawable/bg_main"
 			android:alpha="0.3"/>
 		
-		<app.web.wallet.SQLiteDBLayout
+		<app.web.onepagevn.SQLiteDBLayout
 			android:id="@+id/mainTableTodos"
 			android:layout_width="match_parent"
 			android:layout_height="118dp"
@@ -85,9 +85,9 @@
 			app:autoLoad="false"
 			app:striped="false"
 			app:hideTitle="false">
-		</app.web.wallet.SQLiteDBLayout>
+		</app.web.onepagevn.SQLiteDBLayout>
 		
-		<app.web.wallet.SQLiteDBLayout
+		<app.web.onepagevn.SQLiteDBLayout
 			android:id="@+id/mainTableData"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -101,7 +101,7 @@
 			app:expandLastColumn="false"
 			app:autoLoad="false"
 			android:layout_below="@id/mainTableTodos">
-		</app.web.wallet.SQLiteDBLayout>
+		</app.web.onepagevn.SQLiteDBLayout>
 
 		<LinearLayout
 			android:layout_width="90dp"

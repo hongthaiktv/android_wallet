@@ -3,7 +3,7 @@
 	<declare-styleable name="SQLiteDBLayout">
 		<attr name="table" format="string" />
 		<attr name="ordHeader" format="string" />
-		<attr name="tblTitle" format="string" />
+		<attr name="title" format="string" />
 		<attr name="hideTitle" format="boolean" />
 		<attr name="hideHeader" format="boolean" />
 		<attr name="striped" format="boolean" />

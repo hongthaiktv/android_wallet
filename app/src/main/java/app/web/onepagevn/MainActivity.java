@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 
 import android.app.*;
 import android.content.*;
@@ -13,7 +13,7 @@ import java.util.*;
 
 import android.view.View.OnClickListener;
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity 
 {
 	private AppSetting app;
 	private Button btnTable, btnAdmin;
@@ -31,6 +31,7 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.main);
 		
 		app = AppSetting.getAppContext();

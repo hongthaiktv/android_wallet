@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;

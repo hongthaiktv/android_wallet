@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 import android.content.*;
 import android.content.res.*;
 import android.graphics.*;
@@ -63,7 +63,7 @@ public class SQLiteDBLayout extends LinearLayout
 		TypedArray attrsMain = context.obtainStyledAttributes(attrs, R.styleable.SQLiteDBLayout);
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_table)) tblName = attrsMain.getString(R.styleable.SQLiteDBLayout_table);
 		if (attrsMain.hasValue(R.styleable.SQLiteDBLayout_ordHeader)) ordHeader = attrsMain.getString(R.styleable.SQLiteDBLayout_ordHeader);
-		title = attrsMain.getString(R.styleable.SQLiteDBLayout_tblTitle);
+		title = attrsMain.getString(R.styleable.SQLiteDBLayout_title);
 		hScroll = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hScroll, hScroll);
 		hideID = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideID, hideID);
 		hideTitle = attrsMain.getBoolean(R.styleable.SQLiteDBLayout_hideTitle, hideTitle);

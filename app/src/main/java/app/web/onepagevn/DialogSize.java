@@ -1,4 +1,4 @@
-package app.web.wallet;
+package app.web.onepagevn;
 
 public enum DialogSize
 {
