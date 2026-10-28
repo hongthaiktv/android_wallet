@@ -43,7 +43,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon_wallet"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
+        android:theme="@style/AppCompatTheme"
 		android:resizeableActivity = "true">
 		
         <activity

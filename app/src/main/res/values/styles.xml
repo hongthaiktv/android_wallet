@@ -3,6 +3,9 @@
     <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
 	</style>
 	
+	<style name="AppCompatTheme" parent="Theme.AppCompat.Light">
+	</style>
+	
 	<!-- Native framework dialog theme for non-AppCompat projects -->
 	<style name="Theme.TransparentActivityPopup" parent="@android:style/Theme.Holo.Light.Dialog">
         <item name="android:windowIsTranslucent">true</item>

@@ -1,19 +1,36 @@
 package app.web.onepagevn;
 
-import android.app.*;
-import android.content.*;
-import android.graphics.*;
-import android.os.*;
-import android.util.*;
-import android.view.*;
-import android.view.View.*;
-import android.widget.*;
-import android.widget.TableRow.*;
-import java.util.*;
-
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewParent;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableRow;
+import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
-public class MainActivity extends Activity 
+public class MainActivity extends AppCompatActivity 
 {
 	private AppSetting app;
 	private Button btnTable, btnAdmin;
