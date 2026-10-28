@@ -309,20 +309,20 @@ public class MainActivity extends AppCompatActivity
 									btnTable.setText(tblName);
 									break;
 								case "supplier_products":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_list, 0, R.drawable.ic_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_address_book);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_boxes, 0, R.drawable.ic_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_supplier_products);
 									layoutExpends.setSQL("SELECT * FROM supplier_products ORDER BY supplierid, productid");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_types":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ic_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_address_book);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_list, 0, R.drawable.ic_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_supplier_types);
 									layoutExpends.setSQL("SELECT * FROM supplier_types ORDER BY name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "suppliers":
-									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_id_card, 0, R.drawable.ic_caret_down, 0);
-									ivBGround.setImageResource(R.drawable.bg_address_book);
+									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ic_caret_down, 0);
+									ivBGround.setImageResource(R.drawable.bg_suppliers);
 									layoutExpends.setSQL("SELECT * FROM suppliers ORDER BY type COLLATE NOCASE, name COLLATE NOCASE, address COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
