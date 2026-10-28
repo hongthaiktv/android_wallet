@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
 		layoutExpends = findViewById(R.id.mainTableData);
 		layoutTodos = findViewById(R.id.mainTableTodos);
 		
-		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(expends.price * expends.quantity AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
 		layoutExpends.setSQL(sqlTblBalance);
 		
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
@@ -234,8 +234,6 @@ public class MainActivity extends AppCompatActivity
 				}
 			});
 		
-		btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
-		
 		ibWallet.setOnClickListener(new OnClickListener() {
 
 				@Override
@@ -274,25 +272,25 @@ public class MainActivity extends AppCompatActivity
 								case "budgets":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_money_bag, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
-									layoutExpends.setSQL("SELECT budgetid, date, name, printf('%,.0f', balance) AS balance, note FROM budgets ORDER BY name COLLATE NOCASE");
+									layoutExpends.setSQL("SELECT * FROM (SELECT budgetid, date, name, balance, note FROM budgets WHERE budgetid=1) UNION ALL SELECT * FROM (SELECT budgetid, date, name, balance, note FROM budgets WHERE budgetid!=1 ORDER BY name COLLATE NOCASE)");
 									btnTable.setText(tblName);
 									break;
 								case "funds":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_fund);
-									layoutExpends.setSQL("SELECT funds.fundid, CASE WHEN strftime('%Y', funds.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', funds.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', funds.date, 'unixepoch', 'localtime') END AS date, printf('%,.0f', funds.cash) AS cash, bank1.name AS bank1, printf('%,.0f', funds.balance1) AS balance1, bank2.name AS bank2, printf('%,.0f', funds.balance2) AS balance2, printf('%,.0f', funds.cash + funds.balance1 + funds.balance2) AS total, funds.note FROM funds INNER JOIN budgets AS bank1 ON funds.bank1=bank1.budgetid INNER JOIN budgets AS bank2 ON funds.bank2=bank2.budgetid ORDER BY funds.date");
+									layoutExpends.setSQL("SELECT funds.fundid, funds.date, funds.cash, bank1.name AS bank1name, funds.balance1, bank2.name AS bank2name, funds.balance2, CAST(funds.cash + funds.balance1 + funds.balance2 AS REAL) AS total, funds.note FROM funds INNER JOIN budgets AS bank1 ON funds.bank1=bank1.budgetid INNER JOIN budgets AS bank2 ON funds.bank2=bank2.budgetid ORDER BY funds.date");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 									break;
 								case "incomes":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_hand_holding_usd, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_income);
-									layoutExpends.setSQL("SELECT * FROM incomes ORDER BY date DESC");
+									layoutExpends.setSQL("SELECT incomes.incomeid, incomes.date, incomes.money, budgets.name AS budget, incomes.note FROM incomes INNER JOIN budgets USING (budgetid) ORDER BY incomes.date DESC");
 									btnTable.setText(tblName);
 									break;
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_shopping_cart, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
-									layoutExpends.setSQL("SELECT expends.expendid, CASE WHEN strftime('%Y', expends.date, 'unixepoch', 'localtime') = strftime('%Y', 'now', 'localtime') THEN strftime('%d-%m %H:%M', expends.date, 'unixepoch', 'localtime') ELSE strftime('%d-%m-%Y %H:%M', expends.date, 'unixepoch', 'localtime') END AS date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, printf('%,.0f', expends.price) AS price, printf('%,.2f', expends.quantity) AS quantity, printf('%,.0f', expends.price * expends.quantity) AS total, budgets.name AS budget, ifnull(expends.note, '') AS note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) INNER JOIN budgets USING (budgetid) ORDER BY expends.date DESC");
+									layoutExpends.setSQL("SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, CAST(printf('%.2f', expends.quantity) AS REAL) AS quantity, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total, budgets.name AS budget, expends.note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) INNER JOIN budgets USING (budgetid) ORDER BY expends.date DESC");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpends()));
 									break;
 								case "product_types":
@@ -304,7 +302,7 @@ public class MainActivity extends AppCompatActivity
 								case "products":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_box, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_product);
-									layoutExpends.setSQL("SELECT products.productid, products.name, printf('%,.0f', products.price) AS price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
+									layoutExpends.setSQL("SELECT products.productid, products.name, products.price, units.name AS unit, product_types.name AS type FROM products INNER JOIN units USING (unitid) INNER JOIN product_types USING (ptypeid) ORDER BY products.name COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_products":
