@@ -53,7 +53,7 @@ public class Editor extends AppCompatActivity
 	private Button btnClear, btnAdd, btnCancel;
 	private StatusBar stt;
 	private SQLiteDB db;
-	private String tblName = "expends", mode = "insert";
+	private String tblName = "expends", mode = "insert", title = "";
 	private Map<String, DataType> dataTypes;
 	private DataType[] colTypes;
 	private String[] colNames, labels;
@@ -87,9 +87,14 @@ public class Editor extends AppCompatActivity
 		stt = new StatusBar(this).init();
 		db = new SQLiteDB();
 		intent = getIntent();
-		tblName = !"balance".equals(intent.getStringExtra("tblName")) ? intent.getStringExtra("tblName") : "expends";
-		if ("budgets".equals(tblName)) tblName = "budgets_protected";
-		setTitle(tblName.toUpperCase());
+		tblName = intent.getStringExtra("tblName");
+		title = tblName.toUpperCase();
+		switch (tblName) {
+			case "balance": tblName = "expends"; title = tblName.toUpperCase(); break;
+			case "budgets": tblName = "budgets_protected"; title = "BUDGETS"; break;
+		}
+		setTitle(title);
+		
 		df = new SimpleDateFormat("dd-MM");
 		dff = new SimpleDateFormat("dd-MM-yyyy");
 		tf = new SimpleDateFormat("HH:mm");
@@ -132,6 +137,13 @@ public class Editor extends AppCompatActivity
 			case "expends":
 			{
 				labels = new String[] {"ID", "DATE", "SUPPLIER", "PRODUCT", "UNIT", "PRICE", "QUANTITY", "NOTE"};
+				List<String> originColNames = new ArrayList<String>(Arrays.asList(colNames));
+				originColNames.remove(colNames.length - 1);
+				colNames = originColNames.toArray(new String[0]);
+				break;
+			}
+			case "budgets_protected":
+			{
 				List<String> originColNames = new ArrayList<String>(Arrays.asList(colNames));
 				originColNames.remove(colNames.length - 1);
 				colNames = originColNames.toArray(new String[0]);
