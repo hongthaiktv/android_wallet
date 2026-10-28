@@ -7,8 +7,9 @@ import android.view.*;
 import android.view.View.*;
 import java.util.concurrent.*;
 import java.util.*;
+import android.support.v7.app.AppCompatActivity;
 
-public class ServiceManager extends Activity
+public class ServiceManager extends AppCompatActivity
 {
 	//private Button btnService, btnSync, btnClear, btnClick;
 	private StatusBar stt;

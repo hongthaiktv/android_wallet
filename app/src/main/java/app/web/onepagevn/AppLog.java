@@ -1,14 +1,11 @@
 package app.web.onepagevn;
-import android.app.*;
-import android.os.*;
-import android.widget.*;
-import android.view.View.*;
-import android.view.*;
-import android.content.*;
-import android.widget.LinearLayout.*;
-import android.graphics.*;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.LinearLayout;
 
-public class AppLog extends Activity
+public class AppLog extends AppCompatActivity
 {
 	private LinearLayout mainLayout;
 	private StatusBar stt;

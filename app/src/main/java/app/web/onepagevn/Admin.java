@@ -1,14 +1,20 @@
 package app.web.onepagevn;
-import android.app.*;
-import android.content.*;
-import android.database.sqlite.*;
-import android.os.*;
-import android.view.*;
-import android.view.View.*;
-import android.widget.*;
-import java.util.*;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
+import android.widget.Button;
+import android.widget.EditText;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class Admin extends Activity
+public class Admin extends AppCompatActivity
 {
 	private EditText edtInput;
 	private Button btnLogSize, btnSQL, btnTable, btnLayout, btnUp, btnDown;
