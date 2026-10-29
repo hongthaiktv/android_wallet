@@ -321,6 +321,7 @@ public class SQLiteDBLayout extends LinearLayout
 			TableRow rowHeader = new TableRow(context);
 			rowHeader.setBackgroundColor(Color.GRAY);
 			rowHeader.setGravity(Gravity.CENTER);
+			rowHeader.setPadding(15, 0, 15, 0);
 			rowHeader.addView(createColHeader(ordHeader, 1, 0, -1, rowHeader, -1));
 			
 			for (int colIndex = 0; colIndex < colNums; colIndex++) {
@@ -351,6 +352,7 @@ public class SQLiteDBLayout extends LinearLayout
 			TableLayout.LayoutParams rowParams = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			row.setLayoutParams(rowParams);
 			row.setGravity(Gravity.CENTER_VERTICAL);
+			row.setPadding(15, 0, 15, 0);
 			final int index = rowIndex;
 			if (onClickListener != null) row.setOnClickListener(new OnClickListener() {
 
@@ -408,9 +410,9 @@ public class SQLiteDBLayout extends LinearLayout
 	private View createColumn(Object data, int size, int rowIndex, int colIndex, TableRow row, int rowID) {
 		View viewColumn = null;
 		TableRow.LayoutParams colLayoutSM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.1f);
-		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2);
-		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3);
-		TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4);
+		TableRow.LayoutParams colLayoutMD = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 2f);
+		TableRow.LayoutParams colLayoutXM = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 3f);
+		TableRow.LayoutParams colLayoutLG = new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 4f);
 		TableRow.LayoutParams colHSLayout = new TableRow.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		TextView col = new TextView(context);
 		if (!hScroll) {
