@@ -206,6 +206,18 @@ public class MainActivity extends AppCompatActivity
 					startActivity(intEditor);
 				}
 			});
+			
+		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
+
+				@Override
+				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type, int rowID)
+				{
+					if (rowIndex != -1) return view;
+					TextView tvTitle = (TextView) view;
+					tvTitle.setText(layoutExpends.getTableName().toUpperCase());
+					return tvTitle;
+				}
+			});
 		
 		layoutExpends.setOnRowClickListener(new SQLiteDBLayout.OnRowClickListener() {
 
@@ -219,18 +231,6 @@ public class MainActivity extends AppCompatActivity
 					intEditor.putExtra("rowID", id);
 					intEditor.setAction(Intent.ACTION_EDIT);
 					startActivity(intEditor);
-				}
-			});
-			
-		layoutExpends.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
-
-				@Override
-				public View onCreate(ViewParent parent, View view, int rowIndex, int colIndex, Object data, DataType type, int rowID)
-				{
-					if (rowIndex != -1) return view;
-					TextView tvTitle = (TextView) view;
-					tvTitle.setText(layoutExpends.getTableName().toUpperCase());
-					return tvTitle;
 				}
 			});
 		
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_money_bag, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_budget);
 									layoutExpends.setSQL("SELECT * FROM (SELECT budgetid, date, name, balance, note FROM budgets WHERE budgetid=1) UNION ALL SELECT * FROM (SELECT budgetid, date, name, balance, note FROM budgets WHERE budgetid!=1 ORDER BY name COLLATE NOCASE)");
-									btnTable.setText(tblName);
+									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalBudgets()));
 									break;
 								case "funds":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_dollar, 0, R.drawable.ic_caret_down, 0);
@@ -373,6 +373,9 @@ public class MainActivity extends AppCompatActivity
 		layoutTodos.setSQL("SELECT * FROM (SELECT todoid, priorityid , job, complete FROM todos WHERE complete=0 ORDER BY priorityid, createdate DESC LIMIT " + todosLimit + ") UNION ALL SELECT * FROM (SELECT todoid, priorityid , job, complete FROM todos WHERE complete=1 ORDER BY completedate DESC LIMIT " + todosLimit + ")").show();
 		layoutExpends.show();
 		switch (tblName) {
+			case "budgets":
+				btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalBudgets()));
+				break;
 			case "funds":
 				btnTable.setText(String.format(Locale.US, "%,.0f", db.getBalanceRemain()));
 				break;

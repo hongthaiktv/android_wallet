@@ -630,6 +630,15 @@ public class SQLiteDB extends SQLiteOpenHelper
 		cursor.close();
 		return balances;
 	}
+	
+	public double getTotalBudgets() {
+		double totalBudgets = 0;
+		List<Map<String, Object>> budgets = sql("budgets_protected", "SELECT CAST(printf('%.0f', sum(balance)) AS REAL) AS total FROM budgets_protected", null);
+		if (budgets.size() > 0) {
+			totalBudgets = budgets.get(0).get("total");
+		}
+		return totalBudgets;
+	}
 
 	public double getTotalExpends() {
 		double totalExpends = 0;
