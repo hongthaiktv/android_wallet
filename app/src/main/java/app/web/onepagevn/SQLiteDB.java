@@ -77,7 +77,7 @@ public class SQLiteDB extends SQLiteOpenHelper
 			db.execSQL("CREATE TABLE budgets_protected (budgetid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) NOT NULL, logo TEXT, name TEXT UNIQUE NOT NULL, balance REAL DEFAULT 0 NOT NULL, note TEXT, protected BOOLEAN DEFAULT 0 NOT NULL)");
 			db.execSQL("CREATE VIEW budgets AS SELECT budgetid, date, logo, name, balance, note FROM budgets_protected");
 			db.execSQL("CREATE TRIGGER prevent_delete_budgets BEFORE DELETE ON budgets_protected FOR EACH ROW WHEN OLD.protected=1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
-			db.execSQL("CREATE TRIGGER prevent_update_budgets BEFORE UPDATE ON budgets_protected FOR EACH ROW WHEN OLD.budgetid != NEW.budgetid AND OLD.protected = 1 OR OLD.budgetid = 1 BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
+			db.execSQL("CREATE TRIGGER prevent_update_budgets BEFORE UPDATE ON budgets_protected FOR EACH ROW WHEN (OLD.budgetid != NEW.budgetid AND OLD.protected = 1) OR (OLD.budgetid = 1 AND OLD.name != NEW.name) BEGIN SELECT RAISE(FAIL, 'This record is protected and cannot be modified.'); END");
 			db.execSQL("CREATE TABLE funds (fundid INTEGER PRIMARY KEY, date DATETIME DEFAULT (CAST(strftime('%s', 'now') AS NUMERIC)) UNIQUE NOT NULL, cash REAL DEFAULT 0 NOT NULL, bank1 INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance1 REAL DEFAULT 0 NOT NULL, bank2 INT REFERENCES budgets_protected (budgetid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, balance2 REAL DEFAULT 0 NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE supplier_types (stypeid INTEGER PRIMARY KEY, shortname TEXT UNIQUE NOT NULL, name TEXT UNIQUE NOT NULL, note TEXT)");
 			db.execSQL("CREATE TABLE suppliers (supplierid INTEGER PRIMARY KEY, type INT REFERENCES supplier_types (stypeid) ON UPDATE CASCADE ON DELETE RESTRICT NOT NULL, name TEXT NOT NULL, address TEXT, phone TEXT, gps TEXT, note TEXT)");
@@ -616,6 +616,19 @@ public class SQLiteDB extends SQLiteOpenHelper
 		List<Object> catalog = cursor.getCatalog();
 		cursor.close();
 		return catalog;
+	}
+	
+	public Map<String, Double> getBudgetBalances() {
+		SQLiteDatabase db = getReadableDatabase();
+		SQLiteDBCursor cursor = (SQLiteDBCursor) db.rawQueryWithFactory(cursorFactory, "SELECT name, balance FROM budgets_protected", null, "budgets_protected");
+		Map<String, Double> balances = new LinkedHashMap<>();
+		for (Map<String, Object> balance : cursor.getList()) {
+			String name = (String) balance.get("name");
+			double amount = balance.get("balance");
+			balances.put(name, amount);
+		}
+		cursor.close();
+		return balances;
 	}
 
 	public double getTotalExpends() {

@@ -182,6 +182,8 @@ public class Editor extends AppCompatActivity
 						}
 						catalogRowIDs[i][0] = ids;
 						catalogRowNames[i][0] = items;
+						catalogRowIDs[i][1] = new Integer[] {catalogRowIDs[i][0][0], 0};
+						catalogRowNames[i][1] = new String[] {catalogRowNames[i][0][0], "0"};
 						
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
@@ -223,6 +225,37 @@ public class Editor extends AppCompatActivity
 										inputPrice.requestFocus();
 										inputPrice.setText(formatedPrice);
 										inputPrice.setSelection(formatedPrice.length());
+									}
+
+									@Override
+									public void onNothingSelected(AdapterView<?> adapter)
+									{
+
+									}
+								});
+						}
+						else if ("funds".equals(tblName)) {
+							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+									boolean enable = false;
+									@Override
+									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+									{
+										// fix for Spinner auto active listener on startup
+										if ("edit".equals(mode)) {
+											if (!enable) {
+												enable = true;
+												return;
+											}
+										}
+
+										Map<String, Double> budgetBalances = db.getBudgetBalances();
+										String bankName = catalogRowNames[row][0][index];
+										double balance = budgetBalances.get(bankName);
+										String formatedBalance = String.format(Locale.US, "%,.0f", balance);
+										EditText input = (EditText) getViewByIndex(row + 1);
+										input.setText(formatedBalance);
+										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
+										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
 									}
 
 									@Override
@@ -690,6 +723,9 @@ public class Editor extends AppCompatActivity
 	private void reset() {
 		int numRow = layoutTop.getRowCount();
 		boolean isFocus = false;
+		Map<String, Double> budgetBalances = null;
+		if ("funds".equals(tblName)) budgetBalances = db.getBudgetBalances();
+		
 		for (int i = 1; i <= numRow; i++) {
 			View view = getViewByIndex(i);
 			if (view == null) continue;
@@ -744,6 +780,36 @@ public class Editor extends AppCompatActivity
 							}
 							else if (i == indexQuantity) input.setText("1");
 							else input.setText("");
+							break;
+						}
+						case "funds":
+						{
+							switch (colNames[i].toLowerCase()) {
+								case "cash":
+									double cash = budgetBalances.get("Cash");
+									String formatedCash = String.format(Locale.US, "%,.0f", cash);
+									input.requestFocus();
+									InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+									if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+									isFocus = true;
+									input.setText(formatedCash);
+									input.setSelection(formatedCash.length());
+									break;
+								case "balance1":
+									int bank1Index = i - 1;
+									String bank1Name = catalogRowNames[bank1Index][0][0];
+									double balance1 = budgetBalances.get(bank1Name);
+									String formatedBalance1 = String.format(Locale.US, "%,.0f", balance1);
+									input.setText(formatedBalance1);
+									break;
+								case "balance2":
+									int bank2Index = i - 1;
+									String bank2Name = catalogRowNames[bank2Index][0][1];
+									double balance2 = budgetBalances.get(bank2Name);
+									String formatedBalance2 = String.format(Locale.US, "%,.0f", balance2);
+									input.setText(formatedBalance2);
+									break;
+							}
 							break;
 						}
 						default:
@@ -1072,6 +1138,7 @@ public class Editor extends AppCompatActivity
 							if (id == itemIDs[itemIndex]) {
 								catalog.setSelection(itemIndex);
 								catalogRowIDs[i][1] = new Integer[] {id, itemIndex};
+								catalogRowNames[i][1] = new String[] {catalogRowNames[i][0][itemIndex], String.valueOf(itemIndex)};
 								break;
 							}
 						}
