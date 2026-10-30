@@ -247,6 +247,9 @@ public class Editor extends AppCompatActivity
 												return;
 											}
 										}
+										
+										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
+										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
 
 										Map<String, Double> budgetBalances = db.getBudgetBalances();
 										String bankName = catalogRowNames[row][0][index];
@@ -254,8 +257,42 @@ public class Editor extends AppCompatActivity
 										String formatedBalance = String.format(Locale.US, "%,.0f", balance);
 										EditText input = (EditText) getViewByIndex(row + 1);
 										input.setText(formatedBalance);
+									}
+
+									@Override
+									public void onNothingSelected(AdapterView<?> adapter)
+									{
+
+									}
+								});
+						}
+						else if ("supplier_products".equals(tblName) && "productid".equals(colNames[i].toLowerCase())) {
+							catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+									boolean enable = false;
+									@Override
+									public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+									{
+										// fix for Spinner auto active listener on startup
+										if ("edit".equals(mode)) {
+											if (!enable) {
+												enable = true;
+												return;
+											}
+										}
+
 										catalogRowIDs[row][1] = new Integer[] {catalogRowIDs[row][0][index], index};
 										catalogRowNames[row][1] = new String[] {catalogRowNames[row][0][index], String.valueOf(index)};
+										
+										View input = getViewByIndex(row + 1);
+										if (input == null) return;
+										EditText inputPrice = (EditText) input;
+										int itemID = catalogRowIDs[row][1][0];
+										List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
+										double price = products.get(0).get("price");
+										String formatedPrice = String.format(Locale.US, "%,.0f", price);
+										inputPrice.requestFocus();
+										inputPrice.setText(formatedPrice);
+										inputPrice.setSelection(formatedPrice.length());
 									}
 
 									@Override
@@ -494,7 +531,7 @@ public class Editor extends AppCompatActivity
 					}
 					break;
 					
-				case "products":
+				case "products": case "supplier_products":
 					switch (colNames[i].toLowerCase()) {
 						case "price":
 							setInputNumberListener(input, false);
@@ -753,6 +790,7 @@ public class Editor extends AppCompatActivity
 					if (view instanceof Spinner) {
 						Spinner catalog = (Spinner) view;
 						if ("funds".equals(tblName) && "bank2".equals(colNames[i].toLowerCase())) catalog.setSelection(1);
+						else if (("expends".equals(tblName) || "supplier_products".equals(tblName)) && "supplierid".equals(colNames[i].toLowerCase())) break;
 						else if ("todos".equals(tblName) && "priorityid".equals(colNames[i].toLowerCase())) catalog.setSelection(2);
 						else catalog.setSelection(0);
 						break;
@@ -808,6 +846,24 @@ public class Editor extends AppCompatActivity
 									double balance2 = budgetBalances.get(bank2Name);
 									String formatedBalance2 = String.format(Locale.US, "%,.0f", balance2);
 									input.setText(formatedBalance2);
+									break;
+							}
+							break;
+						}
+						case "supplier_products":
+						{
+							switch (colNames[i].toLowerCase()) {
+								case "price":
+									int itemID = catalogRowIDs[i - 1][0][0];
+									List<Map<String, Object>> products = db.sql("products", "SELECT price FROM products WHERE productid=?", new String[] {String.valueOf(itemID)});
+									double price = products.get(0).get("price");
+									String formatedPrice = String.format(Locale.US, "%,.0f", price);
+									input.requestFocus();
+									InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+									if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+									isFocus = true;
+									input.setText(formatedPrice);
+									input.setSelection(formatedPrice.length());
 									break;
 							}
 							break;
