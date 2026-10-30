@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
 		layoutExpends = findViewById(R.id.mainTableData);
 		layoutTodos = findViewById(R.id.mainTableTodos);
 		
-		final String sqlTblBalance = "SELECT expends.expendid, expends.date, supplier_types.code || '. ' || suppliers.name AS supplier, products.name AS product, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN supplier_types ON suppliers.stypeid = supplier_types.stypeid INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECTT expends.expendid, expends.date, supplier_types.code || '. ' || suppliers.name AS supplier, products.name AS product, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN supplier_types ON suppliers.stypeid = supplier_types.stypeid INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
 		layoutExpends.setSQL(sqlTblBalance);
 		
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
