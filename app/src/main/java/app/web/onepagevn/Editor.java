@@ -1198,8 +1198,8 @@ public class Editor extends AppCompatActivity
 	
 	private void setInputNumberListener(View view, boolean decimal) {
 		EditText input = (EditText) view;
-		if (decimal) input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-		else input.setInputType(InputType.TYPE_CLASS_NUMBER);
+		if (decimal) input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+		else input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
 		input.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 				@Override
