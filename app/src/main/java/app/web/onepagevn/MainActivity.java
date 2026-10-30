@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity
 								case "supplier_products":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_boxes, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_supplier_products);
-									layoutExpends.setSQL("SELECT * FROM supplier_products ORDER BY supplierid, productid");
+									layoutExpends.setSQL("SELECT supplier_products.sproductid, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, supplier_products.price, units.name AS unit, supplier_products.startdate, supplier_products.enddate, supplier_products.note FROM supplier_products INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY suppliers.name, products.name, supplier_products.enddate DESC");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_types":
