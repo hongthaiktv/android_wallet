@@ -188,7 +188,7 @@ public class Editor extends AppCompatActivity
 						GridLayout.LayoutParams ctlParams = new GridLayout.LayoutParams();
 						ctlParams.width = 0;
 						ctlParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-						ctlParams.setMargins(20, 50, 20, 0);
+						ctlParams.setMargins(20, 20, 20, 20);
 						Spinner catalog = new Spinner(this);
 						catalog.setLayoutParams(ctlParams);
 						ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
@@ -342,7 +342,7 @@ public class Editor extends AppCompatActivity
 					GridLayout.LayoutParams lPickerParams = new GridLayout.LayoutParams();
 					lPickerParams.width = 0;
 					lPickerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-					lPickerParams.setMargins(20, 0, 20, 0);
+					lPickerParams.setMargins(20, 20, 20, 20);
 					LinearLayout layoutPicker = new LinearLayout(this);
 					layoutPicker.setLayoutParams(lPickerParams);
 					layoutPicker.setPadding(0, 0, 0, 0);

@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
 		layoutExpends = findViewById(R.id.mainTableData);
 		layoutTodos = findViewById(R.id.mainTableTodos);
 		
-		final String sqlTblBalance = "SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
+		final String sqlTblBalance = "SELECT expends.expendid, expends.date, supplier_types.code || '. ' || suppliers.name AS supplier, products.name AS product, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN supplier_types ON suppliers.stypeid = supplier_types.stypeid INNER JOIN products USING (productid) WHERE expends.date > (SELECT max(date) FROM funds) ORDER BY expends.date DESC";
 		layoutExpends.setSQL(sqlTblBalance);
 		
 		layoutTodos.setOnCreateView(new SQLiteDBLayout.OnCreateView() {
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity
 								case "expends":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_shopping_cart, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_shopping_cart);
-									layoutExpends.setSQL("SELECT expends.expendid, expends.date, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, CAST(printf('%.2f', expends.quantity) AS REAL) AS quantity, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total, budgets.name AS budget, expends.note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) INNER JOIN budgets USING (budgetid) ORDER BY expends.date DESC");
+									layoutExpends.setSQL("SELECT expends.expendid, expends.date, supplier_types.code || '. ' || suppliers.name AS supplier, products.name AS product, units.name AS unit, expends.price, CAST(printf('%.2f', expends.quantity) AS REAL) AS quantity, CAST(printf('%.0f', expends.price * expends.quantity) AS REAL) AS total, budgets.name AS budget, expends.note FROM expends INNER JOIN suppliers USING (supplierid) INNER JOIN supplier_types ON suppliers.stypeid = supplier_types.stypeid INNER JOIN products USING (productid) INNER JOIN units USING (unitid) INNER JOIN budgets USING (budgetid) ORDER BY expends.date DESC");
 									btnTable.setText(String.format(Locale.US, "%,.0f", db.getTotalExpends()));
 									break;
 								case "product_types":
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity
 								case "supplier_products":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_boxes, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_supplier_products);
-									layoutExpends.setSQL("SELECT supplier_products.sproductid, suppliers.type || '. ' || suppliers.name AS supplier, products.name AS product, supplier_products.price, units.name AS unit, supplier_products.startdate, supplier_products.enddate, supplier_products.note FROM supplier_products INNER JOIN suppliers USING (supplierid) INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY suppliers.name, products.name, supplier_products.enddate DESC");
+									layoutExpends.setSQL("SELECT supplier_products.sproductid, supplier_types.code || '. ' || suppliers.name AS supplier, products.name AS product, supplier_products.price, units.name AS unit, supplier_products.startdate, supplier_products.enddate, supplier_products.note FROM supplier_products INNER JOIN suppliers USING (supplierid) INNER JOIN supplier_types ON suppliers.stypeid = supplier_types.stypeid INNER JOIN products USING (productid) INNER JOIN units USING (unitid) ORDER BY supplier, product, enddate DESC");
 									btnTable.setText(tblName);
 									break;
 								case "supplier_types":
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity
 								case "suppliers":
 									btnTable.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_store, 0, R.drawable.ic_caret_down, 0);
 									ivBGround.setImageResource(R.drawable.bg_suppliers);
-									layoutExpends.setSQL("SELECT * FROM suppliers ORDER BY type COLLATE NOCASE, name COLLATE NOCASE, address COLLATE NOCASE");
+									layoutExpends.setSQL("SELECT suppliers.supplierid, supplier_types.code, suppliers.name, suppliers.address, suppliers.phone, suppliers.gps, suppliers.note FROM suppliers INNER JOIN supplier_types USING (stypeid) ORDER BY supplier_types.code COLLATE NOCASE, suppliers.name COLLATE NOCASE, suppliers.address COLLATE NOCASE");
 									btnTable.setText(tblName);
 									break;
 								case "units":
