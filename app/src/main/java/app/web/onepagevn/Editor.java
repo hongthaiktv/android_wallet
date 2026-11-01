@@ -168,6 +168,7 @@ public class Editor extends AppCompatActivity
 				@Override
 				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
 				{
+					if (resultCode != RESULT_OK) return;
 					final Uri uri = data.getData();
 					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
 
@@ -199,6 +200,7 @@ public class Editor extends AppCompatActivity
 				@Override
 				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
 				{
+					if (resultCode != RESULT_OK) return;
 					final Uri uri = data.getData();
 					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
 
