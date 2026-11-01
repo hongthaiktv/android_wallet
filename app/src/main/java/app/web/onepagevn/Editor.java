@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -27,11 +28,14 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -414,6 +418,59 @@ public class Editor extends AppCompatActivity
 					layoutCheckBox.setBaselineAlignedChildIndex(0);
 					layoutTop.addView(layoutCheckBox);
 					continue;
+					
+				case FILE:
+					GridLayout.LayoutParams lFileParams = new GridLayout.LayoutParams();
+					lFileParams.width = 0;
+					lFileParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+					lFileParams.setMargins(20, 20, 20, 20);
+					LinearLayout layoutFile = new LinearLayout(this);
+					layoutFile.setLayoutParams(lFileParams);
+					layoutFile.setPadding(0, 0, 0, 0);
+					layoutFile.setOrientation(LinearLayout.HORIZONTAL);
+					layoutFile.setGravity(Gravity.CENTER_VERTICAL);
+					layoutFile.setBaselineAligned(true);
+					setViewID(layoutFile, i);
+					
+					float density = getResources().getDisplayMetrics().density;
+					int dimen = Math.round(24 * density);
+					LinearLayout.LayoutParams ivIconParams = new LinearLayout.LayoutParams(dimen, dimen);
+					ImageView ivIcon = new ImageView(this);
+					ivIcon.setLayoutParams(ivIconParams);
+					ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+					if ("logo".equals(colNames[i].toLowerCase()) || "icon".equals(colNames[i].toLowerCase()) || "avatar".equals(colNames[i].toLowerCase()) || "image".equals(colNames[i].toLowerCase())) {
+						ivIcon.setImageResource(R.drawable.ic_image);
+					}
+					else ivIcon.setImageResource(R.drawable.ic_file_alt);
+
+					LinearLayout.LayoutParams tvFilePathParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f);
+					tvFilePathParams.setMargins(20, 0, 20, 0);
+					TextView tvFilePath = new TextView(this);
+					tvFilePath.setLayoutParams(tvFilePathParams);
+					tvFilePath.setTextSize(15);
+					tvFilePath.setText("Choose file...");
+					
+					LinearLayout.LayoutParams btnBrowseParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, 120);
+					Button btnBrowse = new Button(this);
+					btnBrowse.setLayoutParams(btnBrowseParams);
+					btnBrowse.setTextSize(12);
+					btnBrowse.setGravity(Gravity.CENTER);
+					btnBrowse.setText("Browse");
+					btnBrowse.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v)
+							{
+								fm.openFilePicker(FileManager.PICK_FILE);
+							}
+						});
+					
+					layoutFile.addView(ivIcon);
+					layoutFile.addView(tvFilePath);
+					layoutFile.addView(btnBrowse);
+					layoutFile.setBaselineAlignedChildIndex(2);
+					layoutTop.addView(layoutFile);
+					continue;
 			}
 			
 			GridLayout.LayoutParams iptParams = new GridLayout.LayoutParams();
@@ -691,6 +748,16 @@ public class Editor extends AppCompatActivity
 					}
 				}
 			});
+		
+		fm.setOnPickResultListener(FileManager.PICK_FILE, new FileManager.OnPickResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
+				{
+					Uri uri = data.getData();
+					fm.saveFromUri(uri);
+				}
+			});
 	}
 	
 	private void dateTimePicker(int resource)
@@ -784,6 +851,9 @@ public class Editor extends AppCompatActivity
 				case BOOLEAN:
 					CheckBox checkBox = (CheckBox) view;
 					checkBox.setChecked(false);
+					break;
+					
+				case FILE:
 					break;
 
 				case INTEGER: case INT:

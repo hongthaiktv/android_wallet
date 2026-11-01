@@ -1,10 +1,22 @@
 package app.web.onepagevn;
 
-import android.database.*;
-import android.database.sqlite.*;
-import android.widget.*;
-import java.util.*;
-import org.json.*;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
+import android.widget.Toast;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SQLiteDBCursor extends SQLiteCursor
 {
@@ -46,6 +58,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 									(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 									colDataTypes.put(colName, DataType.DATETIME);
 								}
+								else if (("file".equals(colName) || "image".equals(colName) || "upload".equals(colName) || "logo".equals(colName) || "icon".equals(colName) || "avatar".equals(colName)) && dataType == DataType.TEXT) {
+									colDataTypes.put(colName, DataType.FILE);
+								}
 								else colDataTypes.put(colName, dataType);
 							}
 						}
@@ -62,6 +77,9 @@ public class SQLiteDBCursor extends SQLiteCursor
 						if (("date".equals(colName) || "timestamp".equals(colName) || "datetime".equals(colName) || "startdate".equals(colName) || "enddate".equals(colName) || "createdate".equals(colName) || "completedate".equals(colName) || "updatedate".equals(colName) || "modifieddate".equals(colName)) &&
 							(dataType == DataType.INT || dataType == DataType.INTEGER || dataType == DataType.DOUBLE)) {
 							colDataTypes.put(colName, DataType.DATETIME);
+						}
+						else if (("file".equals(colName) || "image".equals(colName) || "upload".equals(colName) || "logo".equals(colName) || "icon".equals(colName) || "avatar".equals(colName)) && dataType == DataType.TEXT) {
+							colDataTypes.put(colName, DataType.FILE);
 						}
 						else colDataTypes.put(colName, dataType);
 					}
@@ -209,6 +227,14 @@ public class SQLiteDBCursor extends SQLiteCursor
 				case DATETIME:
 					row.put(colName, new Date(getLong(i) * 1000L));
 					break;
+				case FILE:
+				{
+					Context context = AppSetting.getAppContext();
+					FileManager fm = new FileManager(context);
+					if ("image".equals(colName)) fm.setWorkingDir("image");
+					row.put(colName, fm.createFile(getString(i)));
+					break;
+				}
 				case JSON:
 					String jsonText = getString(i);
 					boolean isObject = jsonText.startsWith("{");
@@ -250,8 +276,16 @@ public class SQLiteDBCursor extends SQLiteCursor
 							else row.put(colName, getDouble(i));
 							break;
 						case Cursor.FIELD_TYPE_STRING:
-							row.put(colName, getString(i));
+						{
+							if ("file".equals(colName) || "image".equals(colName) || "upload".equals(colName) || "logo".equals(colName) || "icon".equals(colName) || "avatar".equals(colName)) {
+								Context context = AppSetting.getAppContext();
+								FileManager fm = new FileManager(context);
+								if ("image".equals(colName)) fm.setWorkingDir("image");
+								row.put(colName, fm.createFile(getString(i)));
+							}
+							else row.put(colName, getString(i));
 							break;
+						}
 						case Cursor.FIELD_TYPE_BLOB:
 							row.put(colName, getBlob(i));
 							break;

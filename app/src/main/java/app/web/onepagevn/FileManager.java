@@ -97,6 +97,30 @@ public class FileManager extends TreeSet<String>
 		refresh();
 	}
 	
+	public boolean createDirectory(String dirName) {
+		boolean isOK = true;
+		File directory;
+		if (!dirName.startsWith("/")) {
+			File workingDir = new File(this.workingDir);
+			directory = new File(workingDir, dirName);
+		}
+		else directory = new File(dirName);
+		if (!directory.exists()) isOK = directory.mkdirs();
+		return isOK;
+	}
+	
+	public File createFile(String path) {
+		File file;
+		if (!path.startsWith("/")) {
+			File workingDir = new File(this.workingDir);
+			file = new File(workingDir, path);
+		}
+		else {
+			file = new File(path);
+		}
+		return file;
+	}
+	
 	private void refresh() {
 		clear(); dirNames.clear(); fileNames.clear();
 		File directory = new File(workingDir);

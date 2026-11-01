@@ -15,6 +15,8 @@ public enum DataType
 	TEXT,
 	BLOB,
 	COLTYPE,
+	FILE,
+	PICTURE,
 	JSON,
 	NULL,
 	RADIO,

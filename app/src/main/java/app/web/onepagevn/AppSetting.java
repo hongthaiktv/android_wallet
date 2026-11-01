@@ -10,6 +10,7 @@ public class AppSetting extends Application
 	private AppServiceConnection appSrvConn;
 	private SQLiteDB db;
 	private Map<String, Object> setting;
+	private FileManager fm;
 
 	@Override
 	public void onCreate()
@@ -19,6 +20,7 @@ public class AppSetting extends Application
 		appContext = this;
 		stt = new StatusBar(this);
 		db = new SQLiteDB();
+		fm = new FileManager(this);
 		setting = db.getSetting();
 		
 		appSrvConn = new AppServiceConnection(this, new Runnable() {
@@ -32,6 +34,7 @@ public class AppSetting extends Application
 			
 		appSrvConn.connect();
 		stt.info(db.getVersion());
+		if (!fm.createDirectory("user_images") || !fm.createDirectory("user_files")) stt.error("Create default directories failed.");
 	}
 	
 	public static AppSetting getAppContext()
