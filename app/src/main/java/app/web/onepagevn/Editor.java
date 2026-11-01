@@ -49,6 +49,8 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import android.os.Environment;
+import app.web.onepagevn.FileManager.FileHelper;
 
 public class Editor extends AppCompatActivity
 {
@@ -68,6 +70,7 @@ public class Editor extends AppCompatActivity
 	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
+	private LinearLayout[] fileRows = new LinearLayout[20];
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
 	private NumberFormat numFormatter;
 	private Map<String, Integer> indexViews = new HashMap<>();
@@ -159,10 +162,74 @@ public class Editor extends AppCompatActivity
 		colTypes = dataTypes.values().toArray(new DataType[0]);
 		foreignColumns = db.getForeignColumns(tblName);
 		layoutTop.setRowCount(colNames.length - 1);
+		
+		fm.setOnPickResultListener(FileManager.PICK_FILE, new FileManager.OnPickResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
+				{
+					final Uri uri = data.getData();
+					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
+
+							@Override
+							public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
+							{
+								if (denyPermissions.length > 0) {
+									stt.error("Need storage permission to save file.");
+									return;
+								}
+								fm.setWorkingDir(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Wallet/user_files");
+								Map<String, Object> fileInfo = fm.saveFromUri(uri);
+								for (int i = 1; i <= layoutTop.getRowCount(); i++) {
+									if (colTypes[i] == DataType.FILE) {
+										LinearLayout layoutFile = fileRows[i];
+										TextView tvFileName = (TextView) layoutFile.getChildAt(1);
+										tvFileName.setText((String) fileInfo.get("name"));
+										break;
+									}
+								}
+							}
+						});
+					fm.requestStoragePermission();
+				}
+			});
+
+		fm.setOnPickResultListener(FileManager.PICK_IMAGE, new FileManager.OnPickResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
+				{
+					final Uri uri = data.getData();
+					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
+
+							@Override
+							public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
+							{
+								if (denyPermissions.length > 0) {
+									stt.error("Need storage permission to save file.");
+									return;
+								}
+								fm.setWorkingDir(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Wallet/user_images");
+								Map<String, Object> fileInfo = fm.saveImageFromUri(uri);
+								for (int i = 1; i <= layoutTop.getRowCount(); i++) {
+									if (colTypes[i] == DataType.FILE) {
+										LinearLayout layoutFile = fileRows[i];
+										TextView tvFileName = (TextView) layoutFile.getChildAt(1);
+										tvFileName.setText((String) fileInfo.get("name"));
+										break;
+									}
+								}
+							}
+						});
+					fm.requestStoragePermission();
+				}
+			});
+		
 		for (int i = 1; i < colNames.length; i++) {
 			final int row = i;
 			GridLayout.LayoutParams tvParams = new GridLayout.LayoutParams();
 			tvParams.setMargins(20, 0, 20, 0);
+			tvParams.setGravity(Gravity.CENTER_VERTICAL);
 			TextView tvLabel = new TextView(this);
 			tvLabel.setLayoutParams(tvParams);
 			if (labels != null) tvLabel.setText(labels[i].toUpperCase());
@@ -461,6 +528,7 @@ public class Editor extends AppCompatActivity
 							@Override
 							public void onClick(View v)
 							{
+								fileRows[row] = (LinearLayout) v.getParent();
 								fm.openFilePicker(FileManager.PICK_FILE);
 							}
 						});
@@ -746,16 +814,6 @@ public class Editor extends AppCompatActivity
 						}
 						else stt.error("Updating record from \"" + tblMsgName + "\" failed.");
 					}
-				}
-			});
-		
-		fm.setOnPickResultListener(FileManager.PICK_FILE, new FileManager.OnPickResultListener() {
-
-				@Override
-				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
-				{
-					Uri uri = data.getData();
-					fm.saveFromUri(uri);
 				}
 			});
 	}
@@ -1100,7 +1158,7 @@ public class Editor extends AppCompatActivity
 		Map<String, Object> result = null;
 		int numRow = layoutTop.getRowCount();
 		for (int i = 1; i <= numRow; i++) {
-			if (colName.equals(colNames[i])) {
+			if (colName.toLowerCase().equals(colNames[i].toLowerCase())) {
 				result = new HashMap<>();
 				result.put("view", getViewByIndex(i));
 				result.put("index", i);

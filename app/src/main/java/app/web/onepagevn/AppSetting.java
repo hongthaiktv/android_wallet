@@ -1,6 +1,6 @@
 package app.web.onepagevn;
-import android.app.*;
-import java.util.*;
+import android.app.Application;
+import java.util.Map;
 
 public class AppSetting extends Application
 {

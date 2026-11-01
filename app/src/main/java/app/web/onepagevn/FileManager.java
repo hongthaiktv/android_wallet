@@ -200,7 +200,6 @@ public class FileManager extends TreeSet<String>
 		}
 		else if (!dirPath.startsWith("/")) this.workingDir = this.workingDir.replaceFirst("/$", "") + "/" + dirPath.replaceFirst("/$", "");
 		else this.workingDir = dirPath.replaceFirst("/$", "");
-		refresh();
 		return this;
 	}
 	
@@ -217,7 +216,9 @@ public class FileManager extends TreeSet<String>
 	}
 	
 	public FileManager cd(String dirPath) {
-		return setWorkingDir(dirPath);
+		setWorkingDir(dirPath);
+		refresh();
+		return this;
 	}
 
 	public String getWorkingDir()
@@ -443,8 +444,8 @@ public class FileManager extends TreeSet<String>
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {
-		if (pickerType != PICK_FILE) {
-			String msg = "Need open file picker first";
+		if (pickerType != PICK_FILE && pickerType != PICK_IMAGE) {
+			String msg = "Need open picker first";
 			stt.error(msg);
 			return null;
 		}
@@ -492,6 +493,12 @@ public class FileManager extends TreeSet<String>
 	}
 	
 	public Map<String, Object> saveImageFromUri(Uri uri) {
+		if (pickerType != PICK_FILE && pickerType != PICK_IMAGE) {
+			String msg = "Need open picker first";
+			stt.error(msg);
+			return null;
+		}
+		
 		Map<String, Object> fileInfo = new HashMap<>();
 		String dirName = "user_images";
 		

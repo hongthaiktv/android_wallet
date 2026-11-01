@@ -230,8 +230,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 				case FILE:
 				{
 					Context context = AppSetting.getAppContext();
-					FileManager fm = new FileManager(context);
-					if ("image".equals(colName)) fm.setWorkingDir("image");
+					FileManager fm = new FileManager(context, "user_files");
 					row.put(colName, fm.createFile(getString(i)));
 					break;
 				}
@@ -279,8 +278,7 @@ public class SQLiteDBCursor extends SQLiteCursor
 						{
 							if ("file".equals(colName) || "image".equals(colName) || "upload".equals(colName) || "logo".equals(colName) || "icon".equals(colName) || "avatar".equals(colName)) {
 								Context context = AppSetting.getAppContext();
-								FileManager fm = new FileManager(context);
-								if ("image".equals(colName)) fm.setWorkingDir("image");
+								FileManager fm = new FileManager(context, "user_files");
 								row.put(colName, fm.createFile(getString(i)));
 							}
 							else row.put(colName, getString(i));
