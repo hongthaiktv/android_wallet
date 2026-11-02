@@ -1,18 +1,38 @@
 package app.web.onepagevn;
-import android.*;
-import android.app.*;
-import android.content.*;
-import android.content.pm.*;
-import android.database.*;
-import android.graphics.*;
-import android.net.*;
-import android.os.*;
-import android.provider.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
+import android.Manifest;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.OpenableColumns;
+import android.provider.Settings;
+import android.widget.ImageView;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class FileManager extends TreeSet<String>
 {
@@ -441,6 +461,38 @@ public class FileManager extends TreeSet<String>
 
 	public Map<String, Object> copyToDest(String from) {
 		return copy(from, destDir);
+	}
+	
+	public boolean setImageFile(String fileName, ImageView image) {
+		boolean isOk = false;
+		if (image == null) {
+			stt.error("No ImageView to set.");
+			return isOk;
+		}
+		try
+		{
+			File fileImage;
+			if (!fileName.startsWith("/")) fileImage = new File(workingDir.replaceFirst("/$", "") + "/" + fileName.replaceFirst("/$", ""));
+			else fileImage = new File(fileName.replaceFirst("/$", ""));
+			String mime = URLConnection.guessContentTypeFromName(fileImage.getName()) != null ? URLConnection.guessContentTypeFromName(fileImage.getName()) : "application/octet-stream";
+			if (!"image/jpeg".equals(mime) && !"image/png".equals(mime) && !"image/webp".equals(mime) && !"image/x-icon".equals(mime)) {
+				image.setImageResource(R.drawable.ic_file_alt);
+				return isOk;
+			}
+			long size = fileImage.length();
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			if (size > 1024 * 1024) options.inSampleSize = 4;
+			else if (size > 512 * 1024) options.inSampleSize = 2;
+			else options.inSampleSize = 1;
+			InputStream is = new FileInputStream(fileImage);
+			Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
+			is.close();
+			image.setImageBitmap(bitmap);
+			isOk = true;
+		}
+		catch (IOException e)
+		{stt.error(e.getMessage());}
+		return isOk;
 	}
 	
 	public Map<String, Object> saveFromUri(Uri uri) {

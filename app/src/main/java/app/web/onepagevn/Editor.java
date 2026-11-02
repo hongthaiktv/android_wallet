@@ -54,6 +54,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.io.FileNotFoundException;
 
 public class Editor extends AppCompatActivity
 {
@@ -69,7 +70,7 @@ public class Editor extends AppCompatActivity
 	private Object[] colValues;
 	private List<Map<String, Object>> foreignColumns;
 	private Date pickedDate, pickedTime;
-	private int rowID = -1, pickedRow = -1, currentBudget = 1;
+	private int rowID = -1, pickedRow = -1, prevPickedItem = 0, currentBudget = 1;
 	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
@@ -77,7 +78,7 @@ public class Editor extends AppCompatActivity
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
 	private NumberFormat numFormatter;
 	private Map<String, Integer> indexViews = new HashMap<>();
-	private AppAssetManager dirImage;
+	private AppAssetManager am;
 	private FileManager fm;
 	private ImageButton ibBudget;
 	private Intent intent;
@@ -111,8 +112,8 @@ public class Editor extends AppCompatActivity
 		tff = new SimpleDateFormat("HH:mm:ss");
 		ff = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		flocal = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-		dirImage = new AppAssetManager(this, "images/");
-		dirImage.setImageFile("logo_cash.png", ibBudget);
+		am = new AppAssetManager(this, "images/logo_banks/");
+		am.setImageFile("logo_cash.png", ibBudget);
 		fm = new FileManager(this);
 		numFormatter = NumberFormat.getInstance(Locale.US);
 		numFormatter.setMaximumFractionDigits(7);
@@ -171,58 +172,19 @@ public class Editor extends AppCompatActivity
 				@Override
 				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
 				{
-					if (resultCode != RESULT_OK) return;
-					final Uri uri = data.getData();
-					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
-
-							@Override
-							public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
-							{
-								if (denyPermissions.length > 0) {
-									stt.error("Need storage permission to save file.");
-									return;
-								}
-								View view = getViewByIndex(pickedRow);
-								if (view == null) return;
-								
-								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_files");
-								Map<String, Object> fileInfo = fm.saveFromUri(uri);
-								LinearLayout layoutFile = (LinearLayout) view;
-								
-								String fileName = (String) fileInfo.get("name");
-								View vFileName = layoutFile.getChildAt(1);
-								if (vFileName != null && vFileName instanceof TextView) {
-									TextView tvFileName = (TextView) vFileName;
-									tvFileName.setText(fileName);
-								}
-								else if (vFileName != null && vFileName instanceof Spinner && "budgets_protected".equals(tblName) && "logo".equals(colNames[pickedRow].toLowerCase())) {
-									Spinner catalog = (Spinner) vFileName;
-									String[] items = {fileName, "TPBank", "Vietcombank", "Browse..."};
-									ArrayAdapter<String> adapter = new ArrayAdapter<String>(Editor.this, android.R.layout.simple_spinner_item, items);
-									adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-									catalog.setAdapter(adapter);
-								}
-								
-								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
-								String mime = (String) fileInfo.get("mime");
-								switch (mime) {
-									case "image/jpeg": case "image/png": case "image/webp": case "image/x-icon":
-										File file = new File((String) fileInfo.get("path"));
-										InputStream is = new FileInputStream(file);
-										BitmapFactory.Options options = new BitmapFactory.Options();
-										long size = fileInfo.get("size");
-										if (size > 1024 * 1024) options.inSampleSize = 4;
-										else if (size > 512 * 1024) options.inSampleSize = 2;
-										else options.inSampleSize = 1;
-										Bitmap image = BitmapFactory.decodeStream(is, null, options);
-										ivIcon.setImageBitmap(image);
-										break;
-									default:
-										ivIcon.setImageResource(R.drawable.ic_file_alt);
-								}
-							}
-						});
-					fm.requestStoragePermission();
+					if (resultCode != RESULT_OK) {
+						View view = getViewByIndex(pickedRow);
+						if (view == null) return;
+						LinearLayout layoutFile = (LinearLayout) view;
+						View vFileName = layoutFile.getChildAt(1);
+						if (vFileName != null && vFileName instanceof Spinner) {
+							Spinner catalog = (Spinner) vFileName;
+							catalog.setSelection(prevPickedItem);
+						}
+						return;
+					}
+					Uri uri = data.getData();
+					fileRowHandler(uri, FileManager.PICK_FILE);
 				}
 			});
 
@@ -231,45 +193,19 @@ public class Editor extends AppCompatActivity
 				@Override
 				public void onResult(FileManager fm, int resultCode, Intent data, FileManager.FileHelper writer) throws IOException
 				{
-					if (resultCode != RESULT_OK) return;
-					final Uri uri = data.getData();
-					fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
-
-							@Override
-							public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
-							{
-								if (denyPermissions.length > 0) {
-									stt.error("Need storage permission to save file.");
-									return;
-								}
-								View view = getViewByIndex(pickedRow);
-								if (view == null) return;
-
-								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_images");
-								Map<String, Object> fileInfo = fm.saveImageFromUri(uri);
-								LinearLayout layoutFile = (LinearLayout) view;
-								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
-								tvFileName.setText((String) fileInfo.get("name"));
-								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
-								String mime = (String) fileInfo.get("mime");
-								switch (mime) {
-									case "image/jpeg": case "image/png": case "image/webp": case "image/x-icon":
-										File file = new File((String) fileInfo.get("path"));
-										InputStream is = new FileInputStream(file);
-										BitmapFactory.Options options = new BitmapFactory.Options();
-										long size = fileInfo.get("size");
-										if (size > 1024 * 1024) options.inSampleSize = 4;
-										else if (size > 512 * 1024) options.inSampleSize = 2;
-										else options.inSampleSize = 1;
-										Bitmap image = BitmapFactory.decodeStream(is, null, options);
-										ivIcon.setImageBitmap(image);
-										break;
-									default:
-										ivIcon.setImageResource(R.drawable.ic_file_alt);
-								}
-							}
-						});
-					fm.requestStoragePermission();
+					if (resultCode != RESULT_OK) {
+						View view = getViewByIndex(pickedRow);
+						if (view == null) return;
+						LinearLayout layoutFile = (LinearLayout) view;
+						View vFileName = layoutFile.getChildAt(1);
+						if (vFileName != null && vFileName instanceof Spinner) {
+							Spinner catalog = (Spinner) vFileName;
+							catalog.setSelection(prevPickedItem);
+						}
+						return;
+					}
+					Uri uri = data.getData();
+					fileRowHandler(uri, FileManager.PICK_IMAGE);
 				}
 			});
 		
@@ -550,7 +486,7 @@ public class Editor extends AppCompatActivity
 					float density = getResources().getDisplayMetrics().density;
 					int dimen = Math.round(32 * density);
 					LinearLayout.LayoutParams ivIconParams = new LinearLayout.LayoutParams(dimen, dimen);
-					ImageView ivIcon = new ImageView(this);
+					final ImageView ivIcon = new ImageView(this);
 					ivIcon.setLayoutParams(ivIconParams);
 					ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
@@ -575,8 +511,10 @@ public class Editor extends AppCompatActivity
 						LinearLayout.LayoutParams catalogParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT,1f);
 						Spinner catalog = new Spinner(this);
 						catalog.setLayoutParams(catalogParams);
-						final String[] items = {"Choose logo", "TPBank", "Vietcombank", "Browse..."};
-						ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+						am.list("images/logo_banks/");
+						am.prepend("Choose logo");
+						String[] logos = am.append("Browse...");
+						ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, logos);
 						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 						catalog.setAdapter(adapter);
 						catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -592,10 +530,20 @@ public class Editor extends AppCompatActivity
 										}
 									}
 									
-									String item = items[index].toLowerCase();
-									if (index == items.length - 1) {
+									Spinner catalog = (Spinner) parent;
+									int length = catalog.getCount();
+									if (index == length - 1) {
 										pickedRow = row;
 										fm.openFilePicker(FileManager.PICK_FILE);
+									}
+									else {
+										prevPickedItem = index;
+										String selectedItem = (String) catalog.getItemAtPosition(index);
+										if (index == 0) {
+											if (!"Choose logo".equals(selectedItem)) fm.setImageFile(selectedItem, ivIcon);
+											else ivIcon.setImageResource(R.drawable.ic_image);
+										}
+										else am.setPath("images/logo_banks/").setImageFile(selectedItem, ivIcon);
 									}
 								}
 
@@ -775,15 +723,15 @@ public class Editor extends AppCompatActivity
 				{
 					ImageButton ibBudget = (ImageButton) view;
 					if (currentBudget == 1) {
-						dirImage.setImageFile("logo_tpbank.png", ibBudget);
+						am.setImageFile("logo_tpbank.png", ibBudget);
 						currentBudget = 2;
 					}
 					else if (currentBudget == 2) {
-						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						am.setImageFile("logo_vietcombank.png", ibBudget);
 						currentBudget = 3;
 					}
 					else {
-						dirImage.setImageFile("logo_cash.png", ibBudget);
+						am.setImageFile("logo_cash.png", ibBudget);
 						currentBudget = 1;
 					}
 				}
@@ -1443,15 +1391,15 @@ public class Editor extends AppCompatActivity
 				int budget = colValues[numRows + 1];
 				switch (budget) {
 					case 1:
-						dirImage.setImageFile("logo_cash.png", ibBudget);
+						am.setImageFile("logo_cash.png", ibBudget);
 						currentBudget = 1;
 						break;
 					case 2:
-						dirImage.setImageFile("logo_tpbank.png", ibBudget);
+						am.setImageFile("logo_tpbank.png", ibBudget);
 						currentBudget = 2;
 						break;
 					case 3:
-						dirImage.setImageFile("logo_vietcombank.png", ibBudget);
+						am.setImageFile("logo_vietcombank.png", ibBudget);
 						currentBudget = 3;
 						break;
 				}
@@ -1624,6 +1572,71 @@ public class Editor extends AppCompatActivity
 				}
 		}
 		return result;
+	}
+	
+	private void fileRowHandler(final Uri uri, final int pickType) {
+		fm.setOnRequestStorageResultListener(new FileManager.OnRequestStorageResultListener() {
+
+				@Override
+				public void onResult(FileManager fm, String[] denyPermissions, FileManager.FileHelper writer) throws IOException
+				{
+					View view = getViewByIndex(pickedRow);
+					if (view == null) return;
+					LinearLayout layoutFile = (LinearLayout) view;
+					View vFileName = layoutFile.getChildAt(1);
+					
+					if (denyPermissions.length > 0) {
+						stt.error("Need storage permission to save file.");
+						if (vFileName != null && vFileName instanceof Spinner) {
+							Spinner catalog = (Spinner) vFileName;
+							catalog.setSelection(prevPickedItem);
+						}
+						return;
+					}
+
+					String directory = pickType == FileManager.PICK_IMAGE ? "user_images" : "user_files";
+					fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/" + directory);
+					Map<String, Object> fileInfo = pickType == FileManager.PICK_IMAGE ? fm.saveImageFromUri(uri) : fm.saveFromUri(uri);
+					String fileName = (String) fileInfo.get("name");
+					
+					if (vFileName != null && vFileName instanceof TextView) {
+						TextView tvFileName = (TextView) vFileName;
+						tvFileName.setText(fileName);
+					}
+					else if (vFileName != null && vFileName instanceof Spinner) {
+						Spinner catalog = (Spinner) vFileName;
+						int length = catalog.getCount();
+						String[] items = new String[length];
+						items[0] = fileName;
+						for (int i = 1; i < length; i++) {
+							items[i] = (String) catalog.getItemAtPosition(i);
+						}
+						ArrayAdapter<String> adapter = new ArrayAdapter<String>(Editor.this, android.R.layout.simple_spinner_item, items);
+						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						catalog.setAdapter(adapter);
+						prevPickedItem = catalog.getSelectedItemPosition();
+					}
+
+					ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
+					String mime = (String) fileInfo.get("mime");
+					switch (mime) {
+						case "image/jpeg": case "image/png": case "image/webp": case "image/x-icon":
+							File file = new File((String) fileInfo.get("path"));
+							InputStream is = new FileInputStream(file);
+							BitmapFactory.Options options = new BitmapFactory.Options();
+							long size = fileInfo.get("size");
+							if (size > 1024 * 1024) options.inSampleSize = 4;
+							else if (size > 512 * 1024) options.inSampleSize = 2;
+							else options.inSampleSize = 1;
+							Bitmap image = BitmapFactory.decodeStream(is, null, options);
+							ivIcon.setImageBitmap(image);
+							break;
+						default:
+							ivIcon.setImageResource(R.drawable.ic_file_alt);
+					}
+				}
+			});
+		fm.requestStoragePermission();
 	}
 
 	@Override

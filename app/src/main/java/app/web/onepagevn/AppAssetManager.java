@@ -49,7 +49,6 @@ public class AppAssetManager extends ArrayList<String>
 	public AppAssetManager setPath(String path)
 	{
 		if (path != null) this.path = path;
-		list();
 		return this;
 	}
 	
@@ -63,9 +62,12 @@ public class AppAssetManager extends ArrayList<String>
 		{
 			String imageDir = "images/";
 			if (!"".equals(path) && path != null) imageDir = path;
-			InputStream is = assetManager.open(imageDir + fileName);
+			long size = assetManager.openFd(imageDir + fileName).getLength();
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = 4;
+			if (size > 1024 * 1024) options.inSampleSize = 4;
+			else if (size > 512 * 1024) options.inSampleSize = 2;
+			else options.inSampleSize = 1;
+			InputStream is = assetManager.open(imageDir + fileName);
 			Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
 			is.close();
 			View image = ((Activity) context).findViewById(imageViewID);
@@ -84,9 +86,12 @@ public class AppAssetManager extends ArrayList<String>
 		{
 			String imageDir = "images/";
 			if (!"".equals(path) && path != null) imageDir = path;
-			InputStream is = assetManager.open(imageDir + fileName);
+			long size = assetManager.openFd(imageDir + fileName).getLength();
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = 4;
+			if (size > 1024 * 1024) options.inSampleSize = 4;
+			else if (size > 512 * 1024) options.inSampleSize = 2;
+			else options.inSampleSize = 1;
+			InputStream is = assetManager.open(imageDir + fileName);
 			Bitmap bitmap = BitmapFactory.decodeStream(is, null, options);
 			is.close();
 			if (image == null) image = this.image;
@@ -136,6 +141,32 @@ public class AppAssetManager extends ArrayList<String>
 			}
 		} catch (Exception e) {
 			stt.error(e.getMessage());
+		}
+		return files;
+	}
+	
+	public String[] prepend(String fileName) {
+		String[] files = new String[size() + 1];
+		files[0] = fileName;
+		for (int i = 0; i < size(); i++) {
+			files[i + 1] = get(i);
+		}
+		clear();
+		for (String file : files) {
+			add(file);
+		}
+		return files;
+	}
+	
+	public String[] append(String fileName) {
+		String[] files = new String[size() + 1];
+		for (int i = 0; i < size(); i++) {
+			files[i] = get(i);
+		}
+		files[size()] = fileName;
+		clear();
+		for (String file : files) {
+			add(file);
 		}
 		return files;
 	}
