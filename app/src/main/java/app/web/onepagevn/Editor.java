@@ -4,10 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
@@ -35,7 +38,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,8 +54,6 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.os.Environment;
-import app.web.onepagevn.FileManager.FileHelper;
 
 public class Editor extends AppCompatActivity
 {
@@ -184,6 +187,23 @@ public class Editor extends AppCompatActivity
 								LinearLayout layoutFile = fileRows[pickedRow];
 								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
 								tvFileName.setText((String) fileInfo.get("name"));
+								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
+								String mime = (String) fileInfo.get("mime");
+								switch (mime) {
+									case "image/jpeg": case "image/png": case "image/webp": case "image/x-icon":
+										File file = new File((String) fileInfo.get("path"));
+										InputStream is = new FileInputStream(file);
+										BitmapFactory.Options options = new BitmapFactory.Options();
+										long size = fileInfo.get("size");
+										if (size > 1024 * 1024) options.inSampleSize = 4;
+										else if (size > 512 * 1024) options.inSampleSize = 2;
+										else options.inSampleSize = 1;
+										Bitmap image = BitmapFactory.decodeStream(is, null, options);
+										ivIcon.setImageBitmap(image);
+										break;
+									default:
+										ivIcon.setImageResource(R.drawable.ic_file_alt);
+								}
 							}
 						});
 					fm.requestStoragePermission();
@@ -211,6 +231,23 @@ public class Editor extends AppCompatActivity
 								LinearLayout layoutFile = fileRows[pickedRow];
 								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
 								tvFileName.setText((String) fileInfo.get("name"));
+								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
+								String mime = (String) fileInfo.get("mime");
+								switch (mime) {
+									case "image/jpeg": case "image/png": case "image/webp": case "image/x-icon":
+										File file = new File((String) fileInfo.get("path"));
+										InputStream is = new FileInputStream(file);
+										BitmapFactory.Options options = new BitmapFactory.Options();
+										long size = fileInfo.get("size");
+										if (size > 1024 * 1024) options.inSampleSize = 4;
+										else if (size > 512 * 1024) options.inSampleSize = 2;
+										else options.inSampleSize = 1;
+										Bitmap image = BitmapFactory.decodeStream(is, null, options);
+										ivIcon.setImageBitmap(image);
+										break;
+									default:
+										ivIcon.setImageResource(R.drawable.ic_file_alt);
+								}
 							}
 						});
 					fm.requestStoragePermission();
@@ -492,22 +529,26 @@ public class Editor extends AppCompatActivity
 					setViewID(layoutFile, i);
 					
 					float density = getResources().getDisplayMetrics().density;
-					int dimen = Math.round(24 * density);
+					int dimen = Math.round(32 * density);
 					LinearLayout.LayoutParams ivIconParams = new LinearLayout.LayoutParams(dimen, dimen);
 					ImageView ivIcon = new ImageView(this);
 					ivIcon.setLayoutParams(ivIconParams);
 					ivIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+
+					LinearLayout.LayoutParams tvFileNameParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f);
+					tvFileNameParams.setMargins(20, 0, 20, 0);
+					TextView tvFileName = new TextView(this);
+					tvFileName.setLayoutParams(tvFileNameParams);
+					tvFileName.setTextSize(16);
+					
 					if ("logo".equals(colNames[i].toLowerCase()) || "icon".equals(colNames[i].toLowerCase()) || "avatar".equals(colNames[i].toLowerCase()) || "image".equals(colNames[i].toLowerCase())) {
 						ivIcon.setImageResource(R.drawable.ic_image);
+						tvFileName.setText("Choose image...");
 					}
-					else ivIcon.setImageResource(R.drawable.ic_file_alt);
-
-					LinearLayout.LayoutParams tvFilePathParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f);
-					tvFilePathParams.setMargins(20, 0, 20, 0);
-					TextView tvFilePath = new TextView(this);
-					tvFilePath.setLayoutParams(tvFilePathParams);
-					tvFilePath.setTextSize(15);
-					tvFilePath.setText("Choose file...");
+					else {
+						ivIcon.setImageResource(R.drawable.ic_file_alt);
+						tvFileName.setText("Choose file...");
+					}
 					
 					LinearLayout.LayoutParams btnBrowseParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, 120);
 					Button btnBrowse = new Button(this);
@@ -527,7 +568,7 @@ public class Editor extends AppCompatActivity
 						});
 					
 					layoutFile.addView(ivIcon);
-					layoutFile.addView(tvFilePath);
+					layoutFile.addView(tvFileName);
 					layoutFile.addView(btnBrowse);
 					layoutFile.setBaselineAlignedChildIndex(2);
 					layoutTop.addView(layoutFile);
