@@ -179,16 +179,11 @@ public class Editor extends AppCompatActivity
 									stt.error("Need storage permission to save file.");
 									return;
 								}
-								fm.setWorkingDir(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Wallet/user_files");
+								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_files");
 								Map<String, Object> fileInfo = fm.saveFromUri(uri);
-								for (int i = 1; i <= layoutTop.getRowCount(); i++) {
-									if (colTypes[i] == DataType.FILE) {
-										LinearLayout layoutFile = fileRows[i];
-										TextView tvFileName = (TextView) layoutFile.getChildAt(1);
-										tvFileName.setText((String) fileInfo.get("name"));
-										break;
-									}
-								}
+								LinearLayout layoutFile = fileRows[pickedRow];
+								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
+								tvFileName.setText((String) fileInfo.get("name"));
 							}
 						});
 					fm.requestStoragePermission();
@@ -211,16 +206,11 @@ public class Editor extends AppCompatActivity
 									stt.error("Need storage permission to save file.");
 									return;
 								}
-								fm.setWorkingDir(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Wallet/user_images");
+								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_images");
 								Map<String, Object> fileInfo = fm.saveImageFromUri(uri);
-								for (int i = 1; i <= layoutTop.getRowCount(); i++) {
-									if (colTypes[i] == DataType.FILE) {
-										LinearLayout layoutFile = fileRows[i];
-										TextView tvFileName = (TextView) layoutFile.getChildAt(1);
-										tvFileName.setText((String) fileInfo.get("name"));
-										break;
-									}
-								}
+								LinearLayout layoutFile = fileRows[pickedRow];
+								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
+								tvFileName.setText((String) fileInfo.get("name"));
 							}
 						});
 					fm.requestStoragePermission();
@@ -530,6 +520,7 @@ public class Editor extends AppCompatActivity
 							@Override
 							public void onClick(View v)
 							{
+								pickedRow = row;
 								fileRows[row] = (LinearLayout) v.getParent();
 								fm.openFilePicker(FileManager.PICK_FILE);
 							}
