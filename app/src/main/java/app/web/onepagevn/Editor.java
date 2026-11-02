@@ -73,7 +73,7 @@ public class Editor extends AppCompatActivity
 	private Long[][] pickedRows = new Long[20][2];
 	private Integer[][][] catalogRowIDs = new Integer[20][2][];
 	private String[][][] catalogRowNames = new String[20][2][];
-	private LinearLayout[] fileRows = new LinearLayout[20];
+	private String[] fileRows = new String[20];
 	private SimpleDateFormat df, dff, tf, tff, ff, flocal;
 	private NumberFormat numFormatter;
 	private Map<String, Integer> indexViews = new HashMap<>();
@@ -182,11 +182,27 @@ public class Editor extends AppCompatActivity
 									stt.error("Need storage permission to save file.");
 									return;
 								}
+								View view = getViewByIndex(pickedRow);
+								if (view == null) return;
+								
 								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_files");
 								Map<String, Object> fileInfo = fm.saveFromUri(uri);
-								LinearLayout layoutFile = fileRows[pickedRow];
-								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
-								tvFileName.setText((String) fileInfo.get("name"));
+								LinearLayout layoutFile = (LinearLayout) view;
+								
+								String fileName = (String) fileInfo.get("name");
+								View vFileName = layoutFile.getChildAt(1);
+								if (vFileName != null && vFileName instanceof TextView) {
+									TextView tvFileName = (TextView) vFileName;
+									tvFileName.setText(fileName);
+								}
+								else if (vFileName != null && vFileName instanceof Spinner && "budgets_protected".equals(tblName) && "logo".equals(colNames[pickedRow].toLowerCase())) {
+									Spinner catalog = (Spinner) vFileName;
+									String[] items = {fileName, "TPBank", "Vietcombank", "Browse..."};
+									ArrayAdapter<String> adapter = new ArrayAdapter<String>(Editor.this, android.R.layout.simple_spinner_item, items);
+									adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+									catalog.setAdapter(adapter);
+								}
+								
 								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
 								String mime = (String) fileInfo.get("mime");
 								switch (mime) {
@@ -226,9 +242,12 @@ public class Editor extends AppCompatActivity
 									stt.error("Need storage permission to save file.");
 									return;
 								}
+								View view = getViewByIndex(pickedRow);
+								if (view == null) return;
+
 								fm.setWorkingDir(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Wallet/user_images");
 								Map<String, Object> fileInfo = fm.saveImageFromUri(uri);
-								LinearLayout layoutFile = fileRows[pickedRow];
+								LinearLayout layoutFile = (LinearLayout) view;
 								TextView tvFileName = (TextView) layoutFile.getChildAt(1);
 								tvFileName.setText((String) fileInfo.get("name"));
 								ImageView ivIcon = (ImageView) layoutFile.getChildAt(0);
@@ -549,28 +568,67 @@ public class Editor extends AppCompatActivity
 						ivIcon.setImageResource(R.drawable.ic_file_alt);
 						tvFileName.setText("Choose file...");
 					}
-					
-					LinearLayout.LayoutParams btnBrowseParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, 120);
-					Button btnBrowse = new Button(this);
-					btnBrowse.setLayoutParams(btnBrowseParams);
-					btnBrowse.setTextSize(12);
-					btnBrowse.setGravity(Gravity.CENTER);
-					btnBrowse.setText("Browse");
-					btnBrowse.setOnClickListener(new OnClickListener() {
-
-							@Override
-							public void onClick(View v)
-							{
-								pickedRow = row;
-								fileRows[row] = (LinearLayout) v.getParent();
-								fm.openFilePicker(FileManager.PICK_FILE);
-							}
-						});
-					
 					layoutFile.addView(ivIcon);
-					layoutFile.addView(tvFileName);
-					layoutFile.addView(btnBrowse);
-					layoutFile.setBaselineAlignedChildIndex(2);
+					
+					View browse;
+					if ("budgets_protected".equals(tblName) && "logo".equals(colNames[i].toLowerCase())) {
+						LinearLayout.LayoutParams catalogParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT,1f);
+						Spinner catalog = new Spinner(this);
+						catalog.setLayoutParams(catalogParams);
+						final String[] items = {"Choose logo", "TPBank", "Vietcombank", "Browse..."};
+						ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items);
+						adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						catalog.setAdapter(adapter);
+						catalog.setOnItemSelectedListener(new OnItemSelectedListener() {
+								boolean enable = false;
+								@Override
+								public void onItemSelected(AdapterView<?> parent, View v, int index, long id)
+								{
+									// fix for Spinner auto active listener on startup
+									if ("edit".equals(mode)) {
+										if (!enable) {
+											enable = true;
+											return;
+										}
+									}
+									
+									String item = items[index].toLowerCase();
+									if (index == items.length - 1) {
+										pickedRow = row;
+										fm.openFilePicker(FileManager.PICK_FILE);
+									}
+								}
+
+								@Override
+								public void onNothingSelected(AdapterView<?> adapter)
+								{
+
+								}
+							});
+						browse = catalog;
+					}
+					else {
+						LinearLayout.LayoutParams btnBrowseParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, 120);
+						Button btnBrowse = new Button(this);
+						btnBrowse.setLayoutParams(btnBrowseParams);
+						btnBrowse.setTextSize(12);
+						btnBrowse.setGravity(Gravity.CENTER);
+						btnBrowse.setText("Browse");
+						btnBrowse.setOnClickListener(new OnClickListener() {
+
+								@Override
+								public void onClick(View v)
+								{
+									pickedRow = row;
+									fm.openFilePicker(FileManager.PICK_FILE);
+								}
+							});
+						browse = btnBrowse;
+						layoutFile.addView(tvFileName);
+					}
+					
+					layoutFile.addView(browse);
+					layoutFile.setBaselineAlignedChildIndex(1);
 					layoutTop.addView(layoutFile);
 					continue;
 			}
